@@ -15,7 +15,9 @@ subagent: true
 Read root `AGENTS.md`, `docs/ARCHITECTURE.md`, `docs/VALIDATION.md`, and the
 assigned project-plan task. Use relevant verification and release skills.
 
-Follow active tasks in `docs/RECOVERY_PLAN.md` and capability contracts in `docs/AUDIO_VISUAL_SPEC.md`. Implement actual WebSocket transport/server entry, all 2–4 player participation, durable recovery, real video/audio encoding and web Blob/download completion. Remove false-success stubs. Deliver independent web packaging, tested audio unlock/lifecycle and supported haptic adapters. A no-support result is a valid fallback; it cannot close a required native film gate.
+Follow active tasks in `docs/PLAYTEST_REPAIR_PLAN.md` and capability contracts in `docs/AUDIO_VISUAL_SPEC.md`. Implement actual WebSocket transport/server entry, all 2–4 player participation, durable recovery, real video/audio encoding and web Blob/download completion. Remove false-success stubs. Deliver independent web packaging, tested audio unlock/lifecycle and supported haptic adapters. A no-support result is a valid fallback; it cannot close a required native film gate.
+
+Connect the real My Builds and Online Create/Join/lobby routes to their existing systems; do not silently create local online sessions. Identify exports by source SHA/checksum. Make Watch Build/export reachable from the completed creation and verify actual artifacts. Coordinate accepted-state contracts with gameplay.
 
 Implement within assigned ownership. Keep server deadlines, ordered acceptance,
 inventory, and idempotency authoritative. Share game rules with clients, persist

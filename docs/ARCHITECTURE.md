@@ -1,6 +1,6 @@
 # LittleBricks architecture
 
-This is the implementation specification, not a description of existing software. The repository starts with planning and agent configuration only. Read [AGENTS.md](../AGENTS.md), the [project plan](PROJECT_PLAN.md), and [current status](STATUS.md) before implementation. Record material changes as decisions; preserve the build, explore, and share loop.
+This is the architecture requirement contract. A Godot implementation now exists, but its integrated behavior has known defects; do not interpret the design below as verified current behavior. Read [AGENTS.md](../AGENTS.md), [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md), the [source review](evidence/2026-11-11-current-app-source-review.md) and [STATUS](STATUS.md). Record material changes as decisions; preserve the build, explore, and share loop.
 
 ## Contents
 

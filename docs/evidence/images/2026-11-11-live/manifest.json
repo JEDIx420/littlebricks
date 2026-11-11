@@ -1,0 +1,86 @@
+{
+  "source": "Unmodified viewport screenshots captured from the user-authorized LittleBricks localhost tab on 2026-11-11",
+  "format": "JPEG",
+  "files": [
+    {
+      "file": "welcome.jpg",
+      "bytes": 22268,
+      "sha256": "e7e406dbc4064eb063c312bc0d8a008309e95ec648eb788e7593fa598cbf31ff"
+    },
+    {
+      "file": "mode-selection.jpg",
+      "bytes": 33643,
+      "sha256": "b356b58587c3f44652e50246adbe5813ffdbb2e9ae27db3624bfa62d15fd0c63"
+    },
+    {
+      "file": "pointer-before-placement.jpg",
+      "bytes": 117163,
+      "sha256": "12e9e72c4cab9c6ffde7d8e401e421e3ca7ca96317cdfe22f6aecfc6c56b9911"
+    },
+    {
+      "file": "pointer-after-placement.jpg",
+      "bytes": 116728,
+      "sha256": "d16ce88ec46998139d878dd7e7c74df4297e7d7b187b15a88faa3b37cf7fe995"
+    },
+    {
+      "file": "catalogue-before-scroll.jpg",
+      "bytes": 135041,
+      "sha256": "b73e6b48708ce0a5192fbf096d3e2256a8aa484ca8c939c70fca569c75a3b9bd"
+    },
+    {
+      "file": "catalogue-after-scroll.jpg",
+      "bytes": 120467,
+      "sha256": "6ee450663178e8b414c665c3bf1964715f0683840be3214eec083dce9a64ddd5"
+    },
+    {
+      "file": "before-explore-color.jpg",
+      "bytes": 117100,
+      "sha256": "dfe3d44f4ecd3e2df91efeb991a2e0212e61e23c1651e61de31c29c10af42258"
+    },
+    {
+      "file": "explorer-third-person.jpg",
+      "bytes": 60910,
+      "sha256": "76b515b6f98de4e3190b58e140f3f8054cfc69e1143be3ce2a4bb5afd7d54067"
+    },
+    {
+      "file": "explorer-first-person.jpg",
+      "bytes": 28380,
+      "sha256": "99fd5ef9a5990889da0f661be602791ed4bdc2cf657bb75d019f6571d4bfa7b5"
+    },
+    {
+      "file": "after-return-color.jpg",
+      "bytes": 116826,
+      "sha256": "d352102f1f0cd90c7b371466347ef8cec36e2b6675171681337ebdba3585e5cf"
+    },
+    {
+      "file": "phone-table.jpg",
+      "bytes": 32745,
+      "sha256": "da8c05c337b611e7aa8153055046c2f3bced4e89b65125886572c3558a4a89c5"
+    },
+    {
+      "file": "phone-welcome.jpg",
+      "bytes": 4773,
+      "sha256": "7b175b39b397ce9b412bbe2141a85bd503766dd3f22a31daf6a1c79245d3055d"
+    },
+    {
+      "file": "outside-hand-selected.jpg",
+      "bytes": 114653,
+      "sha256": "35157ef59fd8fb8d50136b932428b3e933b0fc866052e9b781c8c1fc04e0eb51"
+    },
+    {
+      "file": "outside-hand-accepted.jpg",
+      "bytes": 114613,
+      "sha256": "f3ed9990818f627c5a43f0c456706b22b2eeb05afc5a4f498cca64eabade6a4c"
+    },
+    {
+      "file": "welcome-muted.jpg",
+      "bytes": 22122,
+      "sha256": "437db7764b39f814a85e12afed2fd08d17b3017d54944fd4b95447ee00d4e2ce"
+    },
+    {
+      "file": "welcome-after-reload.jpg",
+      "bytes": 22030,
+      "sha256": "cdbf0f79a00a8e4937e1adc01c4802408f2fb81344a7c669d41f1212f2eab28c"
+    }
+  ]
+}

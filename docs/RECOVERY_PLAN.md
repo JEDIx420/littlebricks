@@ -1,16 +1,18 @@
 # LittleBricks implementation recovery and experience plan
 
+> **Superseded dispatch order:** This document records the LB-033–LB-056 requirements against the earlier `9eaeda8` baseline. The subsequent implementation and actual browser review are covered by [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md), now the active LB-057–LB-067 sequence. Use [STATUS](STATUS.md) for current states. The requirements below remain binding where unmet; the historical references to “active” and initial task states describe the earlier campaign, not current completion.
+
 Updated: **2026-11-11**. Reviewed implementation baseline: **`9eaeda86ed867a002aa034b12e66d211f8c26432`**.
 
 ## Mission and authority
 
 Deliver the actual LittleBricks experience: an inviting arrival, clear mode selection, satisfying shared brick building, miniature exploration, and a real construction film people can keep. Support browser play alongside native targets. Preserve offline solo, local pass-and-play, private online rooms, original characters, and the Android release goal.
 
-This is the **active implementation sequence**, supplementing the original [PROJECT_PLAN](PROJECT_PLAN.md). Original task IDs and M0–M7 acceptance requirements remain binding; their completion claims are under review. The recovery tasks below repair missing behavior and add the requested experience detail. They do not replace the original requirements with a smaller demo.
+This was the **earlier LB-033–LB-056 implementation sequence**, supplementing the original [PROJECT_PLAN](PROJECT_PLAN.md). Original task IDs and M0–M7 acceptance requirements remain binding; their completion claims are under review. The recovery tasks below repair missing behavior and add the requested experience detail. They do not replace the original requirements with a smaller demo.
 
-Read [AGENTS.md](../AGENTS.md), [STATUS](STATUS.md), this plan, [PLACEMENT_AND_CATALOG](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC](AUDIO_VISUAL_SPEC.md), [GAME_DESIGN](GAME_DESIGN.md), [ARCHITECTURE](ARCHITECTURE.md), and [VALIDATION](VALIDATION.md). STATUS owns task states, assignments and checkpoints; this document owns the next work and its acceptance criteria. Keep one backlog and one coordinator.
+Read [AGENTS.md](../AGENTS.md), [STATUS](STATUS.md), this plan, [PLACEMENT_AND_CATALOG](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC](AUDIO_VISUAL_SPEC.md), [GAME_DESIGN](GAME_DESIGN.md), [ARCHITECTURE](ARCHITECTURE.md), and [VALIDATION](VALIDATION.md). STATUS owns current task states, assignments and checkpoints; PLAYTEST_REPAIR_PLAN owns current dispatch. This document retains earlier acceptance criteria. Keep one backlog and one coordinator.
 
-**All LB-033–LB-056 tasks start as `planned`.** Preparing these instructions does not implement or verify them. The current request is documentation and agent preparation; begin game implementation when the user starts that campaign.
+**Historical starting state:** LB-033–LB-056 began as planned. Later implementation claims have since been reviewed; consult STATUS for reopened requirements and PLAYTEST_REPAIR_PLAN for the next work.
 
 ## Why the previous completion claim is rejected
 
@@ -41,7 +43,7 @@ The coordinator selects names that fit the current code and records the contract
 
 Serialize `project.godot`, event/save/protocol schemas, export presets, dependency versions, the catalogue manifest, and STATUS. Assign disjoint files or worktrees for other changes. Workers return their diff, commands, evidence and limitations; only the coordinator integrates and pushes the combined branch.
 
-## Active recovery backlog
+## Earlier recovery requirements
 
 Dependencies mean prerequisite integrated behavior, not a requirement to idle while hardware evidence is blocked. Implement independent work and keep unmet gates visible. Partial progress never makes an entire task `done`.
 
@@ -253,7 +255,7 @@ Follow PLACEMENT_AND_CATALOG's staged goal: audit the existing entries, reach 80
 
 ## Dispatch order and continuation
 
-Start LB-033, then prioritize LB-054's lattice/pivot contract and LB-053/LB-055 surface/camera fixes. Agree LB-034 application contracts in parallel where ownership permits. Gameplay must not close LB-036 until those immediate placement gates pass. Worlds can prepare LB-039 audio and visual direction; platform can investigate encoders and independent web tooling without changing shared startup files. Catalogue expansion LB-056 follows working placement rather than preceding it. After the first local/browser journey passes, expand the connected experience with feedback, presentation, real networking and real films. Do not postpone all polish to the end, and do not let a polished menu hide missing game flow.
+Historical dispatch for the earlier campaign: start LB-033, then prioritize LB-054's lattice/pivot contract and LB-053/LB-055 surface/camera fixes. Agree LB-034 application contracts in parallel where ownership permits. Gameplay must not close LB-036 until those immediate placement gates pass. Worlds can prepare LB-039 audio and visual direction; platform can investigate encoders and independent web tooling without changing shared startup files. Catalogue expansion LB-056 follows working placement rather than preceding it. After the first local/browser journey passes, expand the connected experience with feedback, presentation, real networking and real films. Do not postpone all polish to the end, and do not let a polished menu hide missing game flow.
 
 Use `littlebricks-build` as coordinator, `littlebricks-assets` for content, `littlebricks-verify` for independent checks, and `littlebricks-release` for packaging. Discover relevant installed skills/plugins; read them and use actual supported tools. Prefer one available native orchestrator, then ordinary specialists, then sequential work with a separate review pass. Missing optional plugins are not implementation blockers. With limited agent slots, rotate the verifier rather than omit verification.
 

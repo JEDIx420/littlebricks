@@ -1,5 +1,19 @@
 # Validation and release evidence
 
+## Current playtest repair gates
+
+[PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) is the active LB-057–LB-067 sequence. Its Gate A and PT-01–PT-11 supplement the original requirements and PC-01–PC-10 below. Read the [live playtest](evidence/2026-11-11-live-browser-playtest.md), [source review](evidence/2026-11-11-current-app-source-review.md) and [family experience rubric](FAMILY_PLAY_EXPERIENCE.md) before approving another build.
+
+- Identify the tested source SHA and actual export; a developer machine's HEAD does not establish which pack localhost serves.
+- Navigate through AppRoot and send real viewport/browser events. Direct handler calls, assigned grid coordinates and launch screenshots cannot prove pointer movement or UI event isolation.
+- Start camera/UI isolation with a valid empty candidate, then demonstrate zero unintended accepted events or turn changes. Test catalogue scroll, sliders, misses, cancellation, focus changes and resize.
+- Enforce mode/hand acceptance and exact part/color/transform/session preservation across gallery, explore, resume, network and replay.
+- Measure both width **and** height of visible touch targets after viewport scaling. A logical Control size, or `width >= threshold OR height >= threshold`, cannot establish usable phone controls.
+- Count real supported geometry/connectors with rendered contact sheets and meaningful attachment tests. Metadata presence and renamed identical boxes do not establish distinct specialty shapes.
+- Record actual listening separately from source/metadata checks; physical haptics separately from emulation; actual child/parent feedback separately from expert assessment. Unsupported evidence stays NOT RUN/BLOCKED.
+- Approve visual quality in the actual routed build using the family brief, and film output only after an independently decoded player-triggered file. Component success is useful but has a narrower meaning.
+
+
 This document defines required evidence; it reports no completed game tests. Follow [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [STATUS.md](STATUS.md). A planned command, screenshot, or successful import is not proof of a playable release.
 
 ## Evidence rules

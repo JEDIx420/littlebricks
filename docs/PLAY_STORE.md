@@ -1,5 +1,7 @@
 # Google Play Store Declarations & Compliance Guide (LB-030)
 
+> **Draft store material — not verified policy/compliance evidence.** Current release acceptance is open in [STATUS](STATUS.md). Before using this listing, LB-067 must reconcile the actual intended audience, implemented online data/storage behavior, native artifacts and then-current platform requirements. Claims below such as strictly local data or policy compliance cannot be accepted from this template alone.
+
 This document provides official metadata, safety declarations, content ratings, and user-generated content (UGC) compliance procedures for releasing LittleBricks on the Google Play Store.
 
 ---

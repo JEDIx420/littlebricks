@@ -9,7 +9,7 @@ description: Implement or resume the complete LittleBricks game through its plan
 
 Read [AGENTS.md](../../../AGENTS.md), [STATUS](../../../docs/STATUS.md), [PROJECT_PLAN](../../../docs/PROJECT_PLAN.md), [GAME_DESIGN](../../../docs/GAME_DESIGN.md), and [ARCHITECTURE](../../../docs/ARCHITECTURE.md). Respect the current user request: an initialization/review-only request does not start game implementation. A full-game request covers all M0-M7 deliverables, including exploration and real video sharing.
 
-For the current campaign, load [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md) before choosing tasks, then [PLACEMENT_AND_CATALOG](../../../docs/PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN](../../../docs/EXPERIENCE_DESIGN.md) and [AUDIO_VISUAL_SPEC](../../../docs/AUDIO_VISUAL_SPEC.md). The old complete-release claim is superseded. Start LB-033; prioritize LB-054 → LB-053/LB-055 before closing LB-036. Use the explicit dependency graph and dispatch order, not numerical order. Complete LB-033–LB-056 and the original M0–M7 acceptance scope.
+For the current campaign, load [PLAYTEST_REPAIR_PLAN](../../../docs/PLAYTEST_REPAIR_PLAN.md), its live/source reviews and [FAMILY_PLAY_EXPERIENCE](../../../docs/FAMILY_PLAY_EXPERIENCE.md) before choosing tasks. The RC2/all-complete claim is superseded. Start LB-057 → LB-058 → LB-059 and prove real pointer placement through AppRoot before accepting playability. Follow the active LB-057–LB-067 sequence; retain unmet [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md), original M0–M7, placement and audio-visual requirements. Do not begin runtime implementation for a review/documentation-only request.
 
 Inspect the working tree, current branch, recent commits and executable state. Confirm claims against files and evidence before selecting work. Preserve unrelated changes. Do not rewrite an approved plan merely to avoid implementation.
 
@@ -23,7 +23,7 @@ Delegate independent work to the shipped gameplay, worlds, platform and verifier
 
 ## Select and dispatch work
 
-1. Find the highest-priority ready incomplete task in STATUS and RECOVERY_PLAN's dependency graph. Some urgent repairs have higher IDs than the tasks that depend on them.
+1. Find the highest-priority ready incomplete task in STATUS and PLAYTEST_REPAIR_PLAN's dependency graph. Use one active dispatch loop; older task IDs retain requirement traceability.
 2. If a dependency is externally blocked, identify work that can safely proceed without pretending the dependency passed. Separate implementation from unmet evidence.
 3. Record the task owner, branch/worktree or exact paths, inputs, interfaces, checks and next action.
 4. Give each worker a self-contained brief with task ID, product outcome, owned files, shared contracts, acceptance tests and required evidence.
@@ -32,6 +32,8 @@ Delegate independent work to the shipped gameplay, worlds, platform and verifier
 Prefer complete playable slices. Keep the asset set small while proving placement, walking and export. Use the asset skill when sourcing or converting content. Create actual run/test/export commands during M0 and document them only after they run.
 
 Prove PC-01–PC-10 with a small fixture before expanding the catalogue, then deliver the staged 120 verified-shape goal. Integrate the actual first screens, session/turns, saves, finish/explore and film actions; detached scenes and in-process model tests do not establish player journeys. Prepare music assets in parallel and integrate sound/haptics/lighting early enough for real playtesting. Preserve a working silent/reduced-motion path.
+
+Also prove PT-01–PT-11 in the actual export. Direct handler calls do not test GUI/world routing. Count genuine supported geometry rather than renamed collision boxes; carry accepted IDs/colors/transforms through every view. Require actual listening for music quality and independent inspection of the running family experience, not only default-control screenshots or generated asset counts.
 
 ## Implement, verify, repair, integrate
 

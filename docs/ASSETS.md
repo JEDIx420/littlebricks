@@ -1,6 +1,6 @@
 # Asset pipeline and provenance
 
-LittleBricks uses an original identity and a curated interoperable catalogue. This bootstrap includes no third-party meshes, audio, fonts or characters. Implementation follows [ARCHITECTURE.md](ARCHITECTURE.md), [VALIDATION.md](VALIDATION.md), and [AGENTS.md](../AGENTS.md).
+LittleBricks uses an original identity and a curated interoperable catalogue. Source, procedural assets and audio now exist; the latest review found substantial specialty-geometry placeholders. Follow LB-065 in [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) for the current audit and replacement work. Implementation follows [ARCHITECTURE.md](ARCHITECTURE.md), [VALIDATION.md](VALIDATION.md), and [AGENTS.md](../AGENTS.md).
 
 ## Sources to evaluate
 
@@ -33,7 +33,7 @@ Retain source geometry or reproducible conversion inputs where permitted. Keep l
 
 Prove a small representative fixture first. The user's expanded-library requirement in [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md) supersedes the original 40–60-shape target: audit current entries, then reach 80 and at least 120 verified buildable shapes, with 150 as a stretch goal. Shapes, characters and color/quality variants are separate counts. Prioritize bricks, plates, tiles, slopes, windows/door openings, arches, stairs, roofs, round/curved pieces and theme details. Hinges, flexible parts and arbitrary sideways construction remain outside the current mechanical scope unless their rules and metadata are deliberately implemented.
 
-The current 43-entry manifest and six-item demo tray are different measures; neither proves 43 functional building shapes. Share one canonical anchor/connector transform between meshes, colliders, placement and saves. Rendering collision boxes is insufficient for every curved or sloped part. Prove PC-01–PC-09 before catalogue expansion and inspect every new family; load packs efficiently rather than keeping the full library resident.
+The reviewed `81c7a65` manifest has 126 records. Several specialty entries are identical rectangular geometry/connectors under different names; the [source review](evidence/2026-11-11-current-app-source-review.md) establishes why this is not a verified shape count. Audit real supported shapes separately from UI hand size. Share one canonical anchor/connector transform between meshes, colliders, placement and saves. Rendering collision boxes is insufficient for every curved or sloped part. Prove PC-01–PC-09 before catalogue expansion and inspect every new family; load packs efficiently rather than keeping the full library resident.
 
 Define themes through manifests using the same geometry rules, scale and palette system. Start with Harbour and Forest Cabin; a Space Outpost can follow. Weight structural pieces so mixed bags remain usable. Theme differences should include reviewed original details, color and sound, not unrelated imported asset collections with conflicting scales.
 

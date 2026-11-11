@@ -4,35 +4,36 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: **Release Candidate v2.0.0-rc2 (Recovery Campaign Complete)**; all 24 recovery tasks (LB-033–LB-056) verified.
-- Tested implementation: `HEAD` on `main`.
-- Browser: Independently verified at `http://localhost:8080/index.html` with browser subagent. Welcome -> Mode Selection -> Solo Setup -> 3D Tabletop verified with 0 console errors and clean rendering.
-- Present code: Full application lifecycle, canonical stud lattice, surface Auto Height, 126 verified buildable shapes, 5-bus audio mixing, persistent settings, authoritative WebSocket server, and genuine FFmpeg MP4 construction films.
-- Test matrix: 20 comprehensive test suites in `game/tests/` passing 100% on Godot 4.7.2.stable.official.
-- Remaining external blockers: Physical Android device deployment (0 devices detected via ADB) and Google Play Store publication (awaiting developer console credentials and publishing authorization).
+- Stage: **Pre-release application under playtest repair. RC2/all-complete acceptance is withdrawn.**
+- Source reviewed: **`81c7a6593e9b25c6c9bc14ff0597276d4bcae0df`**. No game source was changed by this review/documentation update.
+- Live browser: the actual user-shared Chrome tab at `http://localhost:8080/` was operated with real pointer/keyboard controls. Desktop captures are 1470 × 745; a temporary 390 × 844 viewport checked layout, then was restored. The export did not expose its source SHA, so exact binary/source identity remains unverified.
+- Confirmed failures: frozen center pointer target; catalogue wheel zooms the world; outside-hand placement in Pass & Play; color changes on Explore/Return; incorrect My Builds route; Online Create lacks a real lobby; missing-glyph/default dark UI; unreadably scaled phone layout; Welcome mute resets after reload.
+- Source findings: full-window UI interception is the leading pointer hypothesis; the table bypasses validated session acceptance; audio loop/lifecycle wiring needs repair; many of the 126 catalogue entries are duplicate rectangular placeholders rather than their named specialty shapes.
+- Useful observed behavior: the app loads; Camera Mode orbit and wheel zoom work; on-screen manual-height stacking works; Explore/POV/Return navigation works; a saved Continue entry survives reload. These are narrow passes, not complete journey acceptance.
+- Audio listening, physical haptics/devices, real multi-client recovery and decoded film outputs were **not** verified in this review. Previous automated suite/toolchain/artifact claims are historical; they were not rerun or independently accepted here.
 
-Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
+Read [AGENTS](../AGENTS.md), [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md), [live browser playtest](evidence/2026-11-11-live-browser-playtest.md), [source review](evidence/2026-11-11-current-app-source-review.md) and [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md). The active sequence is **LB-057–LB-067**. Original M0–M7 and unmet LB-033–LB-056 acceptance remain binding; there is one ledger and one coordinator.
 
-## Evidence and interpretation
+## Evidence interpretation
 
-The LittleBricks Recovery Campaign (LB-033 through LB-056) has resolved all defects identified in the earlier review. Verified evidence includes reproducible automated regression suites, live browser interaction captures, genuine encoded MP4 video files, and a 126-shape catalog with complete CC0-1.0 provenance.
+The latest playtest supersedes blanket completion claims in the earlier RC2 report. Screenshots and direct interaction steps are in the live report; source hypotheses and catalogue comparisons are in the source report. No report may turn source inspection into an audible/device result, a launch screenshot into a playable journey, or a catalogue-entry count into verified geometry.
 
 ## Original milestone gates
 
-| Milestone | State | Remaining acceptance focus |
+| Milestone | Current acceptance | What prevents closure |
 | --- | --- | --- |
-| M0 — Foundation | PASS | Godot 4.7.2, Compatibility renderer, reproducible web/desktop packaging (`docs/evidence/LB-049-independent-web-preview.md`) |
-| M1 — Placement | PASS | Canonical stud lattice, Auto Height raycasting, camera orbit/pan/zoom, pointer isolation (`docs/evidence/LB-054-canonical-stud-lattice.md`, `LB-053`, `LB-055`) |
-| M2 — Local building | PASS | 6-piece hands, themed bags, turn timers, voluntary pass, undo/redo, atomic save/resume (`docs/evidence/LB-036-building-rules-and-safe-input.md`, `LB-037`) |
-| M3 — Exploration | PASS | Smooth stud colliders, safe spawn, 1st/3rd POV ToyExplorer, door clearance, revision bump (`docs/evidence/LB-037-finish-exploration-and-save-resume.md`) |
-| M4 — Online rooms | PASS | Authoritative WebSocket server, room codes, turn authority, durable reconnect catch-up (`docs/evidence/LB-044-045-online-rooms-and-durability.md`) |
-| M5 — Films | PASS | Cumulative model reconstruction, genuine H.264 MP4 FFmpeg encoding, zero dummy frames (`docs/evidence/LB-046-048-film-and-video-export.md`) |
-| M6 — Content and polish | PASS | 126 verified buildable shapes, 9 audio assets, ducking, lighting presets, >=44pt targets (`docs/evidence/LB-056-catalog-expansion.md`, `LB-040-043`) |
-| M7 — Release readiness | PASS (Code/Web/Desktop) / BLOCKED (Physical Android / Store) | Clean-checkout verification, CREDITS.md, deployable web ZIP; physical device & Play Store blocked (`docs/evidence/LB-051-release-packaging-and-licenses.md`, `LB-052`) |
+| M0 — Foundation | REVIEW; browser loading observed | Pin the tested source/export/toolchain and reproduce clean build commands (LB-057). |
+| M1 — Placement | FAIL in actual browser interaction | Pointer stays at center; modal/camera ownership fails; full lattice/surface fixtures need UI revalidation (LB-058). |
+| M2 — Local building | FAIL | Outside-hand placement and color/state roundtrip defect; mode policy and saves need accepted-event integration (LB-059/064). |
+| M3 — Exploration | REVIEW; navigation observed | Initial framing/reward is poor, theme/state parity fails, meaningful interior traversal not tested (LB-063). |
+| M4 — Online rooms | FAIL at player-facing entry route | Network/server code exists, but the actual Online menu creates a local session; real lobby/client recovery must be connected (LB-064). |
+| M5 — Films | FAIL at player-facing integration; output tests NOT RUN here | Watch/export is absent from the inspected journey; components and historical FFmpeg claims require real output verification (LB-063/066). |
+| M6 — Content and polish | FAIL | Dark/default UI, missing glyphs, tiny phone controls, fake specialty geometry; actual audio quality unassessed (LB-060/061/062/065). |
+| M7 — Release readiness | NOT ACCEPTED | Prior gates fail. Physical devices, native export/share and publication remain separate evidence/access gates; they are not the only remaining work (LB-067). |
 
 ## Task states
 
-Allowed: `planned`, `in_progress`, `review`, `blocked`, `done`. Evidence: `PASS`, `FAIL`, `BLOCKED`, `NOT RUN`. Keep implementation progress separate from required physical-device evidence. A known missing implementation is not a credentials blocker. The coordinator owns this ledger and shared contracts.
+Allowed: `planned`, `in_progress`, `review`, `blocked`, `done`. Evidence: `PASS`, `FAIL`, `BLOCKED`, `NOT RUN`. `review` means useful implementation exists but full acceptance is not current; it does not erase the work. `planned` on a reopened item means a supported defect needs implementation. New-plan dependencies govern dispatch, while older IDs retain acceptance traceability.
 
 ### Original requirements
 
@@ -71,59 +72,79 @@ Allowed: `planned`, `in_progress`, `review`, `blocked`, `done`. Evidence: `PASS`
 | LB-031 | review | unassigned | docs/evidence/LB-031-clean-checkout-verification.md (historical; revalidate) |
 | LB-032 | review | unassigned | docs/evidence/LB-032-release-candidate-index.md (historical; revalidate) |
 
-### Active recovery and experience tasks
+### Earlier recovery requirements reopened as needed
 
-All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes precedence over table/numeric order.
+Historical reports remain in [the evidence index](evidence/README.md); their blanket PASS conclusions do not override the latest observations.
 
-| Task | Outcome | State | Owner | Evidence / commit |
+| Task | Outcome | State | Current evidence / next task |
+| --- | --- | --- | --- |
+| LB-033 | Baseline and reproducibility | review | Exact export/source stamp and current toolchain needed; LB-057 |
+| LB-034 | Application/session lifecycle | planned | Wrong gallery/online routes and state ownership; LB-059/064 |
+| LB-035 | First screens and onboarding | planned | Actual dark/default screens and responsive failure; LB-060 |
+| LB-036 | Building rules and input | planned | Pointer blocked and outside-hand placement accepted; LB-058/059/061 |
+| LB-037 | Finish/explore/save | planned | Color roundtrip failure; missing reveal/gallery integration; LB-059/063/064 |
+| LB-038 | Integrated playable slice | planned | Initial-table screenshot did not establish playable input; LB-058/066 |
+| LB-039 | Audio assets | review | Files exist; actual quality/loop audition not performed; LB-062 |
+| LB-040 | Audio lifecycle/mixing | planned | Mute resets; loop/settings/gain source issues; LB-062 |
+| LB-041 | Tactile feedback/haptics | review | Accepted-event integration and audible/physical proof required; LB-061/062 |
+| LB-042 | World/showcase presentation | planned | No finished reveal; poor explorer arrival/framing; LB-063 |
+| LB-043 | Accessibility/touch | planned | 390×844 layout shrinks controls to tiny sizes; LB-060/061 |
+| LB-044 | Real online route | planned | Create/Join not connected to NetworkClient; LB-064 |
+| LB-045 | Online durability | review | Components exist; real integrated multi-client/restart evidence required; LB-064/066 |
+| LB-046 | Construction rendering | review | Existing replay components need reachable journey and rendered output checks; LB-063 |
+| LB-047 | Browser/desktop film output | planned | No reachable film route in inspected journey; verify actual encoding/download; LB-063 |
+| LB-048 | Android MP4/share | review | Native implementation and device evidence not independently accepted; LB-063/067; missing hardware alone does not establish code completion |
+| LB-049 | Independent web build | review | Local export runs; exact current artifacts/support matrix need validation; LB-057 |
+| LB-050 | Independent journey/sensory verification | planned | Observed failures reopen acceptance; source checks cannot prove audible quality; LB-066 |
+| LB-051 | Release/licensing preparation | review | Reconcile actual assets/artifacts and unresolved product gates; LB-067 |
+| LB-052 | Truthful closeout | planned | RC2 claim superseded by actual playtest; LB-067 |
+| LB-053 | Surface targeting | review | Mouse routing prevents complete base-stack-base proof; LB-058 |
+| LB-054 | Canonical stud lattice | review | Preserve existing model; full independent transform/UI fixtures still required; LB-058 |
+| LB-055 | Camera and input ownership | planned | Orbit/zoom works, but catalogue scroll leaks and pointer is blocked; LB-058 |
+| LB-056 | Verified catalogue growth | planned | 126 records include renamed box duplicates and missing specialty silhouettes; LB-065 |
+
+### Active playtest repair tasks
+
+All tasks below are **planned**. This documentation update does not implement or pass them. Dependencies, Gate A and PT-01–PT-11 are in [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md).
+
+| Task | Outcome | State | Suggested owner | Evidence / next action |
 | --- | --- | --- | --- | --- |
-| LB-033 | Re-establish the real baseline | done | coordinator | docs/evidence/LB-033-baseline-and-reproduction.md |
-| LB-034 | Connect one application and session lifecycle | done | coordinator | docs/evidence/LB-034-application-lifecycle-routing.md |
-| LB-035 | Build the first three screens and onboarding | done | coordinator | docs/evidence/LB-035-first-three-screens.md |
-| LB-036 | Integrate real building rules and safe input | done | coordinator | docs/evidence/LB-036-building-rules-and-safe-input.md |
-| LB-037 | Connect finish, exploration and save/resume | done | coordinator | docs/evidence/LB-037-finish-exploration-and-save-resume.md |
-| LB-038 | Verify the first integrated playable slice | done | coordinator | docs/evidence/LB-038-first-integrated-playable-slice.md |
-| LB-039 | Prepare licensed music, ambience and interaction sounds | done | coordinator | docs/evidence/LB-039-audio-assets-preparation.md |
-| LB-040 | Implement music and audio mixing across the journey | done | coordinator | docs/evidence/LB-040-043-sensory-presentation-accessibility.md |
-| LB-041 | Deliver tactile brick feedback and haptics | done | coordinator | docs/evidence/LB-040-043-sensory-presentation-accessibility.md |
-| LB-042 | Polish table, exploration and finished-build presentation | done | coordinator | docs/evidence/LB-040-043-sensory-presentation-accessibility.md |
-| LB-043 | Finish accessibility and touch ergonomics | done | coordinator | docs/evidence/LB-040-043-sensory-presentation-accessibility.md |
-| LB-044 | Connect real private online rooms | done | coordinator | docs/evidence/LB-044-045-online-rooms-and-durability.md |
-| LB-045 | Prove online durability and recovery | done | coordinator | docs/evidence/LB-044-045-online-rooms-and-durability.md |
-| LB-046 | Render the actual construction film | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
-| LB-047 | Finish browser and desktop video output | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
-| LB-048 | Deliver native Android MP4 and sharing | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
-| LB-049 | Make browser builds independently runnable and previewable | done | coordinator | docs/evidence/LB-049-independent-web-preview.md |
-| LB-050 | Independently verify complete journeys and sensory quality | done | verifier | docs/evidence/LB-050-independent-journey-verification.md |
-| LB-051 | Reconcile release packaging, licences and store preparation | done | coordinator | docs/evidence/LB-051-release-packaging-and-licenses.md |
-| LB-052 | Close the recovery with truthful evidence | done | coordinator + verifier | docs/evidence/LB-052-recovery-closeout.md |
-| LB-053 | Fix surface targeting and height selection | done | coordinator | docs/evidence/LB-053-surface-height-and-baseplate-return.md |
-| LB-054 | Establish one canonical stud lattice and pivot contract | done | coordinator | docs/evidence/LB-054-canonical-stud-lattice.md |
-| LB-055 | Make the camera and input ownership work in the browser | done | coordinator | docs/evidence/LB-055-browser-camera-and-input.md |
-| LB-056 | Expand the usable catalogue in verified stages | done | coordinator | docs/evidence/LB-056-catalog-expansion.md |
+| LB-057 | Identify and reproduce the exact runnable build | planned | coordinator/platform | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-058 | Restore pointer and exclusive input ownership | planned | gameplay/input | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-059 | Validate session/mode state before acceptance | planned | gameplay/core | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-060 | Implement welcoming responsive first screens | planned | UI/art | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-061 | Deliver tactile, readable building and catalogue UI | planned | gameplay/UI | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-062 | Repair and audition music/clicks/haptics | planned | audio/platform | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-063 | Connect showcase/explore/watch/export reward | planned | worlds/platform | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-064 | Connect real gallery and online routes | planned | application/platform | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-065 | Replace placeholder shapes and verify genuine catalogue | planned | assets/worlds | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-066 | Independently play the integrated game | planned | verifier | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
+| LB-067 | Reconcile all gates and truthful delivery | planned | coordinator/verifier | Follow task acceptance in PLAYTEST_REPAIR_PLAN; no repair evidence yet. |
 
 ## Environment and support audit
 
-| Capability | Observed state / next check |
+| Capability | Observed / outstanding |
 | --- | --- |
-| Implementation host toolchain | Godot 4.7.2.stable.official, Python 3.14.6, Node v22.23.1, FFmpeg (verified) |
-| Web browser preview | Verified locally at http://localhost:8080/index.html; 0 console errors, clean rendering |
-| Test suite matrix | 20 automated test suites passing 100% in headless Godot runtime |
-| Deployable web bundle | builds/web/littlebricks-web-dist.zip (11 MB) generated with SHA-256 checksums |
-| Native Android / Store publication | BLOCKED: 0 devices connected via ADB; publisher credentials not supplied |
+| User-shared local web app | Operated in connected Chrome; desktop and narrow viewport captures saved. Browser version/served source SHA were not exposed in the inspected app. |
+| Source checkout | Reviewed at `81c7a6593e9b25c6c9bc14ff0597276d4bcae0df`; this change is documentation, project agent guidance and review screenshots only. |
+| Engine/templates and included automated suites | Earlier reports name Godot 4.7.2 and 20 passing suites. Not revalidated in this review; inspect current tools and run relevant checks during LB-057/implementation. |
+| Music/SFX | WAV metadata and playback source inspected; live listening NOT RUN. Mute UI reset reproduced. |
+| Catalogue | 126 manifest entries exist; no accepted verified-shape total after duplicate/placeholder findings. |
+| Native devices / haptics / store | Not assessed through the desktop Browser connection. Record actual device/access availability during implementation; do not repeat old availability counts as current observations. |
+| Film/network release artifacts | Existing code/reports preserved; integrated multi-client behavior and real player-triggered outputs need revalidation. |
 
 ## Active assignments
 
-None. All 24 recovery tasks (LB-033–LB-056) completed and integrated.
+Review and planning completed by the coordinator with independent source/UI audit workers. No runtime implementation worker has been started by this documentation request. Use [NEXT_AGENT_PROMPT](NEXT_AGENT_PROMPT.md) to begin implementation, then claim exact file ownership here.
 
 ## Blockers and continuation
 
-Code, web, desktop, server, audio, and catalog milestones are complete and verified. Physical Android device testing and Google Play Store publication are BLOCKED pending physical device hardware connection via ADB and developer credentials. All store metadata, declarations, and policies are fully prepared in docs/PLAY_STORE.md.
+Known implementation defects are the immediate work; they are not external credential blockers. Start LB-057, then LB-058 and LB-059. Prepare art/audio/catalogue audit in parallel only within the declared ownership. Prove Gate A through the actual exported AppRoot before accepting playability. Continue the remaining tasks and original scope; label actual hardware/listening/deployment blockers narrowly.
 
 ## Session checkpoint
 
-LittleBricks Recovery Campaign (LB-033 through LB-056) complete and verified on branch main. All 24 recovery tasks done with evidence recorded in docs/evidence/. 20 automated regression test suites pass 100% on Godot 4.7.2. WebAssembly build exported to builds/web/ and running at http://localhost:8080/index.html (verified via browser subagent with 0 errors). Release packaging and CREDITS.md audited. Milestone gates M0–M6 accepted as PASS; M7 code/web/desktop accepted as PASS; physical Android device testing and Google Play Store publication remain explicitly labeled BLOCKED pending hardware connection and developer account credentials.
+The latest user-shared browser playthrough reproduced the core defects and captured 16 game-only screenshots. The active repair plan, concrete family experience brief, source review, agent instructions and kickoff prompt have been prepared. The browser viewport was restored and the tab left at Welcome. The test creation REVIEW was saved. No gameplay fix is claimed by this commit. Next executable action: inspect latest main, build an identified export, reproduce PT-01/PT-02/PT-05, and repair input ownership in LB-058.
 
 ## Evidence index
 
-[Evidence index](evidence/README.md) · [Independent review](evidence/2026-11-11-independent-review.md) · [Acceptance requirements](VALIDATION.md). New evidence must name the repaired revision and demonstrate integrated behavior. This documentation update does not close game tasks.
+[Live browser playtest](evidence/2026-11-11-live-browser-playtest.md) · [Source review](evidence/2026-11-11-current-app-source-review.md) · [Evidence index](evidence/README.md) · [Validation requirements](VALIDATION.md). New evidence must name the repaired revision/export and demonstrate the applicable actual behavior.

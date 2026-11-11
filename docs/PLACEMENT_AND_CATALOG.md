@@ -1,6 +1,8 @@
 # Placement, camera, and catalogue recovery
 
-This specification responds to the user's local-browser playtest on 2026-11-11 and code review of `9eaeda86ed867a002aa034b12e66d211f8c26432`. It is implementation work to perform, not a claim that the defects are repaired. Use the active tasks in [RECOVERY_PLAN.md](RECOVERY_PLAN.md), the gates in [VALIDATION.md](VALIDATION.md), and the player experience in [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md).
+> Current implementation work follows [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) and the concrete [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md) brief. The latest [live/source review](evidence/README.md) supersedes completion claims; this document remains a requirement contract, not proof of implementation.
+
+This specification originated with the user's earlier local-browser playtest and code review of `9eaeda86ed867a002aa034b12e66d211f8c26432`. It is a requirement contract, not a claim that defects are repaired. Use the current tasks and explicit placement-gesture contract in [PLAYTEST_REPAIR_PLAN.md](PLAYTEST_REPAIR_PLAN.md), the gates in [VALIDATION.md](VALIDATION.md), and the concrete [family experience brief](FAMILY_PLAY_EXPERIENCE.md). Preserve these canonical geometry/connector fixtures while correcting actual application input.
 
 ## Contents
 

@@ -2,7 +2,7 @@
 
 ## Current verification scope
 
-The commands below are existing implementation entry points, not proof of a verified release. The [independent review](evidence/2026-11-11-independent-review.md) found incomplete game integration and video/networking placeholders. Recheck the actual engine/templates in LB-033; LB-049 must provide web-only packaging independent of macOS templates. The user's local browser launch is partial evidence. Follow [STATUS](STATUS.md) and [RECOVERY_PLAN](RECOVERY_PLAN.md) before relying on old artifact/test claims.
+The commands below are existing implementation entry points, not proof of a verified release. Read the latest [live browser review](evidence/2026-11-11-live-browser-playtest.md), [source review](evidence/2026-11-11-current-app-source-review.md), [STATUS](STATUS.md) and [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md). LB-057 must identify the exact source/export and revalidate actual engine/templates. `tools/build_web.sh` now supplies a web-only entry point; its presence does not establish every supported target. Version and artifact claims below are inherited from the implementation report and are not revalidated by this documentation review. Do not infer signing, physical-device acceptance or release readiness from an export preset.
 
 This document provides instructions for compiling, packaging, and signing LittleBricks across macOS, Web (HTML5/WASM), Linux/Server, and Android platforms.
 
@@ -10,7 +10,7 @@ This document provides instructions for compiling, packaging, and signing Little
 
 ## 1. Prerequisites & Toolchain
 
-| Component | Pinned Version | Purpose |
+| Component | Previously reported version — revalidate in LB-057 | Purpose |
 | --- | --- | --- |
 | **Godot Engine** | `4.7.2.stable.official.ed1daf0bf` | Game engine, scene renderer, exporter |
 | **Export Templates** | `4.7.2.stable` | Platform binaries for macOS, Web, and Android |

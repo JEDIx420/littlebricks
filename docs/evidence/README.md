@@ -1,8 +1,16 @@
 # Verification Evidence Index
 
-This directory retains historical implementation reports for LB-001–LB-032 and current review evidence. **The old all-complete conclusions are superseded.** Report titles and PASS labels below describe the earlier agent's claims, not independent acceptance of complete gameplay, networking, video or physical-device performance.
+This directory preserves historical implementation reports for LB-001–LB-056 and the latest independent review. **The RC2/all-complete conclusions are superseded.** Earlier report titles, counts and PASS labels describe the implementation agent's claims; they are not current acceptance where the live/source review contradicts them.
 
-Read [2026-11-11 independent review and user browser observations](2026-11-11-independent-review.md), [current STATUS](../STATUS.md) and [RECOVERY_PLAN](../RECOVERY_PLAN.md) first. New reports must identify the repaired revision, exact environment, actual UI/output/client interactions, expected and observed result, and artifact locations. Use PASS/FAIL/BLOCKED/NOT RUN per [VALIDATION](../VALIDATION.md). Preserve historical files and correct them by explicit superseding evidence; never treat file count as completion.
+Read [STATUS](../STATUS.md), [PLAYTEST_REPAIR_PLAN](../PLAYTEST_REPAIR_PLAN.md) and the current evidence below first. New reports must name the repaired source/export, actual environment/input, steps, expected/observed result and artifact. Use PASS/FAIL/BLOCKED/NOT RUN per [VALIDATION](../VALIDATION.md). Preserve historical files; do not use report count as proof of completion.
+
+## Current review — 2026-11-11
+
+- [Live browser playtest](2026-11-11-live-browser-playtest.md): actual user-shared localhost navigation, mouse/camera/catalogue, Solo/Pass & Play, exploration, state and responsive checks; audio-listening limit stated.
+- [Current application source review](2026-11-11-current-app-source-review.md): source baseline `81c7a6593e9b25c6c9bc14ff0597276d4bcae0df`, input/session/routes, catalogue placeholder findings and evidence weaknesses.
+- [16 game-only screenshots and checksums](images/2026-11-11-live/manifest.json): unmodified viewport JPEGs linked in the live report.
+- [Historical RC2 report](2026-11-11-rc2-historical-report.md): preserved prior release assertions and claimed artifacts; explicitly superseded.
+- [Earlier independent review](2026-11-11-independent-review.md): older `9eaeda8` source audit and user-supplied observations, not current-build screenshots.
 
 ## Evidence Reports Index
 
@@ -54,7 +62,7 @@ Read [2026-11-11 independent review and user browser observations](2026-11-11-in
 - [LB-031: Clean-Checkout & Contributor Verification](LB-031-clean-checkout-verification.md) — 12-suite automated verification runner, environment discovery.
 - [LB-032: Release Candidate Index & Final Checkpoint](LB-032-release-candidate-index.md) — Release notes, complete user instructions, reviewable release candidate.
 
-### Recovery Campaign: Player Experience & Systems Integration (LB-033–LB-056)
+### Historical recovery reports: Player Experience & Systems Integration (LB-033–LB-056)
 - [LB-033: Toolchain Audit & Baseline Reproduction](LB-033-baseline-and-reproduction.md) — Godot 4.7.2, Node, Python, and reproduction of reported browser placement bugs.
 - [LB-054: Canonical Stud Lattice & Pivot Contract](LB-054-canonical-stud-lattice.md) — Integer stud bounds [0..31], minimum corner anchor, PC-04/05/06 regression proofs.
 - [LB-053: Surface Height Raycasting & Baseplate Return](LB-053-surface-height-and-baseplate-return.md) — Auto Height, manual height override, return to baseplate.

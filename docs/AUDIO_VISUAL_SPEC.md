@@ -1,5 +1,7 @@
 # Audio, tactile feedback, and presentation
 
+> Current implementation work follows [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) and the concrete [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md) brief. The latest [live/source review](evidence/README.md) supersedes completion claims; this document remains a requirement contract, not proof of implementation.
+
 ## Scope and present implementation
 
 This is an implementation specification, not evidence of shipped polish. Read [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [GAME_DESIGN.md](GAME_DESIGN.md), [ASSETS.md](ASSETS.md), and [VALIDATION.md](VALIDATION.md). All numerical values below are starting proposals to audition and measure.

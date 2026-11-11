@@ -7,7 +7,9 @@ description: Prepare and validate LittleBricks bricks, theme packs, toy explorer
 
 Read [AGENTS.md](../../../AGENTS.md), [ASSETS](../../../docs/ASSETS.md), [ARCHITECTURE](../../../docs/ARCHITECTURE.md), and the assigned task. Confirm the coordinator's file ownership and active catalogue version.
 
-For this campaign, follow [PLACEMENT_AND_CATALOG](../../../docs/PLACEMENT_AND_CATALOG.md) and LB-056 in [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md): audit existing entries, then 80 and at least 120 verified buildable shapes, with 150 as a stretch target. Complete the canonical lattice and PC fixtures before expansion. Color variants, characters and unsupported records do not count. Render meshes must depict actual slopes/curves/openings rather than merely reusing collision boxes. Preserve the six-piece multiplayer hand while enabling a usable full solo catalogue.
+For this campaign, follow LB-065 in [PLAYTEST_REPAIR_PLAN](../../../docs/PLAYTEST_REPAIR_PLAN.md), [FAMILY_PLAY_EXPERIENCE](../../../docs/FAMILY_PLAY_EXPERIENCE.md) and [PLACEMENT_AND_CATALOG](../../../docs/PLACEMENT_AND_CATALOG.md). Audit the 126 records into verified, placeholder, duplicate/variant or unsupported; the current number is not an accepted shape count. Deliver the existing staged goal of at least 120 genuine buildable shapes. Color variants, characters, renamed identical geometry/connectors and unsupported records do not count. Preserve canonical lattice/PC fixtures, stable save IDs and six-piece shared hands.
+
+Separate visual meshes from simplified collision proxies. Render contact sheets and verify promised silhouettes, actual openings/curves/steps, connections, rotations and thumbnail/preview/placed/explore/replay parity. Include the reported fish/tile, cone/round/square brick and solid bridge-arch cases. A generator printing “verified” is not verification. Keep working older multi-box openings while replacing placeholders.
 
 ## Choose the smallest useful input
 

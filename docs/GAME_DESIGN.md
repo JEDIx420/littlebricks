@@ -8,7 +8,7 @@ LittleBricks is a cozy tabletop construction game for touch and desktop. Players
 
 This document specifies proposed defaults for implementation and testing. The user's defining requirements are one-brick turns, mixed bags, optional rotation and snapping, a shared tabletop/baseplate, group agreement to finish, explorer POV, construction films, solo play, open source, and Android release. Changes to numerical defaults are welcome when measured; dropping these requirements needs an explicit product decision.
 
-The 2026-11-11 refinement adds the detailed [opening screens and player journey](EXPERIENCE_DESIGN.md), [music, clicks, haptics and visual presentation](AUDIO_VISUAL_SPEC.md), and [placement/camera repairs plus a larger catalogue](PLACEMENT_AND_CATALOG.md). These specifications supersede earlier minimal presentation/catalogue defaults. They are requirements to implement and verify, not descriptions of finished features. Follow [RECOVERY_PLAN.md](RECOVERY_PLAN.md) for their delivery order.
+The 2026-11-11 refinement adds the detailed [opening screens and player journey](EXPERIENCE_DESIGN.md), [music, clicks, haptics and visual presentation](AUDIO_VISUAL_SPEC.md), and [placement/camera repairs plus a larger catalogue](PLACEMENT_AND_CATALOG.md). These specifications supersede earlier minimal presentation/catalogue defaults. They are requirements to implement and verify, not descriptions of finished features. Follow [PLAYTEST_REPAIR_PLAN.md](PLAYTEST_REPAIR_PLAN.md) for current delivery order and [FAMILY_PLAY_EXPERIENCE.md](FAMILY_PLAY_EXPERIENCE.md) for the concrete art/interaction brief. Earlier requirement contracts remain binding.
 
 ## Modes and session flow
 

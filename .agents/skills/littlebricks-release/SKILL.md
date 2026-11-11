@@ -7,7 +7,7 @@ description: Prepare a LittleBricks release candidate and finish release-readine
 
 Read [AGENTS.md](../../../AGENTS.md), [STATUS](../../../docs/STATUS.md), M7 in [PROJECT_PLAN](../../../docs/PROJECT_PLAN.md), [VALIDATION](../../../docs/VALIDATION.md), and [ASSETS](../../../docs/ASSETS.md). Confirm the actual commit, completed scope, blockers and publication authorization.
 
-The previous rc1 completion claim is superseded. Read [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md) and the [independent review](../../../docs/evidence/2026-11-11-independent-review.md). Reaccept the original gates using integrated evidence, including LB-033–LB-056. A browser preset, exported PCK named server, or a returned video path is not proof of a playable browser game, listening server, or real movie.
+The previous RC2/all-complete claim is superseded. Read [PLAYTEST_REPAIR_PLAN](../../../docs/PLAYTEST_REPAIR_PLAN.md), the [live browser report](../../../docs/evidence/2026-11-11-live-browser-playtest.md) and [source review](../../../docs/evidence/2026-11-11-current-app-source-review.md). Reaccept LB-057–LB-067 and all unmet original/recovery gates with integrated evidence. Record exact source/export identity. A browser preset, returned video path, placeholder catalogue count or loading screenshot cannot establish playable controls, a real movie or completed content.
 
 ## Build a concrete candidate
 

@@ -1,5 +1,7 @@
 # LittleBricks player experience
 
+> Current implementation work follows [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) and the concrete [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md) brief. The latest [live/source review](evidence/README.md) supersedes completion claims; this document remains a requirement contract, not proof of implementation.
+
 ## Purpose and implementation baseline
 
 Make the first minute welcoming, building satisfying, and the finished creation worth exploring and sharing. This specification adds concrete interaction and presentation requirements to [GAME_DESIGN.md](GAME_DESIGN.md). It is a design contract for the next implementation pass, not evidence that these features already work. Numerical values below are initial tuning targets; record changes after listening, playing, and measuring on actual targets.

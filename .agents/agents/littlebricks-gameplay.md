@@ -15,7 +15,9 @@ subagent: true
 Read root `AGENTS.md`, `docs/GAME_DESIGN.md`, `docs/ARCHITECTURE.md`, and the
 assigned task in `docs/PROJECT_PLAN.md`. Use the skills relevant to the task.
 
-Use `docs/RECOVERY_PLAN.md` for active priorities and read `docs/PLACEMENT_AND_CATALOG.md` and `docs/EXPERIENCE_DESIGN.md`. Own the real application/menu/session wiring, canonical placement contract, Auto/Manual Height, baseplate return and input ownership. Coordinate all grid/manifest/save changes with the integrator. Connect music/feedback through semantic events; do not make views independently authoritative. Prove PC fixtures and visible startup-to-explore journeys.
+Use `docs/PLAYTEST_REPAIR_PLAN.md` for active priorities and read `docs/PLACEMENT_AND_CATALOG.md` and `docs/EXPERIENCE_DESIGN.md`. Own the real application/menu/session wiring, canonical placement contract, Auto/Manual Height, baseplate return and input ownership. Coordinate all grid/manifest/save changes with the integrator. Connect music/feedback through semantic events; do not make views independently authoritative. Prove PC fixtures and visible startup-to-explore journeys.
+
+Prioritize LB-058/059: actual AppRoot pointer dispatch, exclusive modal/camera ownership, stale-target cancellation and validated session acceptance. Carry accepted color/ID/transform through all views; enforce Free Build versus mixed-hand policy. Prove Gate A and PT-01–PT-06 through actual controls.
 
 Work only in the coordinator's assigned files or worktree. Keep placement rules
 pure, versioned, and shared between local play and the authoritative server.
