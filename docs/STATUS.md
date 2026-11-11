@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: repository planning and agent bootstrap.
+- Stage: M0 foundation in progress.
 - Product name: LittleBricks.
-- Game implementation: not started; no `game/project.godot` yet.
+- Game implementation: M0 in progress; toolchain discovered and pinned.
 - Playable release, game test evidence, physical-device results and store submission: none.
 - Current implementation milestone: **M0 - Foundation and technical spikes**.
-- Active worker assignments: none.
-- Next task: **LB-001**; inventory and pin the actual development environment before creating the project.
-- Next implementation action: use the `littlebricks-build` skill, inspect the checkout and available capabilities, record the environment below, then implement the dependency-ready work in the plan.
+- Active worker assignments: LB-002 (game/project.godot, table scene, export presets).
+- Next task: **LB-002**; initialize game project and base table scene.
+- Next implementation action: create `game/project.godot`, base scene `game/client/scenes/main.tscn`, export presets, and runnable tests.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -36,8 +36,8 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 
 | Task | State | Owner | Evidence / commit |
 | --- | --- | --- | --- |
-| LB-001 | planned | unassigned | none |
-| LB-002 | planned | unassigned | none |
+| LB-001 | done | coordinator | docs/evidence/LB-001-toolchain-discovery.md |
+| LB-002 | in_progress | coordinator | planned |
 | LB-003 | planned | unassigned | none |
 | LB-004 | planned | unassigned | none |
 | LB-005 | planned | unassigned | none |
@@ -73,13 +73,13 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 
 | Capability | Observed state |
 | --- | --- |
-| Antigravity version, loaded skills/agents and orchestration commands | Not inspected in the user's runtime |
-| Godot binary and export templates | Not selected or verified |
-| JDK / Android SDK / NDK / signing | Not inspected |
-| Browser/native test matrix | Not established |
-| Physical Android / iPhone test devices | Not established |
-| Third-party Godot, Blender, GitHub or development plugins | Candidates documented; no installation or authentication implied |
-| Game runtime dependencies and source assets | None added in this bootstrap |
+| Antigravity version, loaded skills/agents and orchestration commands | Native swarm and subagents available; `.agents/skills` loaded |
+| Godot binary and export templates | Godot 4.7.2.stable.official.ed1daf0bf; 4.7.2 export templates (Android, Web, macOS) present |
+| JDK / Android SDK / NDK / signing | JDK missing on PATH; ADB 1.0.41 installed; Android SDK missing |
+| Browser/native test matrix | Google Chrome, Safari installed on macOS; Web export templates ready |
+| Physical Android / iPhone test devices | None attached (0 devices via ADB); physical tests BLOCKED |
+| Third-party Godot, Blender, GitHub or development plugins | Blender 5.2.3 LTS installed; lego MCP available |
+| Game runtime dependencies and source assets | Tools/env_check.py created and validated |
 
 ## Active assignments
 
