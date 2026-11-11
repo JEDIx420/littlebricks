@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: Milestone M0 complete; Milestone M1 in progress.
+- Stage: Milestone M1 in progress.
 - Product name: LittleBricks.
-- Game implementation: M0 foundation complete (Godot 4.7, 32x32 table, export presets, 16 shapes catalog, video exporter, 500-piece stress scene). Milestone M1 started.
+- Game implementation: M0 foundation complete. LB-005 placement rules and connector engine verified.
 - Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
 - Current implementation milestone: **M1 - Precise brick placement**.
-- Active worker assignments: LB-005 (deterministic placement rules, collision proxies, connector compatibility, anchor graph).
-- Next task: **LB-005**; implement placement rules engine in `game/core/placement_rules.gd`.
-- Next implementation action: create `game/core/placement_rules.gd`, spatial index, connector compatibility matrix, and headless test suite `game/tests/test_placement_rules.gd`.
+- Active worker assignments: LB-006 (selectable inventory, ghost preview, valid/invalid feedback, explicit Place).
+- Next task: **LB-006**; integrate placement validation into client ghost preview and explicit place interaction.
+- Next implementation action: connect `PlacementRules` to `main.gd` ghost preview, show valid (green/soft transparent) vs invalid (red outline/badge + reason text) cues, and test touch/mouse placement commitment.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -40,8 +40,8 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-002 | done | coordinator | docs/evidence/LB-002-project-table-scene.md |
 | LB-003 | done | littlebricks-worlds | docs/evidence/LB-003-parts-metadata-audit.md |
 | LB-004 | done | littlebricks-platform | docs/evidence/LB-004-android-video-and-stress-spike.md |
-| LB-005 | in_progress | littlebricks-gameplay | planned |
-| LB-006 | planned | unassigned | none |
+| LB-005 | done | littlebricks-gameplay | docs/evidence/LB-005-placement-rules-engine.md |
+| LB-006 | in_progress | littlebricks-gameplay | planned |
 | LB-007 | planned | unassigned | none |
 | LB-008 | planned | unassigned | none |
 | LB-009 | planned | unassigned | none |
