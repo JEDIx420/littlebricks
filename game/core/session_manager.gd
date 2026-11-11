@@ -338,7 +338,10 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 		
 	# Pacing improvement (LB-012): Ensure hand always contains at least 2 basic structural bricks
 	var structural_count: int = 0
-	for item in player_hand:
+	for idx in range(player_hand.size()):
+		if idx == slot_idx:
+			continue # Skip the slot being replaced
+		var item = player_hand[idx]
 		var p_id: String = item.get("part_id", "")
 		var p_cat: String = catalog.get_part(p_id).get("category", "")
 		if p_cat == "brick":

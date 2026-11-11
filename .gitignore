@@ -5,6 +5,7 @@ export_credentials.cfg
 
 # Generated artifacts and local test output.
 /build/
+/builds/
 /dist/
 /artifacts/
 /tmp/

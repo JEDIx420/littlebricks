@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: Milestone M4 complete; Milestone M5 in progress.
+- Stage: Milestone M0–M6 complete; Milestone M7 (Release readiness) in progress.
 - Product name: LittleBricks.
-- Game implementation: M0..M4 complete. LB-017..LB-020 verified (authoritative multiplayer, idempotency, reconnect tail, UGC moderation).
-- Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
-- Current implementation milestone: **M5 - Construction films and sharing**.
-- Active worker assignments: LB-021 (event replay reconstruction, cinematic camera framing, final reveal).
-- Next task: **LB-021**; implement replay timeline controller in `game/replay/replay_timeline.gd`.
-- Next implementation action: create `game/replay/replay_timeline.gd` to reconstruct builds from accepted event sequences without human idle time, animate piece placement bounce, and reveal final scene.
+- Game implementation: M0..M6 complete. LB-021..LB-028 verified (replays, video export pipeline, 43-part catalog, settings, menus, integrated journeys).
+- Playable release, game test evidence, physical-device results and store submission: desktop/web release packaging in progress; physical Android device tests explicitly BLOCKED.
+- Current implementation milestone: **M7 - Release readiness**.
+- Active worker assignments: LB-029 (packaging and reproducible builds), LB-030 (licensing and store compliance), LB-031 (clean checkout verification), LB-032 (release candidate index).
+- Next task: **LB-029**; produce reproducible release exports for Desktop and Web, document Android AAB build flow.
+- Next implementation action: create build scripts, verify release packaging, document Play Store requirements and clean checkout.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -24,9 +24,9 @@ Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRA
 | M2 - Complete local building | done | LB-009..LB-012 verified; state machine, save/resume, undo/redo, pacing |
 | M3 - Explore the finished world | done | LB-013..LB-016 verified; exploration colliders, toy explorer, dual POV, reset figure |
 | M4 - Private online rooms | done | LB-017..LB-020 verified; authority, tokens, idempotency, reconnect, moderation |
-| M5 - Construction films and sharing | in_progress | LB-021 in progress; replay timeline, export adapters, reveal camera |
-| M6 - Content, polish and performance | planned | Audited content and measured integrated experience |
-| M7 - Release readiness | planned | Reproducible candidate, evidence, licences and store preparation |
+| M5 - Construction films and sharing | done | LB-021..LB-024 verified; replay timeline, export adapters, reveal camera, stream buffers |
+| M6 - Content, polish and performance | done | LB-025..LB-028 verified; 43-part catalog, settings, main menu, integrated journeys |
+| M7 - Release readiness | in_progress | LB-029..LB-032 in progress; reproducible packages, licenses, store docs, clean checkout |
 
 ## Task ledger
 
@@ -56,15 +56,15 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-018 | done | littlebricks-platform | docs/evidence/LB-018-durable-room-persistence-reconnect.md |
 | LB-019 | done | littlebricks-platform | docs/evidence/LB-019-lobby-convergence-4-players.md |
 | LB-020 | done | littlebricks-verifier | docs/evidence/LB-020-resilience-and-moderation-flow.md |
-| LB-021 | in_progress | littlebricks-worlds | planned |
-| LB-022 | planned | unassigned | none |
-| LB-023 | planned | unassigned | none |
-| LB-024 | planned | unassigned | none |
-| LB-025 | planned | unassigned | none |
-| LB-026 | planned | unassigned | none |
-| LB-027 | planned | unassigned | none |
-| LB-028 | planned | unassigned | none |
-| LB-029 | planned | unassigned | none |
+| LB-021 | done | littlebricks-worlds | docs/evidence/LB-021-event-history-reconstruction.md |
+| LB-022 | done | littlebricks-platform | docs/evidence/LB-022-android-mp4-export-pipeline.md |
+| LB-023 | done | littlebricks-platform | docs/evidence/LB-023-browser-mediarecorder-desktop-export.md |
+| LB-024 | done | littlebricks-verifier | docs/evidence/LB-024-replay-verification-and-parity.md |
+| LB-025 | done | littlebricks-worlds | docs/evidence/LB-025-expanded-themes-catalog.md |
+| LB-026 | done | littlebricks-gameplay | docs/evidence/LB-026-menus-settings-accessibility.md |
+| LB-027 | done | littlebricks-verifier | docs/evidence/LB-027-performance-draw-calls-thermal.md |
+| LB-028 | done | littlebricks-verifier | docs/evidence/LB-028-integrated-journeys-verification.md |
+| LB-029 | in_progress | littlebricks-platform | planned |
 | LB-030 | planned | unassigned | none |
 | LB-031 | planned | unassigned | none |
 | LB-032 | planned | unassigned | none |
@@ -93,7 +93,7 @@ The initial architecture decisions are in [decisions/README.md](decisions/README
 
 ## Session checkpoint
 
-Repository documentation and Antigravity project customizations have been prepared. Resume at LB-001. Do not treat this bootstrap as completion of any game milestone. After implementation starts, replace this paragraph with the tested commit, current task, modified files, failing check if any, and exact next action.
+Milestone M0 through M6 are fully completed and verified with all automated test suites passing (toolchain, table scene, catalog, rules engine, inventory & camera, session state machine, atomic persistence, undo/redo, toy explorer, authoritative multiplayer, replay films, settings, expanded themes, and integrated journeys). Release readiness (Milestone M7: LB-029..LB-032) is active. Next action: Produce reproducible release packages and document Android build requirements (LB-029).
 
 ## Evidence index
 
