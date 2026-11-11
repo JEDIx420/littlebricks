@@ -2,6 +2,17 @@
 
 Last updated: **2026-11-11**
 
+## New live-playtest visual acceptance (after 41e45b7)
+
+**Active campaign:** LB-068–LB-074, [TABLETOP_ROOM_REDESIGN](TABLETOP_ROOM_REDESIGN.md). The earlier LB-057–LB-067 completion report is preserved as a historical code/test result; it does not certify the current room/table/visual feel or sourced-part quality.
+
+- **Live observed:** Welcome/mode/setup load, pointer moves ghost across distant studs, Camera Drag supports orbit. Green stud field dominates frame, no believable room or furniture, black top/right button boxes and text-only bottom inventory still clutter play. Intuitive pan is unverified; one short Place-button attempt did not yield visible accepted confirmation.
+- **Asset sourcing:** Current specialty geometry is reportedly authored in code, but the user now explicitly requires imported redistributable real-source meshes. New license/geometry review is pending.
+- **Not tested by this reviewer:** actual audio listening, haptics, Android native, export quality, exact web export SHA.
+- **Next:** LB-068 (baseline/catalogue/camera audit) → LB-069 and LB-070 (camera and room) → LB-071–LB-073 (UI, imports, hand balance) → LB-074 independent playtest. All are **pending**, not passed.
+
+
+
 ## Current state
 
 - Stage: **Release Candidate under playtest verification. Active repair campaign LB-057 through LB-067 complete.**

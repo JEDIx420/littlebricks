@@ -1,5 +1,7 @@
 # Asset pipeline and provenance
 
+> **2026-11-11 active sourcing decision:** Follow [TABLETOP_ROOM_REDESIGN](TABLETOP_ROOM_REDESIGN.md) for the newly required real tabletop/room, Kenney Brick Kit and exact LDraw per-file licence checks. Existing procedural specialty meshes do not satisfy the user's new imported-source-geometry request. **Quaternius current QAL v1.0 (2026-08-28) restricts raw asset-pack redistribution**, so avoid committing those models to the public open-source repo without separate provenance/rights verification. Use Kenney/Poly Haven/ambientCG CC0 as preferred room sources.
+
 LittleBricks uses an original identity and a curated interoperable catalogue. Source, procedural assets and audio now exist; the latest review found substantial specialty-geometry placeholders. Follow LB-065 in [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md) for the current audit and replacement work. Implementation follows [ARCHITECTURE.md](ARCHITECTURE.md), [VALIDATION.md](VALIDATION.md), and [AGENTS.md](../AGENTS.md).
 
 ## Sources to evaluate
