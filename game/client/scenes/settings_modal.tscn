@@ -114,21 +114,6 @@ size_flags_horizontal = 3
 size_flags_vertical = 4
 value = 90.0
 
-[node name="AmbVolBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
-layout_mode = 2
-
-[node name="LabelAmb" type="Label" parent="Panel/Margin/VBox/AmbVolBox"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-text = "Ambience"
-
-[node name="SliderAmbience" type="HSlider" parent="Panel/Margin/VBox/AmbVolBox"]
-unique_name_in_owner = true
-layout_mode = 2
-size_flags_horizontal = 3
-size_flags_vertical = 4
-value = 50.0
-
 [node name="HSep2" type="HSeparator" parent="Panel/Margin/VBox"]
 layout_mode = 2
 

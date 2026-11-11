@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.1.0",
+  "catalog_version": "1.2.0",
   "catalog_name": "LittleBricks Complete Expanded Catalog (Harbour & Cabin)",
   "license_default": "CC0-1.0",
   "stud_spacing": 1.0,
@@ -1089,8 +1089,8 @@
     },
     {
       "id": "brick_4x4",
-      "version": "1.0.0",
-      "name": "Brick 4x4 Corner",
+      "version": "1.1.0",
+      "name": "Corner Brick 4x4",
       "category": "brick",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -1118,6 +1118,18 @@
             -1.5
           ],
           [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ],
+          [
+            -1.5,
+            1.5
+          ],
+          [
             -0.5,
             -1.5
           ],
@@ -1128,54 +1140,6 @@
           [
             1.5,
             -1.5
-          ],
-          [
-            -1.5,
-            -0.5
-          ],
-          [
-            -0.5,
-            -0.5
-          ],
-          [
-            0.5,
-            -0.5
-          ],
-          [
-            1.5,
-            -0.5
-          ],
-          [
-            -1.5,
-            0.5
-          ],
-          [
-            -0.5,
-            0.5
-          ],
-          [
-            0.5,
-            0.5
-          ],
-          [
-            1.5,
-            0.5
-          ],
-          [
-            -1.5,
-            1.5
-          ],
-          [
-            -0.5,
-            1.5
-          ],
-          [
-            0.5,
-            1.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ],
         "sockets_bottom": [
@@ -1184,6 +1148,18 @@
             -1.5
           ],
           [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ],
+          [
+            -1.5,
+            1.5
+          ],
+          [
             -0.5,
             -1.5
           ],
@@ -1194,68 +1170,32 @@
           [
             1.5,
             -1.5
-          ],
-          [
-            -1.5,
-            -0.5
-          ],
-          [
-            -0.5,
-            -0.5
-          ],
-          [
-            0.5,
-            -0.5
-          ],
-          [
-            1.5,
-            -0.5
-          ],
-          [
-            -1.5,
-            0.5
-          ],
-          [
-            -0.5,
-            0.5
-          ],
-          [
-            0.5,
-            0.5
-          ],
-          [
-            1.5,
-            0.5
-          ],
-          [
-            -1.5,
-            1.5
-          ],
-          [
-            -0.5,
-            1.5
-          ],
-          [
-            0.5,
-            1.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ]
       },
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            -1.5,
             0.6,
             0.0
           ],
           "size": [
-            4.0,
+            1.0,
             1.2,
-            4.0
+            4
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.6,
+            -1.5
+          ],
+          "size": [
+            3,
+            1.2,
+            1.0
           ]
         }
       ]
@@ -2581,7 +2521,7 @@
     {
       "id": "slope_1x2",
       "version": "1.0.0",
-      "name": "Slope 45\u00b0 1x2",
+      "name": "Slope 45° 1x2",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -2632,7 +2572,7 @@
     {
       "id": "slope_2x2",
       "version": "1.0.0",
-      "name": "Slope 45\u00b0 2x2",
+      "name": "Slope 45° 2x2",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -2691,7 +2631,7 @@
     {
       "id": "slope_33_3x2",
       "version": "1.0.0",
-      "name": "Slope 33\u00b0 3x2",
+      "name": "Slope 33° 3x2",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -2749,7 +2689,7 @@
     },
     {
       "id": "slope_inverted_2x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Slope Inverted 2x2",
       "category": "slope",
       "author": "LittleBricks",
@@ -2792,11 +2732,11 @@
         "sockets_bottom": [
           [
             -0.5,
-            0.0
+            0.5
           ],
           [
             0.5,
-            0.0
+            0.5
           ]
         ]
       },
@@ -3574,15 +3514,15 @@
     },
     {
       "id": "explorer_candidate_01",
-      "version": "1.0.0",
-      "name": "Toy Explorer (Pippin)",
+      "version": "1.1.0",
+      "name": "Mini Explorer Pippin",
       "category": "character",
       "author": "LittleBricks",
       "license": "CC0-1.0",
       "dimensions_studs": [
-        1.6,
-        12,
-        1.2
+        1,
+        4,
+        1
       ],
       "height_units": 4.8,
       "capsule_radius": 0.65,
@@ -3598,6 +3538,29 @@
         "explorer",
         "harbour",
         "cabin"
+      ],
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            0.0,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0.0,
+            0.8,
+            0.0
+          ],
+          "size": [
+            1.0,
+            1.6,
+            1.0
+          ]
+        }
       ]
     },
     {
@@ -4256,7 +4219,7 @@
     },
     {
       "id": "brick_cone_2x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Cone 2x2",
       "category": "brick",
       "author": "LittleBricks",
@@ -4279,24 +4242,7 @@
       ],
       "bag_weight": 5,
       "connectors": {
-        "studs_top": [
-          [
-            -0.5,
-            -0.5
-          ],
-          [
-            -0.5,
-            0.5
-          ],
-          [
-            0.5,
-            -0.5
-          ],
-          [
-            0.5,
-            0.5
-          ]
-        ],
+        "studs_top": [],
         "sockets_bottom": [
           [
             -0.5,
@@ -4333,7 +4279,7 @@
     },
     {
       "id": "brick_corner_3x3",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Corner Brick 3x3",
       "category": "brick",
       "author": "LittleBricks",
@@ -4374,24 +4320,8 @@
             -1.0
           ],
           [
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0
-          ],
-          [
             1.0,
             -1.0
-          ],
-          [
-            1.0,
-            0.0
-          ],
-          [
-            1.0,
-            1.0
           ]
         ],
         "sockets_bottom": [
@@ -4412,38 +4342,34 @@
             -1.0
           ],
           [
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0
-          ],
-          [
             1.0,
             -1.0
-          ],
-          [
-            1.0,
-            0.0
-          ],
-          [
-            1.0,
-            1.0
           ]
         ]
       },
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            -1.0,
             0.6,
             0.0
           ],
           "size": [
-            3.0,
+            1.0,
             1.2,
-            3.0
+            3
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.6,
+            -1.0
+          ],
+          "size": [
+            2,
+            1.2,
+            1.0
           ]
         }
       ]
@@ -6577,7 +6503,7 @@
     },
     {
       "id": "plate_round_4x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Round Plate 4x4",
       "category": "plate",
       "author": "LittleBricks",
@@ -6603,10 +6529,6 @@
         "studs_top": [
           [
             -1.5,
-            -1.5
-          ],
-          [
-            -1.5,
             -0.5
           ],
           [
@@ -6614,10 +6536,6 @@
             0.5
           ],
           [
-            -1.5,
-            1.5
-          ],
-          [
             -0.5,
             -1.5
           ],
@@ -6651,28 +6569,16 @@
           ],
           [
             1.5,
-            -1.5
-          ],
-          [
-            1.5,
             -0.5
           ],
           [
             1.5,
             0.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ],
         "sockets_bottom": [
           [
             -1.5,
-            -1.5
-          ],
-          [
-            -1.5,
             -0.5
           ],
           [
@@ -6680,10 +6586,6 @@
             0.5
           ],
           [
-            -1.5,
-            1.5
-          ],
-          [
             -0.5,
             -1.5
           ],
@@ -6717,19 +6619,11 @@
           ],
           [
             1.5,
-            -1.5
-          ],
-          [
-            1.5,
             -0.5
           ],
           [
             1.5,
             0.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ]
       },
@@ -7259,7 +7153,7 @@
     {
       "id": "slope_1x1_30",
       "version": "1.0.0",
-      "name": "Slope 1x1 30\u00b0",
+      "name": "Slope 1x1 30°",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -7307,7 +7201,7 @@
     {
       "id": "slope_1x1_45",
       "version": "1.0.0",
-      "name": "Slope 1x1 45\u00b0",
+      "name": "Slope 1x1 45°",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -7355,7 +7249,7 @@
     {
       "id": "slope_1x3_33",
       "version": "1.0.0",
-      "name": "Slope 1x3 33\u00b0",
+      "name": "Slope 1x3 33°",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -7411,7 +7305,7 @@
     {
       "id": "slope_1x4_45",
       "version": "1.0.0",
-      "name": "Slope 1x4 45\u00b0",
+      "name": "Slope 1x4 45°",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -7471,7 +7365,7 @@
     {
       "id": "slope_2x4_45",
       "version": "1.0.0",
-      "name": "Slope 2x4 45\u00b0",
+      "name": "Slope 2x4 45°",
       "category": "slope",
       "author": "LittleBricks",
       "license": "CC0-1.0",
@@ -7546,7 +7440,7 @@
     },
     {
       "id": "slope_inverted_1x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Inverted Slope 1x2",
       "category": "slope",
       "author": "LittleBricks",
@@ -7571,10 +7465,6 @@
       "connectors": {
         "studs_top": [],
         "sockets_bottom": [
-          [
-            0.0,
-            -0.5
-          ],
           [
             0.0,
             0.5
@@ -7830,7 +7720,7 @@
     },
     {
       "id": "arch_1x8",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Bridge Arch 1x8",
       "category": "opening",
       "author": "LittleBricks",
@@ -7901,21 +7791,105 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            0,
             0.8,
-            0.0
+            -3.5
           ],
           "size": [
-            1.0,
+            1,
             1.6,
-            8.0
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.0315,
+            -2.5
+          ],
+          "size": [
+            1,
+            1.137,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.273,
+            -1.5
+          ],
+          "size": [
+            1,
+            0.654,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.371,
+            -0.5
+          ],
+          "size": [
+            1,
+            0.458,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.371,
+            0.5
+          ],
+          "size": [
+            1,
+            0.458,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.273,
+            1.5
+          ],
+          "size": [
+            1,
+            0.654,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.0315,
+            2.5
+          ],
+          "size": [
+            1,
+            1.137,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.8,
+            3.5
+          ],
+          "size": [
+            1,
+            1.6,
+            1.0
           ]
         }
       ]
     },
     {
       "id": "arch_inverted_1x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Inverted Arch 1x4",
       "category": "opening",
       "author": "LittleBricks",
@@ -7940,19 +7914,11 @@
       "connectors": {
         "studs_top": [
           [
-            0.0,
+            0,
             -1.5
           ],
           [
-            0.0,
-            -0.5
-          ],
-          [
-            0.0,
-            0.5
-          ],
-          [
-            0.0,
+            0,
             1.5
           ]
         ],
@@ -7978,21 +7944,57 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            0,
             0.6,
-            0.0
+            -1.5
           ],
           "size": [
-            1.0,
+            1,
             1.2,
-            4.0
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.3595,
+            -0.5
+          ],
+          "size": [
+            1,
+            0.719,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.3595,
+            0.5
+          ],
+          "size": [
+            1,
+            0.719,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.6,
+            1.5
+          ],
+          "size": [
+            1,
+            1.2,
+            1.0
           ]
         }
       ]
     },
     {
       "id": "window_1x2x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Window Frame 1x2x2",
       "category": "opening",
       "author": "LittleBricks",
@@ -8039,21 +8041,57 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            1.2,
-            0.0
+            0,
+            0.2,
+            0
           ],
           "size": [
-            1.0,
-            2.4,
-            2.0
+            1,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            0,
+            2.1999999999999997,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.2,
+            0.875
+          ],
+          "size": [
+            1,
+            1.5999999999999999,
+            0.25
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.2,
+            -0.875
+          ],
+          "size": [
+            1,
+            1.5999999999999999,
+            0.25
           ]
         }
       ]
     },
     {
       "id": "window_1x4x3",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Window Frame 1x4x3",
       "category": "opening",
       "author": "LittleBricks",
@@ -8116,14 +8154,50 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            1.8,
-            0.0
+            0,
+            0.2,
+            0
           ],
           "size": [
-            1.0,
-            3.6,
-            4.0
+            1,
+            0.4,
+            4
+          ]
+        },
+        {
+          "center": [
+            0,
+            3.4,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            4
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.8,
+            1.82
+          ],
+          "size": [
+            1,
+            2.8,
+            0.36
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.8,
+            -1.82
+          ],
+          "size": [
+            1,
+            2.8,
+            0.36
           ]
         }
       ]
@@ -8260,7 +8334,7 @@
     },
     {
       "id": "stairs_2x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Stairs 2x4",
       "category": "structure",
       "author": "LittleBricks",
@@ -8286,35 +8360,43 @@
         "studs_top": [
           [
             -0.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             -0.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             -0.5,
-            0.5
+            0.5,
+            5
           ],
           [
             -0.5,
-            1.5
+            1.5,
+            6
           ],
           [
             0.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             0.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             0.5,
-            0.5
+            0.5,
+            5
           ],
           [
             0.5,
-            1.5
+            1.5,
+            6
           ]
         ],
         "sockets_bottom": [
@@ -8355,21 +8437,57 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            1.2,
-            0.0
+            0,
+            0.4,
+            -1.5
           ],
           "size": [
+            2,
+            0.8,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.6,
+            -0.5
+          ],
+          "size": [
+            2,
+            1.2,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.0,
+            0.5
+          ],
+          "size": [
+            2,
             2.0,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.2,
+            1.5
+          ],
+          "size": [
+            2,
             2.4,
-            4.0
+            1.0
           ]
         }
       ]
     },
     {
       "id": "stairs_4x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Grand Stairs 4x4",
       "category": "structure",
       "author": "LittleBricks",
@@ -8395,67 +8513,83 @@
         "studs_top": [
           [
             -1.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             -1.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             -1.5,
-            0.5
+            0.5,
+            5
           ],
           [
             -1.5,
-            1.5
+            1.5,
+            6
           ],
           [
             -0.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             -0.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             -0.5,
-            0.5
+            0.5,
+            5
           ],
           [
             -0.5,
-            1.5
+            1.5,
+            6
           ],
           [
             0.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             0.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             0.5,
-            0.5
+            0.5,
+            5
           ],
           [
             0.5,
-            1.5
+            1.5,
+            6
           ],
           [
             1.5,
-            -1.5
+            -1.5,
+            2
           ],
           [
             1.5,
-            -0.5
+            -0.5,
+            3
           ],
           [
             1.5,
-            0.5
+            0.5,
+            5
           ],
           [
             1.5,
-            1.5
+            1.5,
+            6
           ]
         ],
         "sockets_bottom": [
@@ -8528,14 +8662,50 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            1.2,
-            0.0
+            0,
+            0.4,
+            -1.5
           ],
           "size": [
-            4.0,
+            4,
+            0.8,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.6,
+            -0.5
+          ],
+          "size": [
+            4,
+            1.2,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.0,
+            0.5
+          ],
+          "size": [
+            4,
+            2.0,
+            1.0
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.2,
+            1.5
+          ],
+          "size": [
+            4,
             2.4,
-            4.0
+            1.0
           ]
         }
       ]
@@ -9028,7 +9198,7 @@
     },
     {
       "id": "bush_2x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Foliage Bush 2x2",
       "category": "decoration",
       "author": "LittleBricks",
@@ -9051,24 +9221,7 @@
       ],
       "bag_weight": 5,
       "connectors": {
-        "studs_top": [
-          [
-            -0.5,
-            -0.5
-          ],
-          [
-            -0.5,
-            0.5
-          ],
-          [
-            0.5,
-            -0.5
-          ],
-          [
-            0.5,
-            0.5
-          ]
-        ],
+        "studs_top": [],
         "sockets_bottom": [
           [
             -0.5,
@@ -9295,7 +9448,7 @@
     },
     {
       "id": "bench_1x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Park Bench 1x4",
       "category": "decoration",
       "author": "LittleBricks",
@@ -9318,24 +9471,7 @@
       ],
       "bag_weight": 5,
       "connectors": {
-        "studs_top": [
-          [
-            0.0,
-            -1.5
-          ],
-          [
-            0.0,
-            -0.5
-          ],
-          [
-            0.0,
-            0.5
-          ],
-          [
-            0.0,
-            1.5
-          ]
-        ],
+        "studs_top": [],
         "sockets_bottom": [
           [
             0.0,
@@ -9648,7 +9784,7 @@
     },
     {
       "id": "lighthouse_top_4x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Lighthouse Beacon 4x4",
       "category": "decoration",
       "author": "LittleBricks",
@@ -9671,72 +9807,7 @@
       ],
       "bag_weight": 5,
       "connectors": {
-        "studs_top": [
-          [
-            -1.5,
-            -1.5
-          ],
-          [
-            -1.5,
-            -0.5
-          ],
-          [
-            -1.5,
-            0.5
-          ],
-          [
-            -1.5,
-            1.5
-          ],
-          [
-            -0.5,
-            -1.5
-          ],
-          [
-            -0.5,
-            -0.5
-          ],
-          [
-            -0.5,
-            0.5
-          ],
-          [
-            -0.5,
-            1.5
-          ],
-          [
-            0.5,
-            -1.5
-          ],
-          [
-            0.5,
-            -0.5
-          ],
-          [
-            0.5,
-            0.5
-          ],
-          [
-            0.5,
-            1.5
-          ],
-          [
-            1.5,
-            -1.5
-          ],
-          [
-            1.5,
-            -0.5
-          ],
-          [
-            1.5,
-            0.5
-          ],
-          [
-            1.5,
-            1.5
-          ]
-        ],
+        "studs_top": [],
         "sockets_bottom": [
           [
             -1.5,
@@ -10134,14 +10205,14 @@
     },
     {
       "id": "toy_explorer_pippin",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Explorer Pippin",
       "category": "character",
       "author": "LittleBricks",
       "license": "CC0-1.0",
       "dimensions_studs": [
         2,
-        12,
+        10,
         1
       ],
       "allowed_rotations": [
@@ -10173,12 +10244,12 @@
         {
           "center": [
             0.0,
-            2.4,
+            2.0,
             0.0
           ],
           "size": [
             2.0,
-            4.8,
+            4.0,
             1.0
           ]
         }
@@ -10186,14 +10257,14 @@
     },
     {
       "id": "toy_explorer_marina",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Explorer Marina",
       "category": "character",
       "author": "LittleBricks",
       "license": "CC0-1.0",
       "dimensions_studs": [
         2,
-        12,
+        10,
         1
       ],
       "allowed_rotations": [
@@ -10225,12 +10296,12 @@
         {
           "center": [
             0.0,
-            2.4,
+            2.0,
             0.0
           ],
           "size": [
             2.0,
-            4.8,
+            4.0,
             1.0
           ]
         }
@@ -10238,14 +10309,14 @@
     },
     {
       "id": "toy_explorer_rowan",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Explorer Rowan",
       "category": "character",
       "author": "LittleBricks",
       "license": "CC0-1.0",
       "dimensions_studs": [
         2,
-        12,
+        10,
         1
       ],
       "allowed_rotations": [
@@ -10277,12 +10348,12 @@
         {
           "center": [
             0.0,
-            2.4,
+            2.0,
             0.0
           ],
           "size": [
             2.0,
-            4.8,
+            4.0,
             1.0
           ]
         }
@@ -10438,7 +10509,7 @@
     },
     {
       "id": "bucket_1x1",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Water Bucket 1x1",
       "category": "decoration",
       "author": "LittleBricks",
@@ -10461,12 +10532,7 @@
       ],
       "bag_weight": 5,
       "connectors": {
-        "studs_top": [
-          [
-            0.0,
-            0.0
-          ]
-        ],
+        "studs_top": [],
         "sockets_bottom": [
           [
             0.0,
@@ -10711,7 +10777,7 @@
     },
     {
       "id": "plate_corner_2x2",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Corner Plate 2x2",
       "category": "decoration",
       "author": "LittleBricks",
@@ -10746,10 +10812,6 @@
           [
             0.5,
             -0.5
-          ],
-          [
-            0.5,
-            0.5
           ]
         ],
         "sockets_bottom": [
@@ -10764,31 +10826,39 @@
           [
             0.5,
             -0.5
-          ],
-          [
-            0.5,
-            0.5
           ]
         ]
       },
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            -0.5,
             0.2,
             0.0
           ],
           "size": [
-            2.0,
+            1.0,
             0.4,
-            2.0
+            2
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.2,
+            -0.5
+          ],
+          "size": [
+            1,
+            0.4,
+            1.0
           ]
         }
       ]
     },
     {
       "id": "plate_corner_3x3",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Corner Plate 3x3",
       "category": "decoration",
       "author": "LittleBricks",
@@ -10829,24 +10899,8 @@
             -1.0
           ],
           [
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0
-          ],
-          [
             1.0,
             -1.0
-          ],
-          [
-            1.0,
-            0.0
-          ],
-          [
-            1.0,
-            1.0
           ]
         ],
         "sockets_bottom": [
@@ -10867,45 +10921,41 @@
             -1.0
           ],
           [
-            0.0,
-            0.0
-          ],
-          [
-            0.0,
-            1.0
-          ],
-          [
             1.0,
             -1.0
-          ],
-          [
-            1.0,
-            0.0
-          ],
-          [
-            1.0,
-            1.0
           ]
         ]
       },
       "collision_boxes": [
         {
           "center": [
-            0.0,
+            -1.0,
             0.2,
             0.0
           ],
           "size": [
-            3.0,
+            1.0,
             0.4,
-            3.0
+            3
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.2,
+            -1.0
+          ],
+          "size": [
+            2,
+            0.4,
+            1.0
           ]
         }
       ]
     },
     {
       "id": "brick_round_4x4",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "name": "Round Turret 4x4",
       "category": "decoration",
       "author": "LittleBricks",
@@ -10931,10 +10981,6 @@
         "studs_top": [
           [
             -1.5,
-            -1.5
-          ],
-          [
-            -1.5,
             -0.5
           ],
           [
@@ -10942,10 +10988,6 @@
             0.5
           ],
           [
-            -1.5,
-            1.5
-          ],
-          [
             -0.5,
             -1.5
           ],
@@ -10979,28 +11021,16 @@
           ],
           [
             1.5,
-            -1.5
-          ],
-          [
-            1.5,
             -0.5
           ],
           [
             1.5,
             0.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ],
         "sockets_bottom": [
           [
             -1.5,
-            -1.5
-          ],
-          [
-            -1.5,
             -0.5
           ],
           [
@@ -11008,10 +11038,6 @@
             0.5
           ],
           [
-            -1.5,
-            1.5
-          ],
-          [
             -0.5,
             -1.5
           ],
@@ -11045,19 +11071,11 @@
           ],
           [
             1.5,
-            -1.5
-          ],
-          [
-            1.5,
             -0.5
           ],
           [
             1.5,
             0.5
-          ],
-          [
-            1.5,
-            1.5
           ]
         ]
       },

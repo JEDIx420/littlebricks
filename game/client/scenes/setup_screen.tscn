@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://c1m4x8y2k3d5a"]
+[gd_scene load_steps=3 format=3 uid="uid://c1m4x8y2k3d5a"]
 
 [ext_resource type="Script" path="res://client/scripts/setup_screen.gd" id="1_setup"]
+
+[ext_resource type="Script" path="res://client/scripts/menu_vignette.gd" id="2_vignette"]
 
 [node name="SetupScreen" type="Control"]
 layout_mode = 3
@@ -34,7 +36,7 @@ grow_horizontal = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
-text = "← Back"
+text = "Back"
 
 [node name="Spacer" type="Control" parent="TopBar"]
 layout_mode = 2
@@ -58,97 +60,107 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="MainPanel" type="PanelContainer" parent="ContentScroll/CenterWrapper"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(460, 420)
+[node name="Body" type="HBoxContainer" parent="ContentScroll/CenterWrapper"]
 layout_mode = 2
+theme_override_constants/separation = 22
 
-[node name="Margin" type="MarginContainer" parent="ContentScroll/CenterWrapper/MainPanel"]
+[node name="MainPanel" type="PanelContainer" parent="ContentScroll/CenterWrapper/Body"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(390, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Margin" type="MarginContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel"]
 layout_mode = 2
 theme_override_constants/margin_left = 24
 theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="VBox" type="VBoxContainer" parent="ContentScroll/CenterWrapper/MainPanel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="LabelModeTitle" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="LabelModeTitle" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 26
 text = "Set Up Your Table"
-horizontal_alignment = 1
+autowrap_mode = 2
 
-[node name="HSeparator" type="HSeparator" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="LabelModeDescription" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+autowrap_mode = 2
+
+[node name="HSeparator" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 layout_mode = 2
 
-[node name="ContainerSolo" type="VBoxContainer" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="ContainerSolo" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelName" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="LabelName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Creation Name:"
+text = "Creation name"
 
-[node name="LineEditSoloName" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="LineEditSoloName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Sunny Harbour"
 
-[node name="LabelTheme" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="LabelTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Table Theme:"
+text = "Brick pack"
 
-[node name="OptSoloTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="OptSoloTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 selected = 0
 item_count = 2
-popup/item_0/text = "Cozy Coastal Harbour (Water & Sand)"
+popup/item_0/text = "Coastal Harbour"
 popup/item_0/id = 0
-popup/item_1/text = "Rustic Forest Cabin (Timber & Moss)"
+popup/item_1/text = "Forest Cabin"
 popup/item_1/id = 1
 
-[node name="LabelMode" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="LabelMode" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Building Rules:"
+text = "Building rules"
 
-[node name="OptSoloMode" type="OptionButton" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="OptSoloMode" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 selected = 0
 item_count = 2
-popup/item_0/text = "Themed Mixed Bags (One-brick turns)"
+popup/item_0/text = "Mixed bags"
 popup/item_0/id = 0
-popup/item_1/text = "Free Build (Full Parts Catalogue)"
+popup/item_1/text = "Free build"
 popup/item_1/id = 1
 
-[node name="ContainerPassPlay" type="VBoxContainer" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="ContainerPassPlay" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelPlayers" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LabelPlayers" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Number of Players:"
+text = "Players"
 
-[node name="OptPlayerCount" type="OptionButton" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPlayerCount" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -161,21 +173,21 @@ popup/item_1/id = 1
 popup/item_2/text = "4 Players"
 popup/item_2/id = 2
 
-[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Player 1 (Red)"
 text = "Player 1"
 
-[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Player 2 (Blue)"
 text = "Player 2"
 
-[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
@@ -183,7 +195,7 @@ layout_mode = 2
 placeholder_text = "Player 3 (Yellow)"
 text = "Player 3"
 
-[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
@@ -191,93 +203,105 @@ layout_mode = 2
 placeholder_text = "Player 4 (Green)"
 text = "Player 4"
 
-[node name="LabelPassTheme" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LabelPassTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Theme:"
+text = "Brick pack"
 
-[node name="OptPassTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPassTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 selected = 0
 item_count = 2
-popup/item_0/text = "Cozy Coastal Harbour"
+popup/item_0/text = "Coastal Harbour"
 popup/item_0/id = 0
-popup/item_1/text = "Rustic Forest Cabin"
+popup/item_1/text = "Forest Cabin"
 popup/item_1/id = 1
 
-[node name="LabelPassTimer" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LabelPassTimer" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Turn Timer:"
+text = "Turn timer"
 
-[node name="OptPassTimer" type="OptionButton" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPassTimer" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 selected = 0
 item_count = 4
-popup/item_0/text = "20 Seconds (Standard)"
+popup/item_0/text = "20 seconds"
 popup/item_0/id = 0
-popup/item_1/text = "30 Seconds"
+popup/item_1/text = "30 seconds"
 popup/item_1/id = 1
-popup/item_2/text = "45 Seconds"
+popup/item_2/text = "45 seconds"
 popup/item_2/id = 2
-popup/item_3/text = "Disabled (Unlimited / No Rush)"
+popup/item_3/text = "No timer"
 popup/item_3/id = 3
 
-[node name="ContainerOnline" type="VBoxContainer" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="ContainerOnline" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Your Display Name:"
+text = "Your name"
 
-[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Explorer"
 text = "Explorer1"
 
-[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Create Private Room"
 
-[node name="HSeparator2" type="HSeparator" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="HSeparator2" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 layout_mode = 2
 
-[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
-text = "Or Join with Code:"
+text = "Join with a code"
 
-[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-placeholder_text = "Enter 6-letter room code (e.g. LBRICK)"
+placeholder_text = "6-character room code"
 
-[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Join Room"
 
-[node name="BtnStart" type="Button" parent="ContentScroll/CenterWrapper/MainPanel/Margin/VBox"]
+[node name="BtnStart" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Start Building"
+
+[node name="Preview" type="PanelContainer" parent="ContentScroll/CenterWrapper/Body"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.25
+
+[node name="Stage" type="SubViewportContainer" parent="ContentScroll/CenterWrapper/Body/Preview"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_vignette")

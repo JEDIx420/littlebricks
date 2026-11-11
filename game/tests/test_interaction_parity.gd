@@ -80,7 +80,7 @@ func _init() -> void:
 		quit(1)
 		return
 	cam_rig.set_default_view()
-	if not is_equal_approx(cam_rig.pitch, -38.0):
+	if not is_equal_approx(cam_rig.pitch, cam_rig.room_pitch):
 		print("FAILED: Default view preset pitch not restored")
 		quit(1)
 		return

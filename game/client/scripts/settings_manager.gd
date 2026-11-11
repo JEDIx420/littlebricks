@@ -11,7 +11,6 @@ var sound_enabled: bool = true
 var master_volume: float = 0.8
 var music_volume: float = 0.7
 var sfx_volume: float = 0.9
-var ambience_volume: float = 0.5
 var haptics_enabled: bool = true
 var timer_default_enabled: bool = false
 var timer_duration_sec: float = 20.0
@@ -39,7 +38,6 @@ func load_settings() -> void:
 		master_volume = d.get("master_volume", 0.8)
 		music_volume = d.get("music_volume", 0.7)
 		sfx_volume = d.get("sfx_volume", 0.9)
-		ambience_volume = d.get("ambience_volume", 0.5)
 		haptics_enabled = d.get("haptics_enabled", true)
 		timer_default_enabled = d.get("timer_default_enabled", false)
 		timer_duration_sec = d.get("timer_duration_sec", 20.0)
@@ -53,7 +51,6 @@ func save_settings() -> bool:
 		"master_volume": master_volume,
 		"music_volume": music_volume,
 		"sfx_volume": sfx_volume,
-		"ambience_volume": ambience_volume,
 		"haptics_enabled": haptics_enabled,
 		"timer_default_enabled": timer_default_enabled,
 		"timer_duration_sec": timer_duration_sec,

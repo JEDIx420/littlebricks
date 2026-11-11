@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://b5m3x9y1k2d4a"]
+[gd_scene load_steps=3 format=3 uid="uid://b5m3x9y1k2d4a"]
 
 [ext_resource type="Script" path="res://client/scripts/mode_select.gd" id="1_mode"]
+
+[ext_resource type="Script" path="res://client/scripts/menu_vignette.gd" id="2_vignette"]
 
 [node name="ModeSelectScreen" type="Control"]
 layout_mode = 3
@@ -34,7 +36,7 @@ grow_horizontal = 2
 unique_name_in_owner = true
 custom_minimum_size = Vector2(100, 48)
 layout_mode = 2
-text = "← Back"
+text = "Back"
 
 [node name="Spacer" type="Control" parent="TopBar"]
 layout_mode = 2
@@ -62,15 +64,17 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 36
-text = "Choose How to Build"
+text = "Who’s building?"
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="Subheading" type="Label" parent="MainLayout/HeadingBox"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
 theme_override_font_sizes/font_size = 16
-text = "Select your tabletop building experience"
+text = "Choose a table for yourself or share one with friends."
 horizontal_alignment = 1
+autowrap_mode = 2
 
 [node name="CardsScroll" type="ScrollContainer" parent="MainLayout"]
 layout_mode = 2
@@ -80,153 +84,118 @@ horizontal_scroll_mode = 0
 [node name="CenterWrapper" type="CenterContainer" parent="MainLayout/CardsScroll"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 3
 
 [node name="CardsContainer" type="HFlowContainer" parent="MainLayout/CardsScroll/CenterWrapper"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-theme_override_constants/h_separation = 24
-theme_override_constants/v_separation = 24
+theme_override_constants/h_separation = 18
+theme_override_constants/v_separation = 18
 alignment = 1
 
 [node name="CardSolo" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 320)
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo"]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/separation = 10
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/Margin"]
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
+custom_minimum_size = Vector2(0, 152)
+mouse_filter = 2
+script = ExtResource("2_vignette")
+composition = 1
 
-[node name="BadgeSolo" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/Margin/VBox"]
-unique_name_in_owner = true
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.929, 0.475, 0.373, 1)
-theme_override_font_sizes/font_size = 14
-text = "SOLO BUILD"
-horizontal_alignment = 1
-
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
-theme_override_font_sizes/font_size = 22
 text = "Build Solo"
-horizontal_alignment = 1
 
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
-theme_override_font_sizes/font_size = 14
-text = "Build at your own pace with mixed bags or free build, then explore and make a film."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="BtnSolo" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/Margin/VBox"]
+[node name="BadgeSolo" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Select Solo"
+text = "1 PLAYER"
+
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 62)
+size_flags_vertical = 3
+text = "A table to yourself. Try a mixed bag or open the full parts collection."
+autowrap_mode = 2
+
+[node name="BtnSolo" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 48)
+text = "Build solo"
 
 [node name="CardPassPlay" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 320)
 layout_mode = 2
 
-[node name="Margin" type="MarginContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay"]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
+theme_override_constants/separation = 10
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/Margin"]
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
+custom_minimum_size = Vector2(0, 152)
+mouse_filter = 2
+script = ExtResource("2_vignette")
+composition = 2
 
-[node name="BadgePassPlay" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/Margin/VBox"]
-unique_name_in_owner = true
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.451, 0.718, 0.816, 1)
-theme_override_font_sizes/font_size = 14
-text = "SHARED TABLE"
-horizontal_alignment = 1
-
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
-theme_override_font_sizes/font_size = 22
 text = "Pass & Play"
-horizontal_alignment = 1
 
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/Margin/VBox"]
-layout_mode = 2
-size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
-theme_override_font_sizes/font_size = 14
-text = "Take turns with 2–4 players on this device with shared hands and optional timers."
-horizontal_alignment = 1
-autowrap_mode = 3
-
-[node name="BtnPassPlay" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/Margin/VBox"]
+[node name="BadgePassPlay" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Select Pass & Play"
+text = "2–4 PLAYERS  /  ONE DEVICE"
+
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 62)
+size_flags_vertical = 3
+text = "Share a table and take turns adding one brick at a time."
+autowrap_mode = 2
+
+[node name="BtnPassPlay" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 48)
+text = "Pass & play"
 
 [node name="CardOnline" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 152)
+mouse_filter = 2
+script = ExtResource("2_vignette")
+composition = 3
+
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+layout_mode = 2
+text = "Private Room"
+
+[node name="BadgeOnline" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(280, 320)
 layout_mode = 2
+text = "2–4 PLAYERS  /  ONLINE"
 
-[node name="Margin" type="MarginContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline"]
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
 layout_mode = 2
-theme_override_constants/margin_left = 18
-theme_override_constants/margin_top = 18
-theme_override_constants/margin_right = 18
-theme_override_constants/margin_bottom = 18
-
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/Margin"]
-layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="BadgeOnline" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/Margin/VBox"]
-unique_name_in_owner = true
-layout_mode = 2
-theme_override_colors/font_color = Color(0.957, 0.792, 0.408, 1)
-theme_override_font_sizes/font_size = 14
-text = "ONLINE ROOMS"
-horizontal_alignment = 1
-
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/Margin/VBox"]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
-theme_override_font_sizes/font_size = 22
-text = "Play Online"
-horizontal_alignment = 1
-
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/Margin/VBox"]
-layout_mode = 2
+custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
-theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
-theme_override_font_sizes/font_size = 14
-text = "Build together with friends in a private room using a 6-letter invitation code."
-horizontal_alignment = 1
-autowrap_mode = 3
+text = "Build together from different devices using a room code."
+autowrap_mode = 2
 
-[node name="BtnOnline" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/Margin/VBox"]
+[node name="BtnOnline" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 50)
 layout_mode = 2
-text = "Select Online"
+custom_minimum_size = Vector2(0, 48)
+text = "Set up a room"

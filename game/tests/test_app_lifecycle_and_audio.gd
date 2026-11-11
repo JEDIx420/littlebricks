@@ -10,12 +10,16 @@ const ModeSelectScreen = preload("res://client/scripts/mode_select.gd")
 const SetupScreen = preload("res://client/scripts/setup_screen.gd")
 const ExplorationController = preload("res://client/scripts/exploration_controller.gd")
 
-func _init() -> void:
+var _failed := false
+
+func _initialize() -> void:
+	run.call_deferred()
+
+func run() -> void:
 	print("--- Running LittleBricks Application Lifecycle & Audio Suite (LB-034/LB-035/LB-039) ---")
 	
 	var app_root = AppRootScene.instantiate()
 	root.add_child(app_root)
-	app_root._ready()
 	
 	# =========================================================================
 	# Test Group 1: Startup & Welcome Screen (LB-035)
@@ -32,7 +36,9 @@ func _init() -> void:
 	print("\n[Group 2: AudioDirector & Audio Assets]")
 	var audio = app_root.audio
 	assert_true(audio != null, "AudioDirector must be initialized")
-	assert_eq(audio.SOUNDS.size(), 9, "AudioDirector must load all 9 audio tracks and sfx")
+	assert_true(audio.SOUNDS["music_menu"] is AudioStreamOggVorbis, "Welcome score must load")
+	assert_true(audio.SOUNDS["music_building"] is AudioStreamOggVorbis, "Building score must load")
+	assert_true(not audio.has_node("AmbiencePlayer"), "The workshop has no environment sound loop")
 	
 	# Test playback triggers
 	audio.play_click("test_evt_1")
@@ -42,8 +48,7 @@ func _init() -> void:
 	audio.play_reject()
 	audio.play_chime()
 	audio.play_menu_music()
-	audio.set_theme_ambience("harbour")
-	print("PASS: All 9 audio assets load and play without error.")
+	print("PASS: Music and brick effects load and play without an environment loop.")
 	
 	# =========================================================================
 	# Test Group 3: Navigation Flow (Welcome -> Mode -> Setup -> Table)
@@ -96,12 +101,19 @@ func _init() -> void:
 	assert_eq(table.placed_pieces_data.size(), 1, "One piece placed on table")
 	assert_eq(app_root.active_session.placements.size(), 1, "Session recorded placement")
 	
-	# Transition to Exploration
-	app_root._on_table_finish_requested()
-	assert_true(app_root.current_view is ExplorationController, "Must transition to ExplorationScene")
-	
+	# Finish opens the showcase. The Explore button enters the build.
+	table.btn_finish.pressed.emit()
+	var showcase := table.find_child("ShowcaseOverlay", true, false) as ShowcaseOverlay
+	if showcase == null:
+		push_error("Finish must open the showcase")
+		quit(1)
+		return
+	assert_true(app_root.current_view == table, "The showcase stays over the finished table")
+	showcase.btn_explore.pressed.emit()
+	assert_true(app_root.current_view is ExplorationController, "Explore must open the exploration scene")
+
 	# Return to Table
-	app_root._on_return_to_table_requested(false)
+	(app_root.current_view as ExplorationController).return_to_table.emit(false)
 	var returned_table = app_root.current_view
 	assert_true(returned_table != null, "Returned to table scene")
 	assert_eq(returned_table.placed_pieces_data.size(), 1, "Placements preserved on return to table")
@@ -129,21 +141,23 @@ func _init() -> void:
 	assert_eq(restored_table.placed_pieces_data.size(), 1, "Restored table must have 1 piece")
 	print("PASS: Save & Leave successfully writes file; Continue restores exact session and table.")
 	
-	print("\nALL LB-034, LB-035, AND LB-039 REGRESSION CHECKS PASSED.")
+	if not _failed:
+		print("\nALL LB-034, LB-035, AND LB-039 REGRESSION CHECKS PASSED.")
 	app_root.queue_free()
-	quit(0)
+	await create_timer(0.15).timeout
+	quit(1 if _failed else 0)
 
 func assert_true(val: bool, msg: String) -> void:
 	if not val:
 		print("ASSERTION FAILED (expected true): %s" % msg)
-		quit(1)
+		_failed = true
 
 func assert_false(val: bool, msg: String) -> void:
 	if val:
 		print("ASSERTION FAILED (expected false): %s" % msg)
-		quit(1)
+		_failed = true
 
 func assert_eq(a, b, msg: String) -> void:
 	if a != b:
 		print("ASSERTION FAILED (%s != %s): %s" % [str(a), str(b), msg])
-		quit(1)
+		_failed = true

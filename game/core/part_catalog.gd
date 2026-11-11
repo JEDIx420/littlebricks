@@ -83,16 +83,27 @@ static func rotate_coord(x: float, z: float, rot_step: int) -> Vector2:
 		3: return Vector2(z, -x)
 	return Vector2(x, z)
 
-## Return transformed top stud coordinates relative to brick center
-func get_top_studs(part_id: String, rot_step: int) -> Array[Vector2]:
-	var p: Dictionary = get_part(part_id)
-	var conns: Dictionary = p.get("connectors", {})
-	var raw_studs: Array = conns.get("studs_top", [])
-	var rotated: Array[Vector2] = []
-	for s in raw_studs:
-		if s is Array and s.size() >= 2:
-			rotated.append(rotate_coord(s[0], s[1], rot_step))
+func get_version() -> String:
+	return _catalog_metadata.get("catalog_version", "1.0.0")
+
+## Returns the local, rotated (stud X, height in plates, stud Z) positions.
+## Flat bricks omit the per-stud height and use the body height.
+func get_top_stud_layers(part_id: String, rot_step: int) -> Array[Vector3]:
+	var part := get_part(part_id)
+	var default_height: int = int(part.get("dimensions_studs", [1, 3, 1])[1])
+	var raw_studs: Array = part.get("connectors", {}).get("studs_top", [])
+	var rotated: Array[Vector3] = []
+	for stud in raw_studs:
+		if stud is Array and stud.size() >= 2:
+			var xz := rotate_coord(stud[0], stud[1], rot_step)
+			rotated.append(Vector3(xz.x, float(stud[2]) if stud.size() > 2 else default_height, xz.y))
 	return rotated
+
+func get_top_studs(part_id: String, rot_step: int) -> Array[Vector2]:
+	var xz: Array[Vector2] = []
+	for stud in get_top_stud_layers(part_id, rot_step):
+		xz.append(Vector2(stud.x, stud.z))
+	return xz
 
 ## Return transformed bottom socket coordinates relative to brick center
 func get_bottom_sockets(part_id: String, rot_step: int) -> Array[Vector2]:

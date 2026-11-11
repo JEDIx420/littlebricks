@@ -22,16 +22,19 @@ All 126 buildable part shapes and connector definitions across Bricks, Plates, T
 
 ---
 
+### Opening screen typography
+
+- **DM Sans** and **DM Serif Text** ship under the SIL Open Font License 1.1. The upstream license files and copyright notices are bundled in `game/assets/ui/fonts/`.
+- [DM Sans source](https://github.com/google/fonts/tree/main/ofl/dmsans) and [DM Serif Text source](https://github.com/google/fonts/tree/main/ofl/dmseriftext)
+
 ## 3. Original Audio, Music & Foley
 
 All audio assets located in `game/assets/audio/` were synthesized and mastered specifically for LittleBricks:
 - **Licence**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
 - **Music Compositions**:
-  - `music_menu.wav`: Cozy acoustic/piano introductory theme (16-bit 44.1kHz).
-  - `music_building.wav`: Gentle, unobtrusive rhythmic acoustic guitar loop (16-bit 44.1kHz).
-- **Theme Ambience**:
-  - `ambience_harbour.wav`: Coastal breeze and distant gentle surf (16-bit 44.1kHz).
-  - `ambience_cabin.wav`: Cozy interior hearth and forest rustle (16-bit 44.1kHz).
+  - `music_menu.ogg` — *Open the Brick Box*, an original 51-second felt-key and plucked-string theme.
+  - `music_building.ogg` — *Afternoon at the Table*, an original 82-second stereo loop with a lighter melodic part.
+  - Both tracks are rendered from the original LittleBricks score by `tools/generate_audio_assets.py` and are available under these CC0 terms, including use in game-generated films.
 - **Sound Effects (SFX)**:
   - `click_place.wav`: Crisp tactile ABS mechanical connection click.
   - `pickup.wav`: Subtle acoustic part lift transient.

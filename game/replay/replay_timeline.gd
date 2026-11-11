@@ -21,6 +21,8 @@ var active_step: int = 0
 var is_playing: bool = false
 var playback_timer: float = 0.0
 var in_final_reveal: bool = false
+var _reduced_motion: bool = false
+var _orbit_speed: float = 12.0
 
 # Internal nodes
 var pieces_root: Node3D
@@ -53,6 +55,12 @@ func _ready() -> void:
 	if is_inside_tree() and camera:
 		camera.look_at(Vector3(0, 2, 0), Vector3.UP)
 
+func configure_camera(source_camera: Camera3D, focus: Vector3, reduced_motion: bool) -> void:
+	_reduced_motion = reduced_motion
+	camera_rig.global_position = focus
+	camera.global_transform = source_camera.global_transform
+	camera.fov = source_camera.fov
+
 ## Initialize timeline with recorded placements
 func load_build_history(placements: Array) -> void:
 	placements_data = placements.duplicate(true)
@@ -71,30 +79,33 @@ func play_replay() -> void:
 	playback_timer = 0.0
 	in_final_reveal = false
 	is_playing = true
+	_orbit_speed = minf(12.0, 75.0 / maxf(1.0, placements_data.size() * seconds_per_placement + reveal_duration_sec))
 	for c in pieces_root.get_children():
 		c.queue_free()
 
 func _process(delta: float) -> void:
+	advance_replay(delta)
+
+func advance_replay(delta: float) -> void:
 	if not is_playing:
 		return
 		
 	# Gentle camera rotation throughout replay
-	camera_rig.rotation_degrees.y += delta * 18.0
+	if not _reduced_motion:
+		camera_rig.rotation_degrees.y += delta * _orbit_speed
 	
 	playback_timer += delta
-	if not in_final_reveal:
-		if playback_timer >= seconds_per_placement:
-			playback_timer -= seconds_per_placement
-			_advance_step()
-	else:
-		if playback_timer >= reveal_duration_sec:
-			is_playing = false
-			replay_completed.emit()
+	while not in_final_reveal and playback_timer >= seconds_per_placement:
+		playback_timer -= seconds_per_placement
+		_advance_step()
+	if in_final_reveal and playback_timer >= reveal_duration_sec:
+		is_playing = false
+		replay_completed.emit()
 
 func _advance_step() -> void:
 	if active_step < placements_data.size():
 		var p = placements_data[active_step]
-		_instantiate_piece(p, true)
+		_instantiate_piece(p, not _reduced_motion)
 		active_step += 1
 		step_played.emit(active_step, placements_data.size())
 		if active_step == placements_data.size():

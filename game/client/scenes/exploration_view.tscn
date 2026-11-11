@@ -1,10 +1,15 @@
-[gd_scene load_steps=6 format=3 uid="uid://expview99281a"]
+[gd_scene load_steps=9 format=3 uid="uid://expview99281a"]
 
 [ext_resource type="Script" path="res://client/scripts/exploration_controller.gd" id="1_expctrl"]
 [ext_resource type="Script" path="res://client/scripts/table_view.gd" id="2_table"]
+[ext_resource type="Script" path="res://client/scripts/explorer_touch_stick.gd" id="3_touch"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
-sky_top_color = Color(0.4, 0.58, 0.8, 1)
+sky_top_color = Color(0.40, 0.58, 0.73, 1)
+sky_horizon_color = Color(0.76, 0.83, 0.83, 1)
+ground_bottom_color = Color(0.31, 0.38, 0.32, 1)
+ground_horizon_color = Color(0.60, 0.69, 0.57, 1)
+sun_angle_max = 0.0
 
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = SubResource("ProceduralSkyMaterial_1")
@@ -12,8 +17,19 @@ sky_material = SubResource("ProceduralSkyMaterial_1")
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
 sky = SubResource("Sky_1")
-ambient_light_source = 3
-ambient_light_color = Color(0.85, 0.88, 0.92, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.97, 0.94, 0.89, 1)
+ambient_light_energy = 0.61
+ambient_light_sky_contribution = 0.0
+reflected_light_source = 1
+
+[sub_resource type="StandardMaterial3D" id="CeilingMaterial"]
+albedo_color = Color(0.76, 0.71, 0.64, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="CeilingMesh"]
+material = SubResource("CeilingMaterial")
+size = Vector3(143.5, 0.8, 122.6)
 
 [node name="ExplorationView" type="Node3D"]
 script = ExtResource("1_expctrl")
@@ -22,8 +38,32 @@ script = ExtResource("1_expctrl")
 environment = SubResource("Environment_1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.866025, -0.353553, 0.353553, 0, 0.707107, 0.707107, -0.5, -0.612372, 0.612372, 12, 18, 12)
+rotation_degrees = Vector3(-27, 211, 0)
+light_color = Color(1, 0.96, 0.90, 1)
+light_energy = 0.68
+light_angular_distance = 2.3
 shadow_enabled = true
+shadow_bias = 0.045
+shadow_blur = 2.1
+shadow_opacity = 0.72
+directional_shadow_max_distance = 124.0
+
+[node name="BounceLight" type="OmniLight3D" parent="."]
+position = Vector3(16, 23, 22)
+light_color = Color(1, 0.91, 0.82, 1)
+light_energy = 0.34
+omni_range = 70.0
+omni_attenuation = 1.4
+
+[node name="WindowBounce" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-63, 16, 0)
+light_color = Color(0.85, 0.91, 1, 1)
+light_energy = 0.18
+
+[node name="Ceiling" type="MeshInstance3D" parent="."]
+position = Vector3(0, 45.4, 12.5)
+cast_shadow = 0
+mesh = SubResource("CeilingMesh")
 
 [node name="TableView" type="Node3D" parent="."]
 script = ExtResource("2_table")
@@ -42,41 +82,97 @@ script = ExtResource("2_table")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="TopPanel" type="PanelContainer" parent="CanvasLayer"]
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 60.0
-grow_horizontal = 2
-
-[node name="HBox" type="HBoxContainer" parent="CanvasLayer/TopPanel"]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="Title" type="Label" parent="CanvasLayer/TopPanel/HBox"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "  LittleBricks Miniature World"
-
-[node name="LabelPOVMode" type="Label" parent="CanvasLayer/TopPanel/HBox"]
+[node name="InfoCard" type="PanelContainer" parent="CanvasLayer"]
 unique_name_in_owner = true
+offset_left = 18.0
+offset_top = 18.0
+offset_right = 178.0
+offset_bottom = 74.0
+mouse_filter = 2
+
+[node name="Info" type="VBoxContainer" parent="CanvasLayer/InfoCard"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 1
+
+[node name="Title" type="Label" parent="CanvasLayer/InfoCard/Info"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.973, 0.906, 0.761, 1)
+theme_override_font_sizes/font_size = 23
+text = "  Explore"
+
+[node name="LabelPOVMode" type="Label" parent="CanvasLayer/InfoCard/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.86, 0.79, 0.655, 1)
+theme_override_font_sizes/font_size = 15
+text = "   Figure view"
+
+[node name="ActionCard" type="PanelContainer" parent="CanvasLayer"]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -372.0
+offset_top = 18.0
+offset_right = -18.0
+offset_bottom = 80.0
+grow_horizontal = 0
+
+[node name="Actions" type="HBoxContainer" parent="CanvasLayer/ActionCard"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnTogglePOV" type="Button" parent="CanvasLayer/ActionCard/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(106, 48)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Perspective: 3rd Person [V]"
+tooltip_text = "Change perspective (V)"
+text = "First person"
 
-[node name="BtnTogglePOV" type="Button" parent="CanvasLayer/TopPanel/HBox"]
+[node name="BtnResetFig" type="Button" parent="CanvasLayer/ActionCard/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 44)
+custom_minimum_size = Vector2(66, 48)
 layout_mode = 2
-text = "Toggle POV (V)"
+tooltip_text = "Return to the starting spot (R)"
+text = "Reset"
 
-[node name="BtnResetFig" type="Button" parent="CanvasLayer/TopPanel/HBox"]
+[node name="BtnReturnTable" type="Button" parent="CanvasLayer/ActionCard/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(130, 44)
+custom_minimum_size = Vector2(130, 48)
 layout_mode = 2
-text = "Reset Figure (R)"
+tooltip_text = "Return to the tabletop (Esc)"
+text = "Back to table"
 
-[node name="BtnReturnTable" type="Button" parent="CanvasLayer/TopPanel/HBox"]
+[node name="HintCard" type="PanelContainer" parent="CanvasLayer"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 44)
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 18.0
+offset_top = -56.0
+offset_right = 390.0
+offset_bottom = -18.0
+grow_vertical = 0
+mouse_filter = 2
+
+[node name="ControlsHint" type="Label" parent="CanvasLayer/HintCard"]
+unique_name_in_owner = true
 layout_mode = 2
-text = "Return to Table ↩"
+theme_override_colors/font_color = Color(0.96, 0.90, 0.79, 1)
+theme_override_font_sizes/font_size = 15
+horizontal_alignment = 1
+text = "WASD / arrows to walk  ·  Right-drag to look"
+
+[node name="TouchStick" type="Control" parent="CanvasLayer"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 0
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = -212.0
+offset_right = 158.0
+offset_bottom = -76.0
+script = ExtResource("3_touch")

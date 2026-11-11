@@ -5,10 +5,11 @@
 [ext_resource type="Script" path="res://client/scripts/table_view.gd" id="3_table"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_1"]
-sky_top_color = Color(0.4, 0.58, 0.8, 1)
-sky_horizon_color = Color(0.72, 0.78, 0.85, 1)
-ground_bottom_color = Color(0.2, 0.22, 0.25, 1)
-ground_horizon_color = Color(0.65, 0.7, 0.75, 1)
+sky_top_color = Color(0.40, 0.58, 0.73, 1)
+sky_horizon_color = Color(0.76, 0.83, 0.83, 1)
+ground_bottom_color = Color(0.31, 0.38, 0.32, 1)
+ground_horizon_color = Color(0.60, 0.69, 0.57, 1)
+sun_angle_max = 0.0
 
 [sub_resource type="Sky" id="Sky_1"]
 sky_material = SubResource("ProceduralSkyMaterial_1")
@@ -16,12 +17,11 @@ sky_material = SubResource("ProceduralSkyMaterial_1")
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 2
 sky = SubResource("Sky_1")
-ambient_light_source = 3
-ambient_light_color = Color(0.92, 0.90, 0.86, 1)
-ambient_light_energy = 0.55
-ambient_light_sky_contribution = 0.4
-tonemap_mode = 2
-tonemap_exposure = 1.05
+ambient_light_source = 2
+ambient_light_color = Color(0.97, 0.94, 0.89, 1)
+ambient_light_energy = 0.61
+ambient_light_sky_contribution = 0.0
+reflected_light_source = 2
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_main")
@@ -30,18 +30,27 @@ script = ExtResource("1_main")
 environment = SubResource("Environment_1")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.766044, -0.492404, 0.413176, 0, 0.642788, 0.766044, -0.642788, -0.586824, 0.492404, -20, 24, -10)
-light_color = Color(1, 0.96, 0.88, 1)
-light_energy = 1.25
+rotation_degrees = Vector3(-27, 211, 0)
+light_color = Color(1, 0.96, 0.90, 1)
+light_energy = 0.68
+light_angular_distance = 2.3
 shadow_enabled = true
-shadow_bias = 0.03
+shadow_bias = 0.045
+shadow_blur = 2.1
+shadow_opacity = 0.72
+directional_shadow_max_distance = 124.0
 
-[node name="CeilingPendantLight" type="OmniLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 16, 0)
-light_color = Color(1, 0.95, 0.86, 1)
-light_energy = 0.65
-omni_range = 35.0
-omni_attenuation = 1.2
+[node name="BounceLight" type="OmniLight3D" parent="."]
+position = Vector3(16, 23, 22)
+light_color = Color(1, 0.91, 0.82, 1)
+light_energy = 0.42
+omni_range = 70.0
+omni_attenuation = 1.4
+
+[node name="WindowBounce" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-63, 16, 0)
+light_color = Color(0.85, 0.91, 1.0, 1)
+light_energy = 0.23
 
 [node name="TableView" type="Node3D" parent="."]
 script = ExtResource("3_table")
@@ -58,10 +67,21 @@ script = ExtResource("3_table")
 
 [node name="CameraRig" type="Node3D" parent="."]
 script = ExtResource("2_camera")
+distance = 66.0
+max_distance = 72.0
+pitch = -30.0
+yaw = 25.0
+room_distance = 66.0
+room_pitch = -30.0
+room_yaw = 25.0
+plate_distance = 51.0
+plate_pitch = -58.0
+plate_yaw = 16.0
+room_bounds = AABB(-69, -22, -46, 138, 100, 117)
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 current = true
-fov = 48.0
+fov = 49.0
 
 [node name="UI" type="CanvasLayer" parent="."]
 
@@ -76,237 +96,357 @@ mouse_filter = 2
 
 [node name="TopPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 60.0
-grow_horizontal = 2
+anchor_left = 0
+offset_left = 18
+anchor_top = 0
+offset_top = 16
+anchor_right = 0
+offset_right = 384
+anchor_bottom = 0
+offset_bottom = 98
 
-[node name="HBox" type="HBoxContainer" parent="UI/RootControl/TopPanel"]
+[node name="Identity" type="VBoxContainer" parent="UI/RootControl/TopPanel"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 3
 
-[node name="Title" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+[node name="Title" type="Label" parent="UI/RootControl/TopPanel/Identity"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 20
-text = "  LittleBricks"
+text = "LittleBricks"
 
-[node name="ThemeLabel" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+[node name="StatusRow" type="HBoxContainer" parent="UI/RootControl/TopPanel/Identity"]
 layout_mode = 2
-text = "[Harbour & Cabin]"
+theme_override_constants/separation = 7
 
-[node name="VSeparator" type="VSeparator" parent="UI/RootControl/TopPanel/HBox"]
-layout_mode = 2
-
-[node name="ColorPlayerBadge" type="ColorRect" parent="UI/RootControl/TopPanel/HBox"]
+[node name="ColorPlayerBadge" type="ColorRect" parent="UI/RootControl/TopPanel/Identity/StatusRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(16, 16)
+custom_minimum_size = Vector2(10, 10)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.85, 0.15, 0.15, 1)
+mouse_filter = 2
 
-[node name="LabelStatus" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+[node name="LabelStatus" type="Label" parent="UI/RootControl/TopPanel/Identity/StatusRow"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Ready to build"
+text = "Choose a brick"
+text_overrun_behavior = 3
 
-[node name="LabelTimer" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+[node name="LabelTimer" type="Label" parent="UI/RootControl/TopPanel/Identity/StatusRow"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
 theme_override_font_sizes/font_size = 15
-text = "⏱ 20s"
+text = "20s"
 
-[node name="BtnPassTurn" type="Button" parent="UI/RootControl/TopPanel/HBox"]
-unique_name_in_owner = true
-visible = false
-custom_minimum_size = Vector2(70, 44)
-layout_mode = 2
-text = "Pass"
-
-[node name="BtnUndo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(75, 44)
-layout_mode = 2
-text = "Undo"
-
-[node name="BtnRedo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(75, 44)
-layout_mode = 2
-text = "Redo"
-
-[node name="LabelCoords" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+[node name="LabelCoords" type="Label" parent="UI/RootControl/TopPanel/Identity"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
 text = "Stud: (16, 16) | Layer: 0 | Yaw: 0°  "
 
-[node name="VSepCam" type="VSeparator" parent="UI/RootControl/TopPanel/HBox"]
-layout_mode = 2
+[node name="Commands" type="PanelContainer" parent="UI/RootControl"]
+layout_mode = 1
+anchor_left = 1
+offset_left = -468
+anchor_top = 0
+offset_top = 16
+anchor_right = 1
+offset_right = -18
+anchor_bottom = 0
+offset_bottom = 72
 
-[node name="BtnCameraMode" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="Actions" type="HBoxContainer" parent="UI/RootControl/Commands"]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 2
+
+[node name="BtnPassTurn" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 44)
+visible = false
+custom_minimum_size = Vector2(48, 42)
 layout_mode = 2
-text = "Mode: Build (C)"
+text = "Pass"
 
-[node name="BtnTopView" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="BtnUndo" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(70, 44)
+custom_minimum_size = Vector2(48, 42)
 layout_mode = 2
-text = "Top (T)"
+text = "Undo"
 
-[node name="BtnFrameBuild" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="BtnRedo" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(75, 44)
+custom_minimum_size = Vector2(48, 42)
 layout_mode = 2
-text = "Frame (F)"
+text = "Redo"
 
-[node name="BtnResetView" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="BtnFinish" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(65, 44)
-layout_mode = 2
-text = "Home"
-
-[node name="VSepNav" type="VSeparator" parent="UI/RootControl/TopPanel/HBox"]
-layout_mode = 2
-
-[node name="BtnFinish" type="Button" parent="UI/RootControl/TopPanel/HBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 44)
+custom_minimum_size = Vector2(76, 42)
 layout_mode = 2
 text = "Explore"
 
-[node name="BtnLeave" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="BtnLeave" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 44)
+custom_minimum_size = Vector2(101, 42)
 layout_mode = 2
-text = "Save & Leave"
+text = "Save & leave"
 
-[node name="BtnSettings" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+[node name="BtnSettings" type="Button" parent="UI/RootControl/Commands/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(85, 44)
+custom_minimum_size = Vector2(68, 42)
 layout_mode = 2
 text = "Settings"
 
-[node name="RightControls" type="VBoxContainer" parent="UI/RootControl"]
+[node name="CameraPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchors_preset = 3
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -224.0
-offset_top = -280.0
-offset_right = -14.0
-offset_bottom = -86.0
-grow_horizontal = 0
-grow_vertical = 0
-theme_override_constants/separation = 6
+anchor_left = 0
+offset_left = 18
+anchor_top = 1
+offset_top = -299
+anchor_right = 0
+offset_right = 248
+anchor_bottom = 1
+offset_bottom = -18
 
-[node name="ActionRow" type="HBoxContainer" parent="UI/RootControl/RightControls"]
+[node name="ViewControls" type="VBoxContainer" parent="UI/RootControl/CameraPanel"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="CameraTitle" type="Label" parent="UI/RootControl/CameraPanel/ViewControls"]
+layout_mode = 2
+text = "CAMERA"
+
+[node name="Modes" type="HBoxContainer" parent="UI/RootControl/CameraPanel/ViewControls"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BtnPlace" type="Button" parent="UI/RootControl/RightControls/ActionRow"]
+[node name="BtnCameraMode" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Modes"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
+custom_minimum_size = Vector2(61, 42)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Place (Enter)"
+text = "Build"
 
-[node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls/ActionRow"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 46)
+[node name="BtnOrbitMode" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Modes"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Cancel (Esc)"
+custom_minimum_size = Vector2(44, 42)
+text = "Orbit"
+tooltip_text = "Drag to orbit the tabletop"
 
-[node name="RotateRow" type="HBoxContainer" parent="UI/RootControl/RightControls"]
+[node name="BtnPanMode" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Modes"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "Pan"
+tooltip_text = "Drag to slide the tabletop"
+
+[node name="Compass" type="GridContainer" parent="UI/RootControl/CameraPanel/ViewControls"]
+layout_mode = 2
+theme_override_constants/separation = 3
+columns = 4
+
+[node name="BtnOrbitLeft" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Compass"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "←"
+tooltip_text = "Orbit left"
+
+[node name="BtnOrbitUp" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Compass"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "↑"
+tooltip_text = "Tilt toward top view"
+
+[node name="BtnOrbitDown" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Compass"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "↓"
+tooltip_text = "Tilt toward the room"
+
+[node name="BtnOrbitRight" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Compass"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "→"
+tooltip_text = "Orbit right"
+
+[node name="Presets" type="HBoxContainer" parent="UI/RootControl/CameraPanel/ViewControls"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BtnRotateLeft" type="Button" parent="UI/RootControl/RightControls/RotateRow"]
+[node name="BtnResetView" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Presets"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(61, 42)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Rotate ↶ (Q)"
+text = "Room"
 
-[node name="BtnRotateRight" type="Button" parent="UI/RootControl/RightControls/RotateRow"]
+[node name="BtnFrameBuild" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Presets"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(57, 42)
 layout_mode = 2
-size_flags_horizontal = 3
-text = "Rotate ↷ (E)"
+text = "Plate"
 
-[node name="BtnAutoHeight" type="Button" parent="UI/RootControl/RightControls"]
+[node name="BtnTopView" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Presets"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(48, 42)
 layout_mode = 2
-text = "Auto Height [ON]"
+text = "Top"
 
-[node name="HeightBox" type="HBoxContainer" parent="UI/RootControl/RightControls"]
+[node name="Zoom" type="HBoxContainer" parent="UI/RootControl/CameraPanel/ViewControls"]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="BtnLayerDown" type="Button" parent="UI/RootControl/RightControls/HeightBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+[node name="BtnZoomOut" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Zoom"]
 layout_mode = 2
-size_flags_horizontal = 3
-text = "- Down"
+custom_minimum_size = Vector2(44, 42)
+text = "−"
+tooltip_text = "Zoom out"
 
-[node name="BtnLayerUp" type="Button" parent="UI/RootControl/RightControls/HeightBox"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+[node name="ZoomLabel" type="Label" parent="UI/RootControl/CameraPanel/ViewControls/Zoom"]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "+ Up"
+horizontal_alignment = 1
+text = "Zoom"
 
-[node name="BtnReturnBase" type="Button" parent="UI/RootControl/RightControls/HeightBox"]
+[node name="BtnZoomIn" type="Button" parent="UI/RootControl/CameraPanel/ViewControls/Zoom"]
+layout_mode = 2
+custom_minimum_size = Vector2(44, 42)
+text = "+"
+tooltip_text = "Zoom in"
+
+[node name="CameraHint" type="Label" parent="UI/RootControl/CameraPanel/ViewControls"]
+layout_mode = 2
+text = "Right-drag to orbit"
+
+[node name="RightControls" type="PanelContainer" parent="UI/RootControl"]
+layout_mode = 1
+anchor_left = 1
+offset_left = -225
+anchor_top = 1
+offset_top = -290
+anchor_right = 1
+offset_right = -18
+anchor_bottom = 1
+offset_bottom = -18
+
+[node name="BuildTools" type="VBoxContainer" parent="UI/RootControl/RightControls"]
+layout_mode = 2
+theme_override_constants/separation = 7
+
+[node name="ToolTitle" type="Label" parent="UI/RootControl/RightControls/BuildTools"]
+layout_mode = 2
+text = "HELD BRICK"
+
+[node name="ActionRow" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnPlace" type="Button" parent="UI/RootControl/RightControls/BuildTools/ActionRow"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 44)
+custom_minimum_size = Vector2(48, 42)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Base (B)"
+text = "Place"
+
+[node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls/BuildTools/ActionRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Drop"
+
+[node name="RotateRow" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnRotateLeft" type="Button" parent="UI/RootControl/RightControls/BuildTools/RotateRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "↶  Q"
+
+[node name="BtnRotateRight" type="Button" parent="UI/RootControl/RightControls/BuildTools/RotateRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "↷  E"
+
+[node name="BtnAutoHeight" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(48, 42)
+layout_mode = 2
+text = "Auto height"
+
+[node name="HeightBox" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnLayerDown" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "−"
+
+[node name="BtnLayerUp" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+"
+
+[node name="BtnReturnBase" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(54, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Base"
 
 [node name="BottomPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -74.0
-grow_horizontal = 2
-grow_vertical = 0
+anchor_left = 0.5
+offset_left = -369
+anchor_top = 1
+offset_top = -125
+anchor_right = 0.5
+offset_right = 369
+anchor_bottom = 1
+offset_bottom = -18
 
 [node name="BottomHBox" type="HBoxContainer" parent="UI/RootControl/BottomPanel"]
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
 
 [node name="BtnAllParts" type="Button" parent="UI/RootControl/BottomPanel/BottomHBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(110, 48)
+custom_minimum_size = Vector2(65, 42)
 layout_mode = 2
-text = "All Parts"
-
-[node name="VSep" type="VSeparator" parent="UI/RootControl/BottomPanel/BottomHBox"]
-layout_mode = 2
+text = "Parts"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="UI/RootControl/BottomPanel/BottomHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
+vertical_scroll_mode = 0
 
 [node name="TrayContainer" type="HBoxContainer" parent="UI/RootControl/BottomPanel/BottomHBox/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
+
+[node name="CatalogScrim" type="ColorRect" parent="UI/RootControl"]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 0
+mouse_force_pass_scroll_events = false
+color = Color(0.04, 0.04, 0.03, 0.57)
 
 [node name="CatalogModal" type="PanelContainer" parent="UI/RootControl"]
 unique_name_in_owner = true
@@ -317,9 +457,9 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -340.0
+offset_left = -392.0
 offset_top = -240.0
-offset_right = 340.0
+offset_right = 392.0
 offset_bottom = 240.0
 grow_horizontal = 2
 grow_vertical = 2
@@ -335,7 +475,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 18
-text = "Parts Catalogue (Solo Browser)"
+text = "Parts catalogue"
 
 [node name="BtnCloseCatalog" type="Button" parent="UI/RootControl/CatalogModal/VBox/Header"]
 unique_name_in_owner = true
@@ -358,11 +498,18 @@ layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search parts..."
 
-[node name="CatalogScroll" type="ScrollContainer" parent="UI/RootControl/CatalogModal/VBox"]
+[node name="CatalogBody" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="CatalogGrid" type="GridContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogScroll"]
+[node name="CatalogScroll" type="ScrollContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody"]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_horizontal = 3
+horizontal_scroll_mode = 0
+
+[node name="CatalogGrid" type="GridContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogScroll"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -370,3 +517,17 @@ size_flags_vertical = 3
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 columns = 4
+
+
+[node name="CatalogDetail" type="VBoxContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody"]
+layout_mode = 2
+custom_minimum_size = Vector2(180, 0)
+theme_override_constants/separation = 8
+
+[node name="CatalogPreview" type="VBoxContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail"]
+layout_mode = 2
+
+[node name="BtnPickPart" type="Button" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 44)
+text = "Pick this brick"

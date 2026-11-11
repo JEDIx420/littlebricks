@@ -10,7 +10,6 @@ signal closed()
 @onready var slider_master: HSlider = %SliderMaster
 @onready var slider_music: HSlider = %SliderMusic
 @onready var slider_sfx: HSlider = %SliderSFX
-@onready var slider_ambience: HSlider = %SliderAmbience
 @onready var check_haptics: CheckBox = %CheckHaptics
 @onready var check_reduced_motion: CheckBox = %CheckReducedMotion
 @onready var check_high_contrast: CheckBox = %CheckHighContrast
@@ -26,7 +25,6 @@ func _ensure_nodes() -> void:
 	if not slider_master: slider_master = find_child("SliderMaster", true, false)
 	if not slider_music: slider_music = find_child("SliderMusic", true, false)
 	if not slider_sfx: slider_sfx = find_child("SliderSFX", true, false)
-	if not slider_ambience: slider_ambience = find_child("SliderAmbience", true, false)
 	if not check_haptics: check_haptics = find_child("CheckHaptics", true, false)
 	if not check_reduced_motion: check_reduced_motion = find_child("CheckReducedMotion", true, false)
 	if not check_high_contrast: check_high_contrast = find_child("CheckHighContrast", true, false)
@@ -59,8 +57,6 @@ func _ready() -> void:
 		slider_music.value_changed.connect(_on_volumes_changed)
 	if slider_sfx and not slider_sfx.value_changed.is_connected(_on_volumes_changed):
 		slider_sfx.value_changed.connect(_on_volumes_changed)
-	if slider_ambience and not slider_ambience.value_changed.is_connected(_on_volumes_changed):
-		slider_ambience.value_changed.connect(_on_volumes_changed)
 	if check_haptics and not check_haptics.toggled.is_connected(_on_haptics_toggled):
 		check_haptics.toggled.connect(_on_haptics_toggled)
 	if check_reduced_motion and not check_reduced_motion.toggled.is_connected(_on_reduced_motion_toggled):
@@ -75,7 +71,6 @@ func _sync_ui_to_settings() -> void:
 	if slider_master: slider_master.value = settings_manager.master_volume * 100.0
 	if slider_music: slider_music.value = settings_manager.music_volume * 100.0 if "music_volume" in settings_manager else 70.0
 	if slider_sfx: slider_sfx.value = settings_manager.sfx_volume * 100.0 if "sfx_volume" in settings_manager else 90.0
-	if slider_ambience: slider_ambience.value = settings_manager.ambience_volume * 100.0 if "ambience_volume" in settings_manager else 50.0
 	if check_haptics: check_haptics.button_pressed = settings_manager.haptics_enabled if "haptics_enabled" in settings_manager else true
 	if check_reduced_motion: check_reduced_motion.button_pressed = settings_manager.reduced_motion
 	if check_high_contrast: check_high_contrast.button_pressed = settings_manager.high_contrast_cues
@@ -94,16 +89,14 @@ func _on_volumes_changed(_val: float) -> void:
 	var m = slider_master.value / 100.0 if slider_master else 1.0
 	var mu = slider_music.value / 100.0 if slider_music else 0.7
 	var sf = slider_sfx.value / 100.0 if slider_sfx else 0.9
-	var amb = slider_ambience.value / 100.0 if slider_ambience else 0.5
 	
 	settings_manager.master_volume = m
 	if "music_volume" in settings_manager: settings_manager.music_volume = mu
 	if "sfx_volume" in settings_manager: settings_manager.sfx_volume = sf
-	if "ambience_volume" in settings_manager: settings_manager.ambience_volume = amb
 	settings_manager.save_settings()
 	
 	if audio_director:
-		audio_director.set_volumes(m, mu, sf, amb)
+		audio_director.set_volumes(m, mu, sf)
 
 func _on_haptics_toggled(pressed: bool) -> void:
 	if settings_manager and "haptics_enabled" in settings_manager:

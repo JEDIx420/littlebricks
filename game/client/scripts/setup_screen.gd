@@ -4,6 +4,8 @@ class_name SetupScreen
 ## Mode-specific table setup screen (LB-035).
 ## Configures themes, players, timers, and bag rules before entering the table.
 
+const Studio = preload("res://client/scripts/menu_studio.gd")
+
 signal start_session_requested(config: Dictionary)
 signal back_pressed()
 
@@ -61,19 +63,31 @@ func _ensure_nodes() -> void:
 func _ready() -> void:
 	_ensure_nodes()
 	
-	# Apply craft-table theme tokens (LB-060)
-	if btn_back:
-		UIThemeHelper.apply_secondary_button(btn_back)
-	var main_panel = find_child("MainPanel", true, false) as PanelContainer
-	if main_panel:
-		UIThemeHelper.apply_card(main_panel)
-	if btn_start:
-		UIThemeHelper.apply_primary_button(btn_start)
-	if btn_create_room:
-		UIThemeHelper.apply_primary_button(btn_create_room)
-	if btn_join_room:
-		UIThemeHelper.apply_secondary_button(btn_join_room)
-		
+	Studio.apply_theme(self)
+	Studio.button(btn_back)
+	Studio.style_label(label_mode_title, 43, true)
+	Studio.style_label(%LabelModeDescription, 16, false, Studio.MUTED)
+	var card := Studio.surface(Studio.PAPER, 16, Studio.BORDER, true)
+	card.set_content_margin_all(0.0)
+	%MainPanel.add_theme_stylebox_override("panel", card)
+	var frame := Studio.surface(Color("#d2c0a2"), 16, Color("#e1d0b6"), true)
+	frame.set_content_margin_all(6.0)
+	%Preview.add_theme_stylebox_override("panel", frame)
+	for button in [btn_start, btn_create_room, btn_join_room]:
+		Studio.button(button, true)
+	for option in [opt_solo_theme, opt_solo_mode, opt_player_count, opt_pass_theme, opt_pass_timer]:
+		Studio.button(option)
+		option.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	for field in [line_edit_solo_name, line_player_1, line_player_2, line_player_3, line_player_4, line_online_name, line_online_code]:
+		field.custom_minimum_size.y = 48.0
+	if not resized.is_connected(_layout_setup):
+		resized.connect(_layout_setup)
+	for option in [opt_solo_theme, opt_pass_theme, opt_solo_mode]:
+		if not option.item_selected.is_connected(_refresh_preview):
+			option.item_selected.connect(_refresh_preview)
+	_layout_setup()
+	_refresh_preview()
+
 	if btn_back and not btn_back.pressed.is_connected(_on_back_pressed):
 		btn_back.pressed.connect(_on_back_pressed)
 	if btn_start and not btn_start.pressed.is_connected(_on_start_pressed):
@@ -87,6 +101,28 @@ func _ready() -> void:
 	if btn_join_room and not btn_join_room.pressed.is_connected(_on_join_room_pressed):
 		btn_join_room.pressed.connect(_on_join_room_pressed)
 
+func _layout_setup() -> void:
+	var available := maxf(260.0, minf(size.x - 58.0, 1060.0))
+	var split := available > 780.0 and size.x / maxf(size.y, 1.0) > 1.0
+	%Preview.visible = split
+	%Stage.custom_minimum_size.y = 465.0 if split else 0.0
+	var body := $ContentScroll/CenterWrapper/Body as HBoxContainer
+	body.custom_minimum_size.x = available if split else minf(available, 540.0)
+	%MainPanel.custom_minimum_size.x = 385.0 if split else minf(available, 540.0)
+
+func _refresh_preview(_selection: int = -1) -> void:
+	var mode_description := %LabelModeDescription as Label
+	match current_mode:
+		"solo":
+			mode_description.text = "Pick any piece from the collection." if opt_solo_mode.selected == 1 else "Draw from a themed bag and place one piece each turn."
+			%Stage.show_cabin_palette(opt_solo_theme.selected == 1)
+		"pass_and_play":
+			mode_description.text = "Pass the device to the next builder after each turn."
+			%Stage.show_cabin_palette(opt_pass_theme.selected == 1)
+		"online":
+			mode_description.text = "Host a table for friends or enter the code they sent."
+			%Stage.show_cabin_palette(false)
+
 func _on_back_pressed() -> void:
 	back_pressed.emit()
 
@@ -99,19 +135,21 @@ func configure_for_mode(mode: String) -> void:
 	
 	match mode:
 		"solo":
-			if label_mode_title: label_mode_title.text = "Set Up Your Solo Table"
+			if label_mode_title: label_mode_title.text = "Your table"
 			if btn_start:
 				btn_start.visible = true
 				btn_start.text = "Start Building"
 		"pass_and_play":
-			if label_mode_title: label_mode_title.text = "Set Up Pass & Play"
+			if label_mode_title: label_mode_title.text = "Set up Pass & Play"
 			if btn_start:
 				btn_start.visible = true
 				btn_start.text = "Start Building"
 			_on_player_count_changed(opt_player_count.selected if opt_player_count else 0)
 		"online":
-			if label_mode_title: label_mode_title.text = "Private Online Room"
+			if label_mode_title: label_mode_title.text = "Private room"
 			if btn_start: btn_start.visible = false # Uses Create/Join buttons
+
+	_refresh_preview()
 
 func _on_player_count_changed(index: int) -> void:
 	var count = index + 2 # 0 -> 2, 1 -> 3, 2 -> 4

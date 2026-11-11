@@ -12,30 +12,35 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_showcase")
 
-[node name="CenterBox" type="CenterContainer" parent="."]
+[node name="CenterBox" type="VBoxContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 18.0
+offset_right = -18.0
+offset_bottom = -18.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
+alignment = 2
 
 [node name="CardPanel" type="PanelContainer" parent="CenterBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(440, 360)
+custom_minimum_size = Vector2(454, 0)
 layout_mode = 2
+size_flags_horizontal = 0
 
 [node name="Margin" type="MarginContainer" parent="CenterBox/CardPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
 
 [node name="VBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 16
+theme_override_constants/separation = 6
 
 [node name="HeaderBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
 layout_mode = 2
@@ -47,8 +52,9 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 28
-text = "Creation Complete!"
+text = "My creation"
 horizontal_alignment = 1
+text_overrun_behavior = 3
 
 [node name="Subtitle" type="Label" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox"]
 unique_name_in_owner = true
@@ -61,10 +67,11 @@ horizontal_alignment = 1
 [node name="HSeparator" type="HSeparator" parent="CenterBox/CardPanel/Margin/VBox"]
 layout_mode = 2
 
-[node name="ActionsBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
+[node name="ActionsBox" type="HBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_constants/separation = 12
+theme_override_constants/separation = 8
+alignment = 1
 
 [node name="BtnExplore" type="Button" parent="CenterBox/CardPanel/Margin/VBox/ActionsBox"]
 unique_name_in_owner = true
@@ -101,9 +108,10 @@ horizontal_alignment = 1
 
 [node name="ProgressBar" type="ProgressBar" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 20)
+custom_minimum_size = Vector2(0, 6)
 layout_mode = 2
 max_value = 1.0
+show_percentage = false
 
 [node name="ReplayControls" type="HBoxContainer" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox"]
 layout_mode = 2

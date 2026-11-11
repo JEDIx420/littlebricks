@@ -1,10 +1,10 @@
 class_name BuildInfo
 
-const VERSION: String = "2.0.0-dev"
-const GIT_SHA: String = "0e8a0d3"
-const BUILD_DATE: String = "2026-11-11"
-const ENGINE_VERSION: String = "4.7.2.stable.official"
+const VERSION: String = "2.1.0-dev"
+const GIT_SHA: String = "source"
+const BUILD_DATE: String = ""
 const RENDERER: String = "gl_compatibility"
 
 static func get_build_summary() -> String:
-	return "LittleBricks v%s (%s • %s • %s)" % [VERSION, GIT_SHA, BUILD_DATE, RENDERER]
+	var revision := GIT_SHA if BUILD_DATE.is_empty() else "%s · %s" % [GIT_SHA, BUILD_DATE]
+	return "LittleBricks v%s (%s · Godot %s · %s)" % [VERSION, revision, Engine.get_version_info().get("string", ""), RENDERER]

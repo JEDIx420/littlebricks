@@ -135,6 +135,8 @@ func _handle_server_message(raw_json: String) -> void:
 	
 	match op:
 		NetworkProtocol.OP_JOIN_ACK:
+			last_received_seq = 0
+			pending_requests.clear()
 			player_token = msg.get("player_token", "")
 			player_id = msg.get("player_id", "")
 			current_room_code = msg.get("room_code", "")
@@ -160,8 +162,10 @@ func _handle_server_message(raw_json: String) -> void:
 			var placement = msg.get("placement", {})
 			var next_p = msg.get("next_player_id", "")
 			var seq = msg.get("sequence", 0)
-			if seq > last_received_seq:
-				last_received_seq = seq
+			# A retried request can receive the cached broadcast again.
+			if seq <= last_received_seq:
+				return
+			last_received_seq = seq
 			placement_received.emit(placement, next_p, seq)
 			
 		NetworkProtocol.OP_ROSTER_UPDATE:

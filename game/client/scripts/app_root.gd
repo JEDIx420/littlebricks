@@ -47,12 +47,12 @@ func _ready() -> void:
 	
 	# Apply initial audio settings
 	audio.set_mute(not settings.sound_enabled)
-	audio.set_volumes(settings.master_volume, 0.7, 0.9, 0.5)
+	audio.set_volumes(settings.master_volume, settings.music_volume, settings.sfx_volume)
 	
 	navigate_to_welcome()
 
-func _unhandled_input(event: InputEvent) -> void:
-	if audio and (event is InputEventMouseButton or event is InputEventKey or event is InputEventScreenTouch):
+func _input(event: InputEvent) -> void:
+	if audio and event.is_pressed() and (event is InputEventMouseButton or event is InputEventKey or event is InputEventScreenTouch):
 		audio.unlock_audio()
 
 func _clear_current_view() -> void:
@@ -134,7 +134,6 @@ func start_session(config: Dictionary) -> void:
 		
 	_clear_current_view()
 	audio.play_building_music()
-	audio.set_theme_ambience(theme)
 	
 	# Instantiate 3D tabletop
 	var table = MainTableScene.instantiate()
@@ -177,102 +176,62 @@ func continue_latest_save() -> void:
 		navigate_to_mode_select()
 		return
 		
-	var res = SaveManager.load_from_file(newest_file)
-	if not res.get("success", false):
+	if not _restore_saved_build(newest_file):
 		navigate_to_mode_select()
-		return
-		
-	var data = res["data"]
-	active_session = SessionManager.new()
-	var p_names: Array[String] = []
-	for pl in data.get("players", []):
-		p_names.append(pl.get("name", "Player"))
-	if p_names.is_empty(): p_names = ["Builder"]
-	
-	active_session.setup_session(
-		data.get("mode", 0) as SessionManager.GameMode,
-		p_names,
-		data.get("theme_id", "harbour"),
-		data.get("timer_enabled", false)
-	)
-	
-	# Restore saved placements
-	for p in data.get("placements", []):
-		var col_hex = p.get("color_hex", "ffffff")
-		active_session.placements.append({
-			"placement_id": p.get("placement_id", ""),
-			"sequence": p.get("sequence", 0),
-			"player_id": p.get("player_id", "p0"),
-			"part_id": p.get("part_id", "brick_2x4"),
-			"grid_x": p.get("grid_x", 16),
-			"grid_z": p.get("grid_z", 16),
-			"layer_plate": p.get("layer_plate", 0),
-			"rotation_step": p.get("rotation_step", 0),
-			"color": Color.from_string(col_hex, Color.WHITE)
-		})
-		
-	_clear_current_view()
-	audio.play_building_music()
-	audio.set_theme_ambience(active_session.theme_id)
-	
-	var table = MainTableScene.instantiate()
-	add_child(table)
-	current_view = table
-	if not table.is_node_ready():
-		table._ready()
-	
-	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics, settings)
-	if table.has_signal("finish_requested"):
-		table.finish_requested.connect(_on_table_finish_requested)
-	if table.has_signal("leave_requested"):
-		table.leave_requested.connect(save_and_leave)
-	if table.has_signal("settings_requested"):
-		table.settings_requested.connect(open_settings)
 
 func _on_table_finish_requested() -> void:
 	if not active_session:
 		return
-		
-	# Save active state before showcase reveal
+
 	_save_active_session()
 	audio.play_chime()
-	
-	# If there is no current_view or table to overlay showcase upon, open exploration directly
 	if not current_view or not current_view.has_method("_on_frame_build"):
 		_open_exploration_view()
 		return
-		
-	# Frame creation on table
-	current_view._on_frame_build()
-		
-	# Instantiate and attach showcase overlay (LB-063)
-	var showcase = ShowcaseOverlayScene.instantiate() as ShowcaseOverlay
-	var ui_root = current_view.find_child("RootControl", true, false)
-	if ui_root:
-		ui_root.add_child(showcase)
-	else:
-		current_view.add_child(showcase)
-	if not showcase.is_node_ready():
-		showcase._ready()
-		
-	var c_name = current_session_config.get("creation_name", "My Creation")
+
+	var table = current_view
+	var ui_root := table.find_child("RootControl", true, false) as Control
+	if not ui_root:
+		_open_exploration_view()
+		return
+
+	table._on_frame_build()
+	table.set_external_modal_open(true)
+	var hud_visibility := {}
+	for control in ui_root.get_children():
+		if control is Control:
+			hud_visibility[control] = control.visible
+			control.hide()
+	var ghost_visible: bool = table.ghost_preview.visible
+	table.ghost_preview.hide()
+
+	var showcase := ShowcaseOverlayScene.instantiate() as ShowcaseOverlay
+	ui_root.add_child(showcase)
+	var c_name: String = current_session_config.get("creation_name", "My Creation")
 	showcase.configure_showcase(c_name, active_session.placements.size())
-	
+
 	showcase.explore_requested.connect(func():
 		showcase.queue_free()
 		_open_exploration_view()
 	)
 	showcase.keep_building_requested.connect(func():
+		if active_session.phase != SessionManager.SessionPhase.BUILDING:
+			active_session.return_to_building_new_revision()
 		showcase.queue_free()
-		if current_view and "camera_rig" in current_view and current_view.camera_rig:
-			current_view.camera_rig.set_default_view()
+		table.camera_rig.set_default_view()
 	)
-	showcase.watch_build_requested.connect(func():
-		_play_showcase_replay(showcase)
-	)
-	showcase.video_export_requested.connect(func():
-		_export_showcase_video(showcase)
+	showcase.watch_build_requested.connect(_play_showcase_replay.bind(showcase))
+	showcase.video_export_requested.connect(_export_showcase_video.bind(showcase))
+	showcase.replay_closed.connect(_stop_showcase_replay.bind(showcase, table))
+	showcase.tree_exiting.connect(func():
+		if not is_instance_valid(table) or table.is_queued_for_deletion():
+			return
+		table.placed_bricks_container.show()
+		table.ghost_preview.visible = ghost_visible
+		table.camera_rig.camera.make_current()
+		table.set_external_modal_open(false)
+		for control in hud_visibility:
+			control.visible = hud_visibility[control]
 	)
 
 func _open_exploration_view() -> void:
@@ -288,37 +247,105 @@ func _open_exploration_view() -> void:
 	if exp_view.has_signal("return_to_table"):
 		exp_view.return_to_table.connect(_on_return_to_table_requested)
 
-func _play_showcase_replay(showcase: ShowcaseOverlay) -> void:
-	if not active_session: return
-	var timeline = ReplayTimeline.new()
-	add_child(timeline)
+func _play_showcase_replay(showcase: ShowcaseOverlay) -> ReplayTimeline:
+	if not active_session or active_session.placements.is_empty():
+		return null
+	var table = current_view
+	_stop_showcase_replay(showcase, table)
+	var timeline := ReplayTimeline.new()
+	showcase.add_child(timeline)
+	showcase.timeline = timeline
 	timeline.load_build_history(active_session.placements)
-	timeline.step_played.connect(func(step, total):
-		if is_instance_valid(showcase):
-			showcase.update_replay_progress(step, total)
-	)
-	timeline.replay_completed.connect(func():
-		if is_instance_valid(showcase):
-			showcase.notify_replay_finished()
-		timeline.queue_free()
-	)
+	timeline.seconds_per_placement = minf(timeline.seconds_per_placement, 24.0 / active_session.placements.size())
+	timeline.configure_camera(table.camera_rig.camera, table.camera_rig.target, settings.reduced_motion)
+	timeline.step_played.connect(showcase.update_replay_progress)
+	timeline.replay_completed.connect(showcase.notify_replay_finished)
+	table.placed_bricks_container.hide()
+	timeline.camera.make_current()
+	showcase.update_replay_progress(0, active_session.placements.size())
 	timeline.play_replay()
+	return timeline
+
+func _stop_showcase_replay(showcase: ShowcaseOverlay, table: Node) -> void:
+	if is_instance_valid(showcase.timeline):
+		showcase.timeline.hide()
+		showcase.timeline.queue_free()
+		showcase.timeline = null
+	table.placed_bricks_container.show()
+	table.camera_rig.camera.make_current()
 
 func _export_showcase_video(showcase: ShowcaseOverlay) -> void:
-	var exporter = VideoExporter.new()
-	exporter.initialize(1280, 720, 30)
-	var c_name = current_session_config.get("creation_name", "build")
-	var safe_name = c_name.validate_filename().replace(" ", "_")
-	var out_name = "user://saves/%s_film.mp4" % safe_name
-	var ok = exporter.start_recording(out_name, active_session.placements.size() * 10)
-	if ok:
-		var img = Image.create(1280, 720, false, Image.FORMAT_RGBA8)
-		img.fill(Color(0.2, 0.4, 0.6))
-		for i in range(10):
-			exporter.push_frame(img)
-		var fin = exporter.finish_recording()
-		var lbl = showcase.find_child("LabelReplay", true, false) as Label
-		if lbl: lbl.text = "Film Exported: %s" % fin.get_file()
+	if showcase.exporting or not active_session or active_session.placements.is_empty():
+		return
+	if DisplayServer.get_name() == "headless":
+		showcase.notify_export_finished("Open the game window to export a film.")
+		return
+	if OS.has_feature("android") and not Engine.has_singleton("LittleBricksMediaCodec"):
+		showcase.notify_export_finished("Video export is unavailable in this Android build.")
+		return
+	var exporter := VideoExporter.new()
+	var fps := 24
+	var web := OS.has_feature("web")
+	exporter.initialize(960, 540, fps)
+	var c_name: String = current_session_config.get("creation_name", "build")
+	var safe_name := c_name.validate_filename().strip_edges().replace(" ", "_")
+	if safe_name.is_empty():
+		safe_name = "build"
+	var extension := "webm" if web else "mp4"
+	var out_name := "user://saves/%s_film.%s" % [safe_name, extension]
+	var timeline := _play_showcase_replay(showcase)
+	if not timeline:
+		return
+
+	# Run one visible 3D replay. Hide the card so the exported film contains
+	# the build and the room, with the same meshes and camera as playback.
+	showcase.begin_export()
+	timeline.set_process(false)
+	await RenderingServer.frame_post_draw
+	var estimated_frames := ceili((timeline.seconds_per_placement * timeline.placements_data.size() + timeline.reveal_duration_sec) * fps)
+	if not exporter.start_recording(out_name, estimated_frames):
+		timeline.set_process(true)
+		showcase.notify_export_finished(exporter.last_error)
+		return
+
+	if web:
+		timeline.set_process(true)
+		while timeline.is_playing and not showcase.export_cancelled:
+			await get_tree().process_frame
+	else:
+		while timeline.is_playing and not showcase.export_cancelled:
+			timeline.advance_replay(1.0 / fps)
+			await RenderingServer.frame_post_draw
+			var frame := get_viewport().get_texture().get_image()
+			if not frame or frame.is_empty():
+				exporter.cancel_recording()
+				break
+			frame = _prepare_film_frame(frame, Vector2i(exporter.target_width, exporter.target_height))
+			if not exporter.push_frame(frame):
+				exporter.cancel_recording()
+				break
+
+	if showcase.export_cancelled:
+		exporter.cancel_recording()
+		_stop_showcase_replay(showcase, current_view)
+		showcase.notify_export_finished("Export cancelled.")
+		return
+	var film_path := exporter.finish_recording()
+	if film_path.is_empty():
+		showcase.notify_export_finished(exporter.last_error if not exporter.last_error.is_empty() else "Could not export the film.")
+	elif web:
+		showcase.notify_export_finished("Your browser is saving the film.")
+	else:
+		showcase.notify_export_finished("Saved %s" % film_path.get_file(), ProjectSettings.globalize_path(film_path))
+
+func _prepare_film_frame(image: Image, frame_size: Vector2i) -> Image:
+	var src := image.get_size()
+	var scale_factor := minf(float(src.x) / frame_size.x, float(src.y) / frame_size.y)
+	var crop := Vector2i(Vector2(frame_size) * scale_factor)
+	if crop != src:
+		image = image.get_region(Rect2i((src - crop) / 2, crop))
+	image.resize(frame_size.x, frame_size.y)
+	return image
 
 func _on_return_to_table_requested(save_state: bool) -> void:
 	if save_state:
@@ -361,6 +388,7 @@ func _save_active_session() -> void:
 	var save_path = "user://saves/%s.json" % safe_name
 	
 	var data = SaveManager.serialize_session(active_session)
+	data["creation_name"] = creation_name
 	SaveManager.save_to_file(data, save_path)
 
 func open_my_builds() -> void:
@@ -377,48 +405,33 @@ func open_my_builds() -> void:
 	gallery.open_creation_requested.connect(load_specific_save)
 
 func load_specific_save(file_path: String) -> void:
-	var res = SaveManager.load_from_file(file_path)
-	if not res.get("success", false):
+	if not _restore_saved_build(file_path):
 		open_my_builds()
-		return
-		
-	var data = res["data"]
+
+func _restore_saved_build(file_path: String) -> bool:
+	var result := SaveManager.load_from_file(file_path)
+	if not result.get("success", false):
+		return false
+	var data: Dictionary = result["data"]
+	var names: Array[String] = []
+	for player in data.get("players", []):
+		names.append(player.get("name", "Builder"))
+	if names.is_empty():
+		return false
+	var creation_name: String = data.get("creation_name", file_path.get_file().get_basename().replace("_", " "))
+	var theme: String = data.get("theme_id", "harbour")
+	current_session_config = {"creation_name": creation_name, "theme_id": theme}
 	active_session = SessionManager.new()
-	var p_names: Array[String] = []
-	for pl in data.get("players", []):
-		p_names.append(pl.get("name", "Player"))
-	if p_names.is_empty(): p_names = ["Builder"]
-	
-	var c_name = data.get("creation_name", file_path.get_file().get_basename().replace("_", " "))
-	current_session_config = {
-		"creation_name": c_name,
-		"theme_id": data.get("theme_id", "harbour")
-	}
-	
 	active_session.setup_session(
-		data.get("mode", 0) as SessionManager.GameMode,
-		p_names,
-		data.get("theme_id", "harbour"),
-		data.get("timer_enabled", false)
+		int(data.get("mode", SessionManager.GameMode.SOLO_CREATIVE)) as SessionManager.GameMode,
+		names, theme, bool(data.get("timer_enabled", false))
 	)
-	
-	for p in data.get("placements", []):
-		var col_hex = p.get("color_hex", "ffffff")
-		active_session.placements.append({
-			"placement_id": p.get("placement_id", ""),
-			"sequence": p.get("sequence", 0),
-			"player_id": p.get("player_id", "p0"),
-			"part_id": p.get("part_id", "brick_2x4"),
-			"grid_x": p.get("grid_x", 16),
-			"grid_z": p.get("grid_z", 16),
-			"layer_plate": p.get("layer_plate", 0),
-			"rotation_step": p.get("rotation_step", 0),
-			"color": Color.from_string(col_hex, Color.WHITE)
-		})
-		
+	SaveManager.restore_into_session(active_session, data)
+	if active_session.phase == SessionManager.SessionPhase.EXPLORATION:
+		active_session.return_to_building_new_revision()
+
 	_clear_current_view()
 	audio.play_building_music()
-	audio.set_theme_ambience(active_session.theme_id)
 	
 	var table = MainTableScene.instantiate()
 	add_child(table)
@@ -434,11 +447,20 @@ func load_specific_save(file_path: String) -> void:
 		table.leave_requested.connect(save_and_leave)
 	if table.has_signal("settings_requested"):
 		table.settings_requested.connect(open_settings)
+	return true
 
 func open_settings() -> void:
 	if not settings_dialog:
+		var layer := CanvasLayer.new()
+		layer.layer = 5
+		add_child(layer)
 		settings_dialog = SettingsModalScene.instantiate() as SettingsModal
-		add_child(settings_dialog)
-		settings_dialog._ready()
+		layer.add_child(settings_dialog)
+		settings_dialog.visibility_changed.connect(_on_settings_visibility_changed)
 	settings_dialog.setup(settings, audio, haptics)
-	settings_dialog.visible = true
+	settings_dialog.show()
+	_on_settings_visibility_changed()
+
+func _on_settings_visibility_changed() -> void:
+	if is_instance_valid(current_view) and current_view.has_method("set_external_modal_open"):
+		current_view.set_external_modal_open(settings_dialog.visible)

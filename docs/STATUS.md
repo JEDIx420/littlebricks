@@ -1,6 +1,18 @@
 # LittleBricks status and continuation ledger
 
-Last updated: **2026-11-11**
+Last updated: **2026-11-12**
+
+## Workshop gameplay rework
+
+Source branch `codex/littlebricks-workshop` is based on `f1b9041`. The linked localhost build was inspected before implementation. Its toolbar clipped on both sides, the close camera left the room out of view, and mouse-down could place a piece before a drag was distinguishable.
+
+- Reworked the launch screens, furnished workshop, daylight, build HUD and part tray. The tray and catalogue preview render the same meshes used on the table.
+- Separated build and camera gestures, added distinct Room, Plate and Top views, and used collision surfaces and legal connectors for preview targeting. Corrected geometry and connector mismatches while retaining existing part IDs and saved transforms.
+- Replaced the menu and build music with original instrumental cues and removed environmental loops. Added an articulated minifigure and actual 3D showcase replay and film export.
+- Kept creation names, hand, turn and timer state on save/resume. Ignored duplicate online placement events from retried requests.
+- Verified native play in Godot 4.6.3 with routed viewport input and OpenGL rendering. Browser export uses the matching single-threaded 4.6.3 template. The connected localhost tab was the earlier build. Playback in that tab, browser WebM capture and physical Android checks remain pending.
+
+The sections below record earlier release-candidate campaigns.
 
 ## Tabletop Room Redesign & Sourced 3D Models Campaign (LB-068–LB-074)
 

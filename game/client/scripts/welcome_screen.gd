@@ -5,6 +5,8 @@ class_name WelcomeScreen
 ## Displays game branding, prominent Continue button if recent save exists,
 ## New Play, My Builds, Settings, and immediate audio mute toggle.
 
+const Studio = preload("res://client/scripts/menu_studio.gd")
+
 signal continue_pressed()
 signal play_pressed()
 signal my_builds_pressed()
@@ -29,21 +31,20 @@ func _ready() -> void:
 	if not btn_mute: btn_mute = find_child("BtnMute", true, false)
 	if not label_continue_info: label_continue_info = find_child("LabelContinueInfo", true, false)
 	
-	# Apply craft-table theme tokens (LB-060)
-	var card_panel = find_child("CardPanel", true, false) as PanelContainer
-	if card_panel:
-		UIThemeHelper.apply_card(card_panel)
-	if btn_play:
-		UIThemeHelper.apply_primary_button(btn_play)
-	if btn_continue:
-		UIThemeHelper.apply_secondary_button(btn_continue)
-	if btn_my_builds:
-		UIThemeHelper.apply_secondary_button(btn_my_builds)
-	if btn_settings:
-		UIThemeHelper.apply_secondary_button(btn_settings)
-	if btn_mute:
-		UIThemeHelper.apply_secondary_button(btn_mute)
-	
+	Studio.apply_theme(self)
+	Studio.style_label($ContentScroll/Center/Body/Copy/Tagline, 20, false, Studio.MUTED)
+	Studio.style_label(label_continue_info, 14, false, Studio.MUTED)
+	Studio.button(btn_play, true)
+	for button in [btn_continue, btn_my_builds, btn_settings, btn_mute]:
+		Studio.button(button)
+	var hero := $ContentScroll/Center/Body/Hero as PanelContainer
+	var frame := Studio.surface(Color("#d2c0a2"), 16, Color("#e1d0b6"), true)
+	frame.set_content_margin_all(6.0)
+	hero.add_theme_stylebox_override("panel", frame)
+	if not resized.is_connected(_layout_welcome):
+		resized.connect(_layout_welcome)
+	_layout_welcome()
+
 	if btn_continue and not btn_continue.pressed.is_connected(_on_continue_clicked):
 		btn_continue.pressed.connect(_on_continue_clicked)
 	if btn_play and not btn_play.pressed.is_connected(_on_play_clicked):
@@ -57,6 +58,25 @@ func _ready() -> void:
 	
 	_update_mute_display()
 	_check_for_latest_save()
+
+func _layout_welcome() -> void:
+	var stacked := size.x < 740.0 or size.x / maxf(size.y, 1.0) < 0.92
+	var body := $ContentScroll/Center/Body as BoxContainer
+	var stage := $ContentScroll/Center/Body/Hero/Stage as SubViewportContainer
+	var title := $ContentScroll/Center/Body/Copy/Title as Label
+	var available := maxf(260.0, minf(size.x - 62.0, 1300.0))
+	var compact_header := size.x < 465.0
+	Studio.style_label($TopBar/Brand, 19 if compact_header else 28, true)
+	$TopBar.offset_left = 8.0 if compact_header else 28.0
+	$TopBar.offset_right = -8.0 if compact_header else -28.0
+	$TopBar.add_theme_constant_override("separation", 7 if compact_header else 12)
+	for button in [btn_settings, btn_mute]:
+		button.add_theme_font_size_override("font_size", 14 if compact_header else 17)
+	body.vertical = stacked
+	body.custom_minimum_size = Vector2(available, 0.0 if stacked else clampf(size.y - 135.0, 400.0, 635.0))
+	body.add_theme_constant_override("separation", 22 if stacked else 44)
+	stage.custom_minimum_size.y = clampf(available * 0.64, 180.0, 440.0) if stacked else 0.0
+	Studio.style_label(title, int(clampf(available * (0.13 if stacked else 0.065), 34, 88)), true)
 
 func set_mute_state(muted: bool) -> void:
 	is_muted = muted

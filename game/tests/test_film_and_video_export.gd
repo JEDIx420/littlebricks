@@ -109,19 +109,14 @@ func test_platform_adapters_android_web() -> void:
 	var exporter = VideoExporter.new()
 	exporter.initialize(1280, 720, 30)
 	
-	# Verify Web MediaRecorder hooks
-	var web_ok = exporter._start_web_media_recorder()
-	assert(web_ok, "Web MediaRecorder hook executes safely")
-	assert(exporter._finalize_web_media_recorder(), "Web finalize hook executes safely")
-	
-	# Verify Android MediaCodec hooks & fallback
+	# Native Godot cannot provide a browser canvas or an Android singleton.
+	assert(not exporter._start_web_media_recorder(), "Web capture reports unavailable outside a browser")
+	assert(not exporter._finalize_web_media_recorder(), "Web finalize cannot report a native capture")
+
 	var android_out = "user://saves/android_film.mp4"
 	exporter.current_output_path = android_out
-	assert(exporter._start_android_mediacodec(android_out), "Android start hook executes")
-	assert(exporter._finalize_android_mediacodec(), "Android finalize hook executes")
-	assert(FileAccess.file_exists(android_out), "Android fallback produces valid video file")
-	
-	# Clean up
-	if FileAccess.file_exists(android_out):
-		DirAccess.remove_absolute(android_out)
-	print("PASS: Web MediaRecorder and Android MediaCodec adapters verified.")
+	if not Engine.has_singleton("LittleBricksMediaCodec"):
+		assert(not exporter._start_android_mediacodec(android_out), "Missing Android adapter is reported")
+		assert(not exporter._finalize_android_mediacodec(), "Missing adapter cannot produce a film")
+		assert(not FileAccess.file_exists(android_out), "Missing Android adapter does not write a mock video")
+	print("PASS: Missing platform adapters report unavailable without creating a mock file.")

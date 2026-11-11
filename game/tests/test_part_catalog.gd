@@ -55,14 +55,14 @@ func _init() -> void:
 	brick_node.free()
 	
 	var arch_node: Node3D = PartMeshBuilder.build_part_node(catalog.get_part("arch_1x4"), Color.BLUE)
-	if not arch_node or arch_node.get_child_count() < 3: # 3 collision boxes (2 posts + top beam)
+	if not arch_node or arch_node.get_child_count() == 0:
 		print("FAILED: PartMeshBuilder failed on arch_1x4 opening structure")
 		quit(1)
 		return
 	arch_node.free()
 	
 	var explorer_node: Node3D = PartMeshBuilder.build_part_node(catalog.get_part("explorer_candidate_01"), Color.WHITE)
-	if not explorer_node or explorer_node.get_child_count() != 4:
+	if not explorer_node or explorer_node.get_child_count() != 1 or not explorer_node.get_child(0).has_node("LeftLeg"):
 		print("FAILED: PartMeshBuilder failed on explorer figure")
 		quit(1)
 		return

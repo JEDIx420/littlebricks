@@ -29,21 +29,16 @@ echo "Using Godot: ${GODOT_BIN} ($(${GODOT_BIN} --version))"
 # 2. Ensure export target directory exists
 mkdir -p "${BUILDS_DIR}"
 
-# 2.5 Update build metadata
-GIT_SHA="$(git -C "${PROJECT_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+# 2.5 Embed the source revision in the pack. Restore the tracked metadata
+# after export so a local build never leaves a false revision in source.
+GIT_SHA="$(git -C "${PROJECT_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "source")"
 BUILD_DATE="$(date -u +"%Y-%m-%d")"
-cat <<EOF > "${GAME_DIR}/core/build_info.gd"
-class_name BuildInfo
-
-const VERSION: String = "2.0.0-dev"
-const GIT_SHA: String = "${GIT_SHA}"
-const BUILD_DATE: String = "${BUILD_DATE}"
-const ENGINE_VERSION: String = "4.7.2.stable.official"
-const RENDERER: String = "gl_compatibility"
-
-static func get_build_summary() -> String:
-	return "LittleBricks v%s (%s • %s • %s)" % [VERSION, GIT_SHA, BUILD_DATE, RENDERER]
-EOF
+BUILD_INFO="${GAME_DIR}/core/build_info.gd"
+BUILD_INFO_BACKUP="$(mktemp)"
+cp "${BUILD_INFO}" "${BUILD_INFO_BACKUP}"
+trap 'cp "${BUILD_INFO_BACKUP}" "${BUILD_INFO}"; rm -f "${BUILD_INFO_BACKUP}"' EXIT
+sed -E "s/const GIT_SHA: String = \".*\"/const GIT_SHA: String = \"${GIT_SHA}\"/; s/const BUILD_DATE: String = \".*\"/const BUILD_DATE: String = \"${BUILD_DATE}\"/" \
+    "${BUILD_INFO_BACKUP}" > "${BUILD_INFO}"
 echo "Embedded build info: ${GIT_SHA} (${BUILD_DATE})"
 
 # 3. Export Web (HTML5/WASM)

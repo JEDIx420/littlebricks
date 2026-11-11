@@ -50,7 +50,9 @@ func _init() -> void:
 		var conns = p_def.get("connectors", {})
 		var studs = conns.get("studs_top", [])
 		for stud in studs:
-			assert(stud.size() == 2, "Stud in '%s' is 2D vector [x, z]" % pid)
+			assert(stud.size() in [2, 3], "Stud in '%s' stores [x, z] with optional plate height" % pid)
+			if stud.size() == 3:
+				assert(int(stud[2]) >= 1 and int(stud[2]) <= int(dims[1]), "Custom stud height sits on a legal plate layer")
 			
 		verified_shapes += 1
 		node.queue_free()

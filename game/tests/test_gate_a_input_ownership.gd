@@ -8,19 +8,19 @@ const AppRootScene = preload("res://client/scenes/app_root.tscn")
 const SessionManager = preload("res://core/session_manager.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 
-func _init() -> void:
-	print("\n--- Running LittleBricks Gate A Input Ownership & Authority Suite ---")
-	test_gate_a()
-	print("\nALL GATE A INTEGRATED CHECKS PASSED SUCCESSFULLY.")
-	quit(0)
+func _initialize() -> void:
+	# Assertions abort the active coroutine. A watchdog makes a failed
+	# assertion fail the process even on engines that otherwise exit zero.
+	create_timer(12.0).timeout.connect(func(): quit(1))
+	call_deferred("_run")
 
-func test_gate_a() -> void:
-	# 1. Instantiate AppRoot and navigate to Solo Table
+func _run() -> void:
+	print("\n--- Running LittleBricks Gate A Input Ownership & Authority Suite ---")
+	root.size = Vector2i(1280, 720)
 	var app_root = AppRootScene.instantiate()
 	root.add_child(app_root)
-	if not app_root.is_node_ready():
-		app_root._ready()
-		
+	await process_frame
+
 	# Verify ViewContainer mouse filter does not block world (P0 fix)
 	var view_container = app_root.find_child("ViewContainer", true, false)
 	assert(view_container != null, "ViewContainer exists")
@@ -36,6 +36,7 @@ func test_gate_a() -> void:
 		"timer_enabled": false
 	})
 	
+	await process_frame
 	var table = app_root.current_view
 	assert(table != null and table.get_script().resource_path.ends_with("main.gd"), "Navigated to Main Table")
 	var session: SessionManager = app_root.active_session
@@ -46,145 +47,102 @@ func test_gate_a() -> void:
 	# [PT-01]: 10 Separated Placements across baseplate
 	# -------------------------------------------------------------------------
 	print("\n[PT-01: Real Pointer & Separated Placements]")
-	var test_positions = [
-		Vector2i(2, 2),
-		Vector2i(8, 2),
-		Vector2i(14, 2),
-		Vector2i(20, 2),
-		Vector2i(26, 2),
-		Vector2i(2, 20),
-		Vector2i(8, 20),
-		Vector2i(14, 20),
-		Vector2i(20, 20),
-		Vector2i(26, 20)
+	await _click_control(table.btn_top_view)
+	var test_positions := [
+		Vector2i(4, 4), Vector2i(9, 4), Vector2i(14, 4), Vector2i(19, 4), Vector2i(24, 4),
+		Vector2i(4, 11), Vector2i(9, 11), Vector2i(14, 11), Vector2i(19, 11), Vector2i(24, 11),
 	]
-	
-	table.selected_part_id = "brick_2x2"
-	table.selected_color = Color(0.2, 0.4, 0.8) # Blue
-	
+	table._select_piece("brick_2x4", Color(0.2, 0.4, 0.8))
 	for i in range(test_positions.size()):
-		var target_pos = test_positions[i]
-		table.current_grid_pos = target_pos
-		table.current_layer_plate = 0
-		table.current_rotation_step = i % 4
-		table._validate_and_update_ghost()
-		assert(table.is_current_placement_valid, "Candidate %d at (%d, %d) is valid" % [i, target_pos.x, target_pos.y])
-		
-		# Commit via Place action
-		table._on_place_pressed()
-		assert(session.placements.size() == i + 1, "Placement %d recorded in session" % [i + 1])
-		assert(table.placed_pieces_data.size() == i + 1, "Placement %d rendered on table" % [i + 1])
-	print("PASS: 10 separated placements successfully committed across baseplate.")
+		var grid: Vector2i = test_positions[i]
+		var pointer := _screen_for_piece(table, "brick_2x4", grid)
+		_move_pointer(pointer)
+		assert(table.is_current_placement_valid, "Pointer resolves a legal target at %s" % grid)
+		_mouse_button(pointer, MOUSE_BUTTON_LEFT, true)
+		assert(session.placements.size() == i, "Press alone spends no brick")
+		_mouse_button(pointer, MOUSE_BUTTON_LEFT, false)
+		assert(session.placements.size() == i + 1, "Release accepts one placement")
+		var placement: Dictionary = session.placements.back()
+		assert(Vector3i(placement.grid_x, placement.layer_plate, placement.grid_z) == Vector3i(grid.x, 0, grid.y))
+		assert(table.placed_pieces_data.size() == i + 1, "Accepted piece is rendered on the table")
+	print("PASS: 10 separated placements committed through viewport mouse input.")
 
-	# Narrow part stacking: 1x4 on 2x4 at (14, 14)
-	table.selected_part_id = "brick_2x4"
-	table.current_grid_pos = Vector2i(14, 14)
-	table.current_layer_plate = 0
-	table.current_rotation_step = 0
-	table._validate_and_update_ghost()
-	table._on_place_pressed()
-	assert(session.placements.size() == 11, "2x4 base placed")
-	
-	# Stack 1x4 on top row (z=3)
-	table.selected_part_id = "brick_1x4"
-	table.current_grid_pos = Vector2i(14, 14)
-	table.current_layer_plate = 3
-	table.current_rotation_step = 0
-	table._validate_and_update_ghost()
-	assert(table.is_current_placement_valid, "1x4 stacked on 2x4 at layer 3 is valid")
-	table._on_place_pressed()
-	assert(session.placements.size() == 12, "1x4 stack committed")
-	
-	# Return to baseplate
-	table._return_to_base()
-	assert(table.current_layer_plate == 0, "Current layer returned to baseplate (0)")
-	assert(table.is_auto_height, "Auto height restored on return to base")
-	print("PASS: Narrow part stacking and Return to Base verified.")
+	table._select_piece("brick_1x4", Color(0.9, 0.7, 0.1))
+	for grid in [Vector2i(4, 4), Vector2i(5, 4)]:
+		var pointer := _screen_for_piece(table, "brick_1x4", grid, 3)
+		_move_pointer(pointer)
+		_mouse_button(pointer, MOUSE_BUTTON_LEFT, true)
+		_mouse_button(pointer, MOUSE_BUTTON_LEFT, false)
+		var placement: Dictionary = session.placements.back()
+		assert(Vector3i(placement.grid_x, placement.layer_plate, placement.grid_z) == Vector3i(grid.x, 3, grid.y))
+	assert(session.placements.size() == 12, "Both rows support the narrow brick")
+	var empty_ground := _screen_for_piece(table, "brick_1x4", Vector2i(12, 21))
+	_move_pointer(empty_ground)
+	assert(table.current_layer_plate == 0 and table.is_auto_height, "Moving off the stack returns to the baseplate")
+	print("PASS: Narrow brick stacks on both rows and automatically returns to ground.")
 
-	# -------------------------------------------------------------------------
-	# [PT-02]: Camera / UI Exclusive Ownership
-	# -------------------------------------------------------------------------
 	print("\n[PT-02: Camera / UI Ownership]")
-	var placements_before_camera = session.placements.size()
-	
-	# Enable Camera Mode
-	table.camera_rig.is_camera_mode = true
-	assert(table.camera_rig.is_camera_mode, "Camera mode active")
-	
-	# Left drag in camera mode: simulate mouse press
-	var mouse_event = InputEventMouseButton.new()
-	mouse_event.button_index = MOUSE_BUTTON_LEFT
-	mouse_event.pressed = true
-	mouse_event.position = Vector2(400, 300)
-	table.camera_rig._unhandled_input(mouse_event)
-	assert(table.camera_rig.is_orbiting, "Camera is orbiting during left drag in camera mode")
-	
-	# Simulate motion during camera orbit
-	var motion_event = InputEventMouseMotion.new()
-	motion_event.position = Vector2(420, 310)
-	table.camera_rig._unhandled_input(motion_event)
-	
-	# Ensure tabletop did NOT commit any placement
-	assert(session.placements.size() == placements_before_camera, "No placement during camera orbit")
-	
-	# Release camera drag
-	mouse_event.pressed = false
-	table.camera_rig._unhandled_input(mouse_event)
-	assert(not table.camera_rig.is_orbiting, "Camera orbit ended")
-	table.camera_rig.is_camera_mode = false
-	print("PASS: Camera gestures do not commit placements or corrupt state.")
+	var placements_before_camera: int = session.placements.size()
+	assert(table.is_current_placement_valid, "Camera test begins with a valid target")
+	await _click_control(table.find_child("BtnOrbitMode", true, false))
+	assert(table.camera_rig.is_camera_mode, "Orbit mode selected through the HUD")
+	var yaw_before: float = table.camera_rig.yaw
+	_mouse_button(empty_ground, MOUSE_BUTTON_LEFT, true)
+	assert(table.camera_rig.is_orbiting, "Left press starts orbit in camera mode")
+	_move_pointer(empty_ground + Vector2(32, 10), MOUSE_BUTTON_MASK_LEFT)
+	var settings_button := table.btn_settings as Control
+	_mouse_button(settings_button.get_global_rect().get_center(), MOUSE_BUTTON_LEFT, false)
+	assert(not table.camera_rig.is_orbiting, "Releasing camera drag over HUD clears gesture ownership")
+	assert(not is_equal_approx(table.camera_rig.yaw, yaw_before), "Camera actually turned")
+	assert(session.placements.size() == placements_before_camera, "Camera gesture spends no brick")
+	await _click_control(table.btn_camera_mode)
+	await _click_control(table.btn_top_view)
+	print("PASS: Orbit turns the view without placing and releases over the HUD.")
 
-	# -------------------------------------------------------------------------
-	# [PT-03]: Stale Target Invalidation & Toolbar Preservation
-	# -------------------------------------------------------------------------
 	print("\n[PT-03: Stale Target Clearance & Toolbar Candidate Preservation]")
-	# Position over valid ground
-	table.selected_part_id = "brick_2x2"
-	table.current_grid_pos = Vector2i(4, 10)
-	table.current_layer_plate = 0
-	table._validate_and_update_ghost()
-	assert(table.is_current_placement_valid, "Target is initially valid")
-	
-	# Move pointer to uncovered world with no eligible surface (off-board)
-	# Ray aimed up/away from board
-	var offboard_target = table.find_target_surface_from_ray(Vector3(0, 10, 0), Vector3(0, 1, 0))
-	assert(not offboard_target.get("valid", false), "Offboard ray returns valid: false")
-	
-	# Invalidate candidate simulating off-board pointer motion
-	table._invalidate_candidate()
-	assert(not table.is_current_placement_valid, "Candidate invalidated when off-board")
-	assert(not table.has_valid_target_surface, "has_valid_target_surface is false")
-	assert(table.ghost_preview.visible == false, "Ghost preview is hidden off-board")
-	assert(table.btn_place.disabled == true, "Place button disabled when candidate is invalid")
-	
-	# Attempt to place via Enter / button while off-board: MUST NOT COMMIT
-	table._on_place_pressed()
-	assert(session.placements.size() == placements_before_camera, "Zero placements committed after off-board miss")
-	
-	# Re-enter baseplate: candidate is restored
-	table.current_grid_pos = Vector2i(6, 6)
-	table.current_layer_plate = 0
-	table._validate_and_update_ghost()
-	assert(table.is_current_placement_valid, "Re-entering board restores valid candidate")
-	assert(table.ghost_preview.visible == true, "Ghost preview is visible on board")
-	assert(table.btn_place.disabled == false, "Place button enabled on valid board position")
-	
-	# Move pointer onto toolbar: candidate is preserved and Place button commits it
-	table._on_place_pressed()
-	assert(session.placements.size() == placements_before_camera + 1, "Place button successfully committed displayed candidate")
-	print("PASS: Off-board misses clear candidate; toolbar preserves candidate.")
+	empty_ground = _screen_for_piece(table, "brick_1x4", Vector2i(12, 21))
+	_move_pointer(empty_ground)
+	assert(table.is_current_placement_valid, "A fresh world hover restores the target after camera mode")
+	var outside_board: Vector2 = table.camera_rig.camera.unproject_position(Vector3(22, 0.1, -7))
+	_move_pointer(outside_board)
+	assert(not table.is_current_placement_valid and not table.has_valid_target_surface)
+	assert(not table.ghost_preview.visible and table.btn_place.disabled)
+	_press_key(KEY_ENTER)
+	assert(session.placements.size() == placements_before_camera, "Off-board miss cannot place through Enter")
+	_move_pointer(empty_ground)
+	assert(table.is_current_placement_valid and table.ghost_preview.visible and not table.btn_place.disabled)
+	await _click_control(table.btn_place)
+	assert(session.placements.size() == placements_before_camera + 1, "Place commits the last world candidate through HUD")
+	print("PASS: Off-board misses clear the candidate, while the toolbar preserves it.")
+
+	# Catalogue and Settings must own both keyboard and pointer input.
+	_move_pointer(_screen_for_piece(table, "brick_1x4", Vector2i(22, 17)))
+	assert(table.is_current_placement_valid)
+	await _click_control(table.btn_settings)
+	assert(app_root.settings_dialog.visible)
+	var before_modal: int = session.placements.size()
+	_press_key(KEY_ENTER)
+	await _click_control(table.find_child("BtnOrbitMode", true, false))
+	assert(session.placements.size() == before_modal and not table.camera_rig.is_camera_mode)
+	await _click_control(app_root.settings_dialog.find_child("BtnClose", true, false))
+	await _click_control(table.btn_all_parts)
+	assert(table.catalog_modal.visible)
+	await _click_control(table.btn_undo)
+	assert(session.placements.size() == before_modal, "Catalogue blocks the Undo action behind it")
+	await _click_control(table.btn_close_catalog)
+	print("PASS: Settings and Catalogue block input behind their overlays.")
 
 	# -------------------------------------------------------------------------
 	# [Cancel / Escape Handling]
 	# -------------------------------------------------------------------------
 	print("\n[Cancel / Escape Action]")
-	table._on_cancel_held_piece()
+	_press_key(KEY_ESCAPE)
 	assert(table.current_input_state == table.InputState.IDLE, "State is IDLE after cancel")
 	assert(table.ghost_preview.visible == false, "Ghost hidden in IDLE state")
 	assert(table.btn_place.disabled == true, "Place button disabled in IDLE state")
 	
 	# Selecting piece from tray restores HOLDING
-	table._select_piece("brick_2x4", Color(0.9, 0.7, 0.1))
+	await _click_control(table.tray_container.get_child(0))
 	assert(table.current_input_state == table.InputState.HOLDING, "Selecting piece restores HOLDING state")
 	print("PASS: Cancel and piece re-selection verified.")
 
@@ -258,3 +216,44 @@ func test_gate_a() -> void:
 	print("PASS: Outside-hand rejection, turn advance, and color roundtrip verified.")
 
 	app_root.queue_free()
+	await process_frame
+	print("\nALL GATE A INTEGRATED CHECKS PASSED SUCCESSFULLY.")
+	quit(0)
+
+func _screen_for_piece(table: Node, part_id: String, grid: Vector2i, layer: int = 0) -> Vector2:
+	var dims: Array = table.catalog.get_part(part_id).dimensions_studs
+	return table.camera_rig.camera.unproject_position(TableView.grid_to_world(grid.x, grid.y, layer, dims, 0))
+
+func _dispatch(event: InputEvent) -> void:
+	Input.parse_input_event(event)
+	Input.flush_buffered_events()
+
+func _move_pointer(pointer: Vector2, button_mask: int = 0) -> void:
+	var motion := InputEventMouseMotion.new()
+	motion.position = pointer
+	motion.global_position = pointer
+	motion.button_mask = button_mask
+	_dispatch(motion)
+
+func _mouse_button(pointer: Vector2, button: int, pressed: bool) -> void:
+	var click := InputEventMouseButton.new()
+	click.position = pointer
+	click.global_position = pointer
+	click.button_index = button
+	click.button_mask = 1 << (button - 1) if pressed else 0
+	click.pressed = pressed
+	_dispatch(click)
+
+func _press_key(key: Key) -> void:
+	for pressed in [true, false]:
+		var event := InputEventKey.new()
+		event.keycode = key
+		event.pressed = pressed
+		_dispatch(event)
+
+func _click_control(control: Control) -> void:
+	var pointer := control.get_global_rect().get_center()
+	_move_pointer(pointer)
+	_mouse_button(pointer, MOUSE_BUTTON_LEFT, true)
+	_mouse_button(pointer, MOUSE_BUTTON_LEFT, false)
+	await process_frame

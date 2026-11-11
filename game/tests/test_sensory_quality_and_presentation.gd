@@ -32,7 +32,7 @@ func test_audio_buses_and_ducking() -> void:
 		bus_names.append(AudioServer.get_bus_name(i))
 	assert("Master" in bus_names, "Master bus must exist")
 	assert("Music" in bus_names, "Music bus must exist")
-	assert("Ambience" in bus_names, "Ambience bus must exist")
+	assert(not ("Ambience" in bus_names), "No environment audio bus is needed")
 	assert("Bricks" in bus_names, "Bricks bus must exist")
 	
 	# Verify zero slider becomes silence without error
@@ -41,7 +41,7 @@ func test_audio_buses_and_ducking() -> void:
 	assert(abs(audio._calc_db(1.0) - 0.0) < 0.01, "1.0 volume must map to 0.0 dB")
 	
 	# Verify volume adjustments
-	audio.set_volumes(0.5, 0.6, 0.7, 0.4)
+	audio.set_volumes(0.5, 0.6, 0.7)
 	assert(audio._master_vol_linear == 0.5, "Master volume set")
 	assert(audio._music_vol_linear == 0.6, "Music volume set")
 	
@@ -173,7 +173,6 @@ func test_accessibility_touch_and_settings() -> void:
 	settings.master_volume = 0.45
 	settings.music_volume = 0.55
 	settings.sfx_volume = 0.65
-	settings.ambience_volume = 0.35
 	settings.haptics_enabled = false
 	settings.reduced_motion = true
 	settings.high_contrast_cues = true
@@ -220,10 +219,18 @@ func test_accessibility_touch_and_settings() -> void:
 	session.setup_session(SessionManager.GameMode.PASS_AND_PLAY, ["Alice", "Bob"], "harbour", false)
 	main.attach_session(session)
 	
-	# Verify player ID high-contrast cue: [P1
-	assert("[P1" in main.label_status.text, "Player text contains high-contrast ID [P1")
-	assert("✓" in main.label_status.text or "✕" in main.label_status.text or "Turn:" in main.label_status.text, "Clear symbolic cues in status")
-	
+	# The player and reason are readable without color or a symbol font.
+	main.current_grid_pos = Vector2i(12, 12)
+	main.current_layer_plate = 0
+	main._validate_and_update_ghost()
+	assert(main.label_status.text.begins_with("[P1] Alice: "), "Status names the current player")
+	assert("Ready to place" in main.label_status.text, "Status describes a valid placement")
+	assert(not main.btn_place.disabled, "A valid candidate can be placed")
+	main.current_grid_pos = Vector2i(-5, -5)
+	main._validate_and_update_ghost()
+	assert("Must stay on the baseplate" in main.label_status.text, "Status explains the invalid target")
+	assert(main.btn_place.disabled, "An invalid candidate cannot be placed")
+
 	# Clean up
 	root.remove_child(main)
 	main.queue_free()

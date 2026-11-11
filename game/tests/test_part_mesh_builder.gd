@@ -62,7 +62,9 @@ func _init() -> void:
 	var explorer_def = catalog.get_part("toy_explorer_pippin")
 	var explorer_node = PartMeshBuilder.build_part_node(explorer_def, Color.WHITE)
 	assert(explorer_node != null, "Explorer figure built")
-	assert(explorer_node.get_child_count() >= 4, "Explorer has legs, torso, head, and hat")
+	var figure := explorer_node.get_child(0)
+	assert(figure.has_node("LeftLeg") and figure.has_node("RightLeg"), "Minifigure uses separately molded legs")
+	assert(figure.has_node("LeftArm") and figure.has_node("RightArm"), "Minifigure uses articulated arms")
 	explorer_node.queue_free()
 	print("  ✓ Toy explorer figure verified")
 	

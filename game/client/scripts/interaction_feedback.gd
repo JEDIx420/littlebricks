@@ -83,13 +83,9 @@ func notify_build_finished() -> void:
 func animate_settle(node: Node3D) -> void:
 	if not node or not node.is_inside_tree():
 		return
-	# Find visual node child to animate without modifying base transform
-	var anim_target: Node3D = node
-	if node.get_child_count() > 0 and node.get_child(0) is Node3D:
-		anim_target = node.get_child(0) as Node3D
-		
-	var orig_pos = anim_target.position
-	anim_target.position = orig_pos + Vector3(0, 0.06, 0)
-	var tw = anim_target.create_tween()
-	if tw:
-		tw.tween_property(anim_target, "position", orig_pos, 0.10).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	# Move the whole rendered piece. Imported and authored bricks both have
+	# multiple meshes, so moving one child would briefly pull the studs apart.
+	var resting_position := node.position
+	node.position = resting_position + Vector3(0, 0.15, 0)
+	node.create_tween().tween_property(node, "position", resting_position, 0.12) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

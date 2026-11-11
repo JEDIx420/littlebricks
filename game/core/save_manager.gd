@@ -7,6 +7,7 @@ class_name SaveManager
 const CURRENT_SCHEMA_VERSION: String = "1.0.0"
 const DEFAULT_SAVE_DIR: String = "user://saves"
 
+const PlacementRules = preload("res://core/placement_rules.gd")
 const SessionManager = preload("res://core/session_manager.gd")
 
 signal save_completed(filepath: String)
@@ -50,14 +51,17 @@ static func serialize_session(session: SessionManager) -> Dictionary:
 		
 	return {
 		"schema_version": CURRENT_SCHEMA_VERSION,
-		"rules_version": "1.0.0",
-		"catalog_version": "1.0.0",
+		"rules_version": PlacementRules.VERSION,
+		"catalog_version": session.catalog.get_version(),
 		"timestamp": Time.get_unix_time_from_system(),
 		"mode": int(session.mode),
 		"phase": int(session.phase),
 		"theme_id": session.theme_id,
 		"build_revision": session.build_revision,
 		"current_player_idx": session.current_player_idx,
+		"timer_enabled": session.timer_enabled,
+		"timer_duration_sec": session.timer_duration_sec,
+		"time_remaining_sec": session.time_remaining_sec,
 		"placements": placements_serializable,
 		"event_journal": session.event_journal,
 		"players": players_serializable
@@ -146,14 +150,20 @@ static func restore_into_session(session: SessionManager, data: Dictionary) -> b
 	session.theme_id = data.get("theme_id", "harbour")
 	session.build_revision = data.get("build_revision", 1)
 	session.current_player_idx = data.get("current_player_idx", 0)
+	session.timer_enabled = bool(data.get("timer_enabled", session.timer_enabled))
+	session.timer_duration_sec = maxf(1.0, float(data.get("timer_duration_sec", session.timer_duration_sec)))
+	session.time_remaining_sec = clampf(float(data.get("time_remaining_sec", session.timer_duration_sec)), 0.0, session.timer_duration_sec)
 	session.event_journal.clear()
+	var last_sequence: int = 0
 	for ev in data.get("event_journal", []):
 		if ev is Dictionary:
 			session.event_journal.append(ev)
+			last_sequence = maxi(last_sequence, int(ev.get("seq", 0)))
 	
 	# Restore placements
 	session.placements.clear()
 	for p in data.get("placements", []):
+		last_sequence = maxi(last_sequence, int(p.get("sequence", 0)))
 		var col: Color = Color.from_string(p.get("color_hex", "#ffffff"), Color.WHITE)
 		session.placements.append({
 			"placement_id": p.get("placement_id", ""),
@@ -187,4 +197,6 @@ static func restore_into_session(session: SessionManager, data: Dictionary) -> b
 			"is_ready_to_explore": pl.get("is_ready_to_explore", false)
 		})
 		
+	session.current_player_idx = clampi(session.current_player_idx, 0, maxi(0, session.players.size() - 1))
+	session._next_event_seq = last_sequence + 1
 	return true

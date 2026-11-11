@@ -33,8 +33,8 @@ func test_showcase_overlay() -> void:
 	var btn_watch = showcase.find_child("BtnWatchBuild", true, false) as Button
 	var btn_keep = showcase.find_child("BtnKeepBuilding", true, false) as Button
 	
-	assert(title != null and title.text == "Creation Complete!", "Showcase has celebratory title")
-	assert(subtitle != null and "Coastal Lighthouse" in subtitle.text and "14 bricks" in subtitle.text, "Showcase subtitle has creation name & count")
+	assert(title != null and title.text == "Coastal Lighthouse", "Showcase title identifies the build")
+	assert(subtitle != null and "14 bricks" in subtitle.text, "Showcase subtitle shows the placed brick count")
 	assert(btn_explore != null and btn_explore.custom_minimum_size.y >= 48, "BtnExplore touch height >= 48px")
 	assert(btn_watch != null and btn_watch.custom_minimum_size.y >= 44, "BtnWatchBuild touch height >= 44px")
 	assert(btn_keep != null and btn_keep.custom_minimum_size.y >= 44, "BtnKeepBuilding touch height >= 44px")

@@ -133,18 +133,22 @@ func _init() -> void:
 	
 	# Default view
 	cam_rig.set_default_view()
-	assert_eq(cam_rig.yaw, 45.0, "Default yaw must be 45")
-	assert_eq(cam_rig.pitch, -38.0, "Default pitch must be -38")
-	assert_eq(cam_rig.distance, 24.0, "Default distance must be 24")
+	assert_eq(cam_rig.yaw, cam_rig.room_yaw, "Home restores the room yaw")
+	assert_eq(cam_rig.pitch, cam_rig.room_pitch, "Home restores the room pitch")
+	assert_eq(cam_rig.distance, cam_rig.room_distance, "Home restores the room distance")
+	cam_rig.frame_plate()
+	assert_eq(cam_rig.distance, cam_rig.plate_distance, "Plate frames the build surface")
+	assert_true(cam_rig.distance < cam_rig.room_distance, "Plate framing is closer than the room view")
+	cam_rig.set_default_view()
 	
 	# Orbit test
 	cam_rig.orbit_by(30.0, -10.0)
-	assert_eq(cam_rig.yaw, 75.0, "Orbit yaw must update")
-	assert_eq(cam_rig.pitch, -48.0, "Orbit pitch must update")
+	assert_eq(cam_rig.yaw, cam_rig.room_yaw + 30.0, "Orbit yaw must update")
+	assert_eq(cam_rig.pitch, cam_rig.room_pitch - 10.0, "Orbit pitch must update")
 	
 	# Zoom test
 	cam_rig.zoom_by(-5.0)
-	assert_eq(cam_rig.distance, 19.0, "Zoom distance must decrease")
+	assert_eq(cam_rig.distance, cam_rig.room_distance - 5.0, "Zoom distance must decrease")
 	
 	# Pan test
 	var target_before = cam_rig.target

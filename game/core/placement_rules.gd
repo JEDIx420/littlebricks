@@ -4,6 +4,7 @@ class_name PlacementRules
 ## Deterministic brick placement and connection validity engine for LittleBricks.
 ## Pure GDScript module shared across client preview, local game, and authoritative server.
 
+const VERSION := "1.1.0"
 const GRID_SIZE: int = 32
 const MAX_LAYER_PLATES: int = 120 # 40 bricks tall
 const PLATE_HEIGHT: float = 0.4
@@ -110,25 +111,27 @@ func get_absolute_bottom_sockets(part_id: String, gx: int, gz: int, z_plate: int
 	var local_sockets: Array[Vector2] = catalog.get_bottom_sockets(part_id, rot_step)
 	var res: Array[Vector3i] = []
 	for s in local_sockets:
-		var sx: int = int(round(center_grid.x + s.x))
-		var sz: int = int(round(center_grid.y + s.y))
-		res.append(Vector3i(sx, z_plate, sz))
+		_append_lattice_connector(res, center_grid + s, z_plate)
 	return res
 
-## Calculate all absolute stud positions occupied by top studs of a piece
+## Calculate all absolute stud positions occupied by top studs of a piece.
 func get_absolute_top_studs(part_id: String, gx: int, gz: int, z_plate: int, rot_step: int) -> Array[Vector3i]:
-	var p: Dictionary = catalog.get_part(part_id)
-	var dims: Array = p.get("dimensions_studs", [1, 3, 1])
-	var top_z_plate: int = z_plate + int(dims[1])
-	var center_grid: Vector2 = get_part_center_grid(dims, gx, gz, rot_step)
-	
-	var local_studs: Array[Vector2] = catalog.get_top_studs(part_id, rot_step)
-	var res: Array[Vector3i] = []
-	for s in local_studs:
-		var sx: int = int(round(center_grid.x + s.x))
-		var sz: int = int(round(center_grid.y + s.y))
-		res.append(Vector3i(sx, top_z_plate, sz))
-	return res
+	var part := catalog.get_part(part_id)
+	var dims: Array = part.get("dimensions_studs", [1, 3, 1])
+	var center_grid := get_part_center_grid(dims, gx, gz, rot_step)
+	var result: Array[Vector3i] = []
+	for stud in catalog.get_top_stud_layers(part_id, rot_step):
+		_append_lattice_connector(result, center_grid + Vector2(stud.x, stud.z), z_plate + int(stud.y))
+	return result
+
+## A connector off the ordinary stud lattice cannot establish a connection.
+func _append_lattice_connector(result: Array[Vector3i], xz: Vector2, layer: int) -> void:
+	var grid := xz.round()
+	if not xz.is_equal_approx(grid):
+		return
+	var connector := Vector3i(int(grid.x), layer, int(grid.y))
+	if connector not in result:
+		result.append(connector)
 
 ## Validate placement against all game rules
 func validate_placement(part_id: String, gx: int, gz: int, z_plate: int, rot_step: int, board_placements: Array) -> Dictionary:
@@ -195,7 +198,7 @@ func validate_placement(part_id: String, gx: int, gz: int, z_plate: int, rot_ste
 		}
 		
 	# For z_plate > 0, piece must connect to underlying top studs
-	var connected_count: int = 0
+	var connected_sockets: Dictionary = {}
 	for placed in board_placements:
 		var placed_id: String = placed.get("part_id", "")
 		var pgx: int = placed.get("grid_x", 0)
@@ -204,12 +207,11 @@ func validate_placement(part_id: String, gx: int, gz: int, z_plate: int, rot_ste
 		var prot: int = placed.get("rotation_step", 0)
 		
 		var top_studs: Array[Vector3i] = get_absolute_top_studs(placed_id, pgx, pgz, pz, prot)
-		for s in sockets:
-			for ts in top_studs:
-				# Must match exact grid position and vertical layer
-				if s.x == ts.x and s.z == ts.z and s.y == ts.y:
-					connected_count += 1
-					
+		for socket in sockets:
+			if socket in top_studs:
+				connected_sockets[socket] = true
+
+	var connected_count: int = connected_sockets.size()
 	if connected_count == 0:
 		return {
 			"valid": false,

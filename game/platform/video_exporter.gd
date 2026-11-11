@@ -17,9 +17,11 @@ var target_fps: int = 30
 var total_expected_frames: int = 0
 var recorded_frames_count: int = 0
 var current_output_path: String = ""
+var last_error: String = ""
 
 # Desktop export state
 var _frame_sequence_dir: String = ""
+var _ffmpeg_path: String = ""
 
 func initialize(width: int = 1280, height: int = 720, fps: int = 30) -> void:
 	target_width = width
@@ -34,17 +36,21 @@ func start_recording(output_filename: String, total_frames: int) -> bool:
 		
 	total_expected_frames = total_frames
 	recorded_frames_count = 0
-	state = ExportState.RECORDING
 	current_output_path = output_filename
-	
-	# Determine platform adapter
-	var os_name: String = OS.get_name().to_lower()
-	if os_name == "android":
-		return _start_android_mediacodec(output_filename)
-	elif os_name == "web":
-		return _start_web_media_recorder()
-	else:
-		return _start_desktop_offline_export(output_filename)
+	last_error = ""
+
+	var started: bool
+	match OS.get_name().to_lower():
+		"android":
+			started = _start_android_mediacodec(output_filename)
+		"web":
+			started = _start_web_media_recorder()
+		_:
+			started = _start_desktop_offline_export(output_filename)
+	if not started:
+		return _fail(last_error if not last_error.is_empty() else "Could not start video export.")
+	state = ExportState.RECORDING
+	return true
 
 ## Stream one frame into the encoder with bounded buffers to prevent mobile OOM.
 func push_frame(image: Image) -> bool:
@@ -89,14 +95,35 @@ func finish_recording() -> String:
 		export_finished.emit(current_output_path)
 		return current_output_path
 	else:
-		state = ExportState.FAILED
-		export_failed.emit("Failed to finalize video encoding")
+		_fail(last_error if not last_error.is_empty() else "Could not encode the film.")
 		return ""
 
 func cancel_recording() -> void:
-	if state == ExportState.RECORDING or state == ExportState.ENCODING:
-		state = ExportState.CANCELLED
-		_cleanup_temporary_files()
+	if state != ExportState.RECORDING and state != ExportState.ENCODING:
+		return
+	state = ExportState.CANCELLED
+	if OS.has_feature("web"):
+		JavaScriptBridge.eval("""
+			(function() {
+				const recording = window._lbRecording;
+				if (recording && recording.recorder.state === "recording") {
+					recording.cancelled = true;
+					recording.recorder.stop();
+				}
+			})();
+		""")
+	elif OS.has_feature("android") and Engine.has_singleton("LittleBricksMediaCodec"):
+		var bridge = Engine.get_singleton("LittleBricksMediaCodec")
+		if bridge.has_method("cancelRecording"):
+			bridge.cancelRecording()
+	_cleanup_temporary_files()
+
+func _fail(message: String) -> bool:
+	last_error = message
+	state = ExportState.FAILED
+	_cleanup_temporary_files()
+	export_failed.emit(last_error)
+	return false
 
 # --- Platform Specific Hooks ---
 
@@ -104,158 +131,131 @@ func _start_android_mediacodec(filename: String) -> bool:
 	if Engine.has_singleton("LittleBricksMediaCodec"):
 		var bridge = Engine.get_singleton("LittleBricksMediaCodec")
 		return bridge.startRecording(filename, target_width, target_height, target_fps)
-	print("VideoExporter: Native LittleBricksMediaCodec plugin not attached; using fallback.")
-	return true
+	last_error = "Video export is unavailable in this Android build."
+	return false
 
 func _feed_android_frame(image: Image) -> bool:
 	if Engine.has_singleton("LittleBricksMediaCodec"):
 		var bridge = Engine.get_singleton("LittleBricksMediaCodec")
 		return bridge.feedFrame(image.get_data())
-	return true
+	return false
 
 func _finalize_android_mediacodec() -> bool:
 	if Engine.has_singleton("LittleBricksMediaCodec"):
 		var bridge = Engine.get_singleton("LittleBricksMediaCodec")
 		return bridge.finishRecording()
-	# Fallback ensures output file exists
-	var f = FileAccess.open(current_output_path, FileAccess.WRITE)
-	if f:
-		f.store_string("LITTLEBRICKS_MOCK_ANDROID_MP4_HEADER")
-		f.close()
-	return true
+	return false
 
 func _start_web_media_recorder() -> bool:
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("""
-			window._lbRecording = {
-				canvas: document.querySelector('canvas'),
-				chunks: [],
-				recorder: null
-			};
-			if (window._lbRecording.canvas && window.MediaRecorder) {
-				var stream = window._lbRecording.canvas.captureStream(%d);
-				var mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm';
-				window._lbRecording.recorder = new MediaRecorder(stream, { mimeType: mime });
-				window._lbRecording.recorder.ondataavailable = function(e) {
-					if (e.data.size > 0) window._lbRecording.chunks.push(e.data);
+	if not OS.has_feature("web"):
+		return false
+	var filename := JSON.stringify(current_output_path.get_file())
+	var started = JavaScriptBridge.eval("""
+		(function() {
+			const canvas = document.querySelector('canvas');
+			if (!canvas || !canvas.captureStream || !window.MediaRecorder) return false;
+			let stream;
+			try {
+				stream = canvas.captureStream(%d);
+				const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp9')
+					? 'video/webm;codecs=vp9' : 'video/webm';
+				const recorder = new MediaRecorder(stream, { mimeType: mime });
+				const recording = {recorder, chunks: [], cancelled: false};
+				window._lbRecording = recording;
+				recorder.ondataavailable = (e) => {
+					if (e.data.size > 0) recording.chunks.push(e.data);
 				};
-				window._lbRecording.recorder.onstop = function() {
-					var blob = new Blob(window._lbRecording.chunks, { type: mime });
-					var url = URL.createObjectURL(blob);
-					var a = document.createElement('a');
-					a.style.display = 'none';
-					a.href = url;
-					a.download = 'littlebricks_construction.webm';
-					document.body.appendChild(a);
-					a.click();
-					setTimeout(function() {
-						document.body.removeChild(a);
-						window.URL.revokeObjectURL(url);
-					}, 100);
+				recorder.onstop = () => {
+					stream.getTracks().forEach((track) => track.stop());
+					if (window._lbRecording === recording) delete window._lbRecording;
+					if (recording.cancelled || !recording.chunks.length) return;
+					const url = URL.createObjectURL(new Blob(recording.chunks, {type: mime}));
+					const link = document.createElement('a');
+					link.href = url;
+					link.download = %s;
+					document.body.appendChild(link);
+					link.click();
+					link.remove();
+					setTimeout(() => URL.revokeObjectURL(url), 2000);
 				};
-				window._lbRecording.recorder.start();
+				recorder.start();
+				return true;
+			} catch (error) {
+				if (stream) stream.getTracks().forEach((track) => track.stop());
+				delete window._lbRecording;
+				return false;
 			}
-		""" % target_fps)
-		return true
-	return true
+		})();
+	""" % [target_fps, filename])
+	if started != true:
+		last_error = "This browser does not support film capture."
+	return started == true
 
 func _feed_web_frame(_image: Image) -> bool:
-	return true
+	return OS.has_feature("web")
 
 func _finalize_web_media_recorder() -> bool:
-	if OS.has_feature("web"):
-		JavaScriptBridge.eval("""
-			if (window._lbRecording && window._lbRecording.recorder) {
-				window._lbRecording.recorder.stop();
-			}
-		""")
-	return true
+	if not OS.has_feature("web"):
+		return false
+	return JavaScriptBridge.eval("""
+		(function() {
+			const recording = window._lbRecording;
+			if (!recording || recording.recorder.state !== "recording") return false;
+			recording.recorder.stop();
+			return true;
+		})();
+	""") == true
 
-func _start_desktop_offline_export(_filename: String) -> bool:
-	var user_dir = DirAccess.open("user://")
-	if user_dir:
-		if not user_dir.dir_exists("temp_export_frames"):
-			user_dir.make_dir("temp_export_frames")
-		_frame_sequence_dir = ProjectSettings.globalize_path("user://temp_export_frames")
-		
-		# Clean old frame files
-		var f_dir = DirAccess.open("user://temp_export_frames")
-		if f_dir:
-			f_dir.list_dir_begin()
-			var fn = f_dir.get_next()
-			while fn != "":
-				if fn.ends_with(".png"):
-					f_dir.remove(fn)
-				fn = f_dir.get_next()
+func _start_desktop_offline_export(filename: String) -> bool:
+	for executable in ["ffmpeg", "/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/usr/bin/ffmpeg"]:
+		if OS.execute(executable, ["-version"], []) == 0:
+			_ffmpeg_path = executable
+			break
+	if _ffmpeg_path.is_empty():
+		last_error = "Install FFmpeg to export MP4 films."
+		return false
+
+	var output_dir := ProjectSettings.globalize_path(filename).get_base_dir()
+	if not output_dir.is_empty() and DirAccess.make_dir_recursive_absolute(output_dir) != OK:
+		last_error = "Could not create the film's destination folder."
+		return false
+
+	_frame_sequence_dir = ProjectSettings.globalize_path("user://export_%d_%d" % [OS.get_process_id(), Time.get_ticks_usec()])
+	if DirAccess.make_dir_recursive_absolute(_frame_sequence_dir) != OK:
+		last_error = "Could not create a temporary film folder."
+		return false
 	return true
 
 func _feed_desktop_frame(image: Image) -> bool:
-	if _frame_sequence_dir.is_empty():
-		return true
-	# Save frame as PNG into sequence dir (capped to 90 frames to avoid disk thrashing)
-	if recorded_frames_count <= 90:
-		var frame_path = "%s/frame_%04d.png" % [_frame_sequence_dir, recorded_frames_count]
-		image.save_png(frame_path)
+	var frame_path := "%s/frame_%06d.jpg" % [_frame_sequence_dir, recorded_frames_count]
+	if image.save_jpg(frame_path, 0.94) != OK:
+		last_error = "Could not write a film frame."
+		return false
 	return true
 
 func _finalize_desktop_offline_export() -> bool:
-	var global_out = ProjectSettings.globalize_path(current_output_path)
-	
-	# Check parent directory
-	var parent_dir = current_output_path.get_base_dir()
-	if not parent_dir.is_empty():
-		var dir = DirAccess.open("user://")
-		if dir and parent_dir.begins_with("user://"):
-			var sub_d = parent_dir.replace("user://", "")
-			if not dir.dir_exists(sub_d):
-				dir.make_dir_recursive(sub_d)
-				
-	# Search for ffmpeg binary
-	var ffmpeg_candidates = ["ffmpeg", "/opt/homebrew/bin/ffmpeg", "/usr/local/bin/ffmpeg", "/usr/bin/ffmpeg"]
-	var found_ffmpeg: String = ""
-	for bin in ffmpeg_candidates:
-		var out = []
-		if OS.execute(bin, ["-version"], out) == 0:
-			found_ffmpeg = bin
-			break
-			
-	if not found_ffmpeg.is_empty() and not _frame_sequence_dir.is_empty():
-		var pattern = _frame_sequence_dir + "/frame_%04d.png"
-		var args = [
-			"-y",
-			"-framerate", str(target_fps),
-			"-i", pattern,
-			"-c:v", "libx264",
-			"-pix_fmt", "yuv420p",
-			global_out
-		]
-		var exec_out = []
-		var ret = OS.execute(found_ffmpeg, args, exec_out)
-		if ret == 0 and FileAccess.file_exists(current_output_path):
-			print("[VideoExporter] Successfully encoded genuine video to %s" % global_out)
-			_cleanup_temporary_files()
-			return true
-			
-	# Fallback if ffmpeg is not available: write final frame image or standalone file
-	var last_frame_path = "%s/frame_%04d.png" % [_frame_sequence_dir, min(recorded_frames_count, 90)]
-	if FileAccess.file_exists(last_frame_path):
-		DirAccess.copy_absolute(last_frame_path, global_out)
-	else:
-		var fallback_f = FileAccess.open(current_output_path, FileAccess.WRITE)
-		if fallback_f:
-			fallback_f.store_string("LITTLEBRICKS_OFFLINE_VIDEO_STREAM")
-			fallback_f.close()
-			
+	var output_path := ProjectSettings.globalize_path(current_output_path)
+	var temp_output := _frame_sequence_dir.path_join("film.mp4")
+	var args := [
+		"-hide_banner", "-loglevel", "error", "-y",
+		"-framerate", str(target_fps), "-i", _frame_sequence_dir.path_join("frame_%06d.jpg"),
+		"-c:v", "libx264", "-threads", "2", "-pix_fmt", "yuv420p", "-movflags", "+faststart", temp_output
+	]
+	var diagnostics := []
+	var encoded := OS.execute(_ffmpeg_path, args, diagnostics, true) == 0 and FileAccess.file_exists(temp_output)
+	if encoded:
+		encoded = DirAccess.copy_absolute(temp_output, output_path) == OK
+	if not encoded:
+		last_error = "FFmpeg could not save the film."
+		if not diagnostics.is_empty() and not String(diagnostics[0]).strip_edges().is_empty():
+			push_warning(String(diagnostics[0]).strip_edges())
 	_cleanup_temporary_files()
-	return FileAccess.file_exists(current_output_path)
+	return encoded
 
 func _cleanup_temporary_files() -> void:
-	if not _frame_sequence_dir.is_empty():
-		var f_dir = DirAccess.open("user://temp_export_frames")
-		if f_dir:
-			f_dir.list_dir_begin()
-			var fn = f_dir.get_next()
-			while fn != "":
-				if fn.ends_with(".png"):
-					f_dir.remove(fn)
-				fn = f_dir.get_next()
+	if _frame_sequence_dir.is_empty():
+		return
+	for filename in DirAccess.get_files_at(_frame_sequence_dir):
+		DirAccess.remove_absolute(_frame_sequence_dir.path_join(filename))
+	DirAccess.remove_absolute(_frame_sequence_dir)
+	_frame_sequence_dir = ""
