@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: M0 foundation in progress.
+- Stage: Milestone M0 complete; Milestone M1 in progress.
 - Product name: LittleBricks.
-- Game implementation: M0 in progress; 16 shapes + explorer metadata verified in test suite.
-- Playable release, game test evidence, physical-device results and store submission: none.
-- Current implementation milestone: **M0 - Foundation and technical spikes**.
-- Active worker assignments: LB-004 (Android replay-render/encoder spike and phone render scene).
-- Next task: **LB-004**; evaluate Android video export feasibility and representative phone benchmark scene.
-- Next implementation action: create representative 500-piece phone stress scene fixture and platform video adapter interface.
+- Game implementation: M0 foundation complete (Godot 4.7, 32x32 table, export presets, 16 shapes catalog, video exporter, 500-piece stress scene). Milestone M1 started.
+- Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
+- Current implementation milestone: **M1 - Precise brick placement**.
+- Active worker assignments: LB-005 (deterministic placement rules, collision proxies, connector compatibility, anchor graph).
+- Next task: **LB-005**; implement placement rules engine in `game/core/placement_rules.gd`.
+- Next implementation action: create `game/core/placement_rules.gd`, spatial index, connector compatibility matrix, and headless test suite `game/tests/test_placement_rules.gd`.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -19,8 +19,8 @@ Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRA
 
 | Milestone | State | Evidence / next gate |
 | --- | --- | --- |
-| M0 - Foundation and technical spikes | planned | Toolchain discovery, engine pin, runnable scene and early Android export feasibility |
-| M1 - Precise brick placement | planned | Correct connectors/collision and usable input |
+| M0 - Foundation and technical spikes | done | LB-001..LB-004 verified; Godot 4.7, presets, catalog, 500-piece bench, video adapter |
+| M1 - Precise brick placement | in_progress | LB-005 in progress; connectors, collision proxies, bounds |
 | M2 - Complete local building | planned | Solo/local turns, history and save recovery |
 | M3 - Explore the finished world | planned | Original explorer, POV, clearance and phase transitions |
 | M4 - Private online rooms | planned | Authority, reconnect, persistence and 2-4-client agreement |
@@ -39,8 +39,8 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-001 | done | coordinator | docs/evidence/LB-001-toolchain-discovery.md |
 | LB-002 | done | coordinator | docs/evidence/LB-002-project-table-scene.md |
 | LB-003 | done | littlebricks-worlds | docs/evidence/LB-003-parts-metadata-audit.md |
-| LB-004 | in_progress | littlebricks-platform | planned |
-| LB-005 | planned | unassigned | none |
+| LB-004 | done | littlebricks-platform | docs/evidence/LB-004-android-video-and-stress-spike.md |
+| LB-005 | in_progress | littlebricks-gameplay | planned |
 | LB-006 | planned | unassigned | none |
 | LB-007 | planned | unassigned | none |
 | LB-008 | planned | unassigned | none |
