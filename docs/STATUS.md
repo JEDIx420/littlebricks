@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: Milestone M2 complete; Milestone M3 in progress.
+- Stage: Milestone M3 complete; Milestone M4 in progress.
 - Product name: LittleBricks.
-- Game implementation: M0, M1, and M2 complete. LB-009..LB-012 verified (session state machine, atomic save/resume, undo/redo, pacing).
+- Game implementation: M0, M1, M2, and M3 complete. LB-013..LB-016 verified (exploration colliders, toy explorer, dual POV cameras, reset figure, scale).
 - Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
-- Current implementation milestone: **M3 - Explore the finished world**.
-- Active worker assignments: LB-013 (freeze build revision, simplified exploration colliders, clearance validation).
-- Next task: **LB-013**; implement world exploration collision generator and spawn validator.
-- Next implementation action: create `game/core/exploration_world.gd` to generate static collision shapes from placed pieces, smooth over studs, validate walkability/clearance, and spawn points.
+- Current implementation milestone: **M4 - Private online rooms**.
+- Active worker assignments: LB-017 (headless WSS room authority, player identity tokens, ordered events, idempotent commands).
+- Next task: **LB-017**; implement authoritative network server and protocol in `game/server/network_server.gd`.
+- Next implementation action: create `game/server/network_server.gd` and client network adapter with WebSocket protocol, idempotent request IDs, and authoritative turn deadlines.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -22,8 +22,8 @@ Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRA
 | M0 - Foundation and technical spikes | done | LB-001..LB-004 verified; Godot 4.7, presets, catalog, 500-piece bench, video adapter |
 | M1 - Precise brick placement | done | LB-005..LB-008 verified; rules engine, inventory, camera, scaling benchmarks |
 | M2 - Complete local building | done | LB-009..LB-012 verified; state machine, save/resume, undo/redo, pacing |
-| M3 - Explore the finished world | in_progress | LB-013 in progress; exploration colliders, toy character controller |
-| M4 - Private online rooms | planned | Authority, reconnect, persistence and 2-4-client agreement |
+| M3 - Explore the finished world | done | LB-013..LB-016 verified; exploration colliders, toy explorer, dual POV, reset figure |
+| M4 - Private online rooms | in_progress | LB-017 in progress; authoritative server, recovery, 2-4 clients |
 | M5 - Construction films and sharing | planned | Correct replay and actual video/share output |
 | M6 - Content, polish and performance | planned | Audited content and measured integrated experience |
 | M7 - Release readiness | planned | Reproducible candidate, evidence, licences and store preparation |
@@ -48,11 +48,11 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-010 | done | littlebricks-platform | docs/evidence/LB-010-save-resume-and-corruption.md |
 | LB-011 | done | littlebricks-gameplay | docs/evidence/LB-011-undo-redo-and-cooperative-corrections.md |
 | LB-012 | done | littlebricks-verifier | docs/evidence/LB-012-paired-sessions-and-pacing.md |
-| LB-013 | in_progress | littlebricks-worlds | planned |
-| LB-014 | planned | unassigned | none |
-| LB-015 | planned | unassigned | none |
-| LB-016 | planned | unassigned | none |
-| LB-017 | planned | unassigned | none |
+| LB-013 | done | littlebricks-worlds | docs/evidence/LB-013-exploration-colliders-clearance.md |
+| LB-014 | done | littlebricks-worlds | docs/evidence/LB-014-toy-explorer-controller-pov.md |
+| LB-015 | done | littlebricks-gameplay | docs/evidence/LB-015-exploration-integration-reset-return.md |
+| LB-016 | done | littlebricks-verifier | docs/evidence/LB-016-playtest-scale-and-interiors.md |
+| LB-017 | in_progress | littlebricks-platform | planned |
 | LB-018 | planned | unassigned | none |
 | LB-019 | planned | unassigned | none |
 | LB-020 | planned | unassigned | none |
