@@ -144,6 +144,12 @@ custom_minimum_size = Vector2(100, 36)
 layout_mode = 2
 text = "💾 Save & Leave"
 
+[node name="BtnSettings" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(85, 36)
+layout_mode = 2
+text = "⚙ Settings"
+
 [node name="RightControls" type="VBoxContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchors_preset = 11

@@ -10,6 +10,7 @@ const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 const ToyExplorer = preload("res://client/scripts/toy_explorer.gd")
 
+signal return_to_table(save_state: bool)
 signal return_to_table_requested()
 
 @onready var world_colliders_container: Node3D = $WorldColliders
@@ -50,6 +51,9 @@ func _ensure_nodes() -> void:
 		catalog.load_catalog("res://assets/catalog/parts_manifest.json")
 	if not world_gen:
 		world_gen = ExplorationWorld.new(catalog)
+
+func setup_exploration(placements: Array, theme_id: String = "harbour") -> void:
+	setup_exploration_scene(placements)
 
 ## Initialize exploration world from frozen build placements
 func setup_exploration_scene(placements: Array) -> void:
@@ -111,6 +115,7 @@ func _on_reset_figure() -> void:
 		explorer_instance.reset_to_spawn()
 
 func _on_return_to_table() -> void:
+	return_to_table.emit(true)
 	return_to_table_requested.emit()
 
 func _update_pov_label() -> void:

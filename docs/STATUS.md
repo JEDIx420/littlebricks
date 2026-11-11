@@ -11,8 +11,8 @@ Last updated: **2026-11-11**
 - Required repairs: canonical stud alignment, automatic surface height, camera/input usability, application integration, actual networking and real video output.
 - Required experience work: Welcome/mode/setup screens, music/ambience, brick sounds, supported haptics, lighting/showcase, accessibility and a staged 120-shape verified library (150 stretch).
 - Current deliverable: revised project/agent instructions. This documentation update makes no runtime repairs or deployment.
-- **Next task: LB-037 (Connect finish, exploration and save/resume). Then LB-038 (Verify first integrated playable slice).**
-- Next implementation action: wire finish agreement consensus, original explorer walk, and full round-trip verification.
+- **Next task: LB-040 (Implement music and audio mixing). Then LB-041 (Deliver tactile brick feedback and haptics), LB-042 (Polish presentation), and LB-043 (Accessibility).**
+- Next implementation action: polish audio buses/ducking, tactile pulse tuning, warm table lighting presets, and accessibility controls.
 
 Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
 
@@ -86,8 +86,8 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 | LB-034 | Connect one application and session lifecycle | done | coordinator | docs/evidence/LB-034-application-lifecycle-routing.md |
 | LB-035 | Build the first three screens and onboarding | done | coordinator | docs/evidence/LB-035-first-three-screens.md |
 | LB-036 | Integrate real building rules and safe input | done | coordinator | docs/evidence/LB-036-building-rules-and-safe-input.md |
-| LB-037 | Connect finish, exploration and save/resume | planned | unassigned | none |
-| LB-038 | Verify the first integrated playable slice | planned | unassigned | none |
+| LB-037 | Connect finish, exploration and save/resume | done | coordinator | docs/evidence/LB-037-finish-exploration-and-save-resume.md |
+| LB-038 | Verify the first integrated playable slice | done | coordinator | docs/evidence/LB-038-first-integrated-playable-slice.md |
 | LB-039 | Prepare licensed music, ambience and interaction sounds | done | coordinator | docs/evidence/LB-039-audio-assets-preparation.md |
 | LB-040 | Implement music and audio mixing across the journey | planned | unassigned | none |
 | LB-041 | Deliver tactile brick feedback and haptics | planned | unassigned | none |

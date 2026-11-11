@@ -8,6 +8,7 @@ class_name AppRoot
 const AudioDirector = preload("res://client/scripts/audio_director.gd")
 const HapticsAdapter = preload("res://platform/haptics_adapter.gd")
 const SettingsManager = preload("res://client/scripts/settings_manager.gd")
+const SettingsModal = preload("res://client/scripts/settings_modal.gd")
 const SessionManager = preload("res://core/session_manager.gd")
 const SaveManager = preload("res://core/save_manager.gd")
 
@@ -16,6 +17,7 @@ const ModeSelectScene = preload("res://client/scenes/mode_select.tscn")
 const SetupScene = preload("res://client/scenes/setup_screen.tscn")
 const MainTableScene = preload("res://client/scenes/main.tscn")
 const ExplorationScene = preload("res://client/scenes/exploration_view.tscn")
+const SettingsModalScene = preload("res://client/scenes/settings_modal.tscn")
 
 @onready var view_container: Control = $ViewContainer
 
@@ -25,6 +27,7 @@ var settings: SettingsManager
 var active_session: SessionManager = null
 var current_view: Node = null
 var current_session_config: Dictionary = {}
+var settings_dialog: SettingsModal = null
 
 func _ready() -> void:
 	if not view_container:
@@ -127,6 +130,8 @@ func start_session(config: Dictionary) -> void:
 		table.finish_requested.connect(_on_table_finish_requested)
 	if table.has_signal("leave_requested"):
 		table.leave_requested.connect(save_and_leave)
+	if table.has_signal("settings_requested"):
+		table.settings_requested.connect(open_settings)
 
 func continue_latest_save() -> void:
 	var dir = DirAccess.open("user://saves")
@@ -201,6 +206,8 @@ func continue_latest_save() -> void:
 		table.finish_requested.connect(_on_table_finish_requested)
 	if table.has_signal("leave_requested"):
 		table.leave_requested.connect(save_and_leave)
+	if table.has_signal("settings_requested"):
+		table.settings_requested.connect(open_settings)
 
 func _on_table_finish_requested() -> void:
 	if not active_session:
@@ -222,6 +229,8 @@ func _on_table_finish_requested() -> void:
 func _on_return_to_table_requested(save_state: bool) -> void:
 	if save_state:
 		_save_active_session()
+	if active_session:
+		active_session.return_to_building_new_revision()
 	# Restore table
 	_clear_current_view()
 	audio.play_building_music()
@@ -238,6 +247,8 @@ func _on_return_to_table_requested(save_state: bool) -> void:
 		table.finish_requested.connect(_on_table_finish_requested)
 	if table.has_signal("leave_requested"):
 		table.leave_requested.connect(save_and_leave)
+	if table.has_signal("settings_requested"):
+		table.settings_requested.connect(open_settings)
 
 func save_and_leave() -> void:
 	_save_active_session()
@@ -263,5 +274,9 @@ func open_my_builds() -> void:
 	navigate_to_mode_select()
 
 func open_settings() -> void:
-	# Settings toggle / modal
-	pass
+	if not settings_dialog:
+		settings_dialog = SettingsModalScene.instantiate() as SettingsModal
+		add_child(settings_dialog)
+		settings_dialog._ready()
+	settings_dialog.setup(settings, audio, haptics)
+	settings_dialog.visible = true

@@ -7,6 +7,7 @@ extends Node3D
 
 signal finish_requested()
 signal leave_requested()
+signal settings_requested()
 
 const CameraController = preload("res://client/scripts/camera_controller.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
@@ -47,6 +48,7 @@ const SessionManager = preload("res://core/session_manager.gd")
 @onready var btn_reset_view: Button = %BtnResetView
 @onready var btn_finish: Button = %BtnFinish
 @onready var btn_leave: Button = %BtnLeave
+@onready var btn_settings: Button = %BtnSettings
 @onready var tray_container: HBoxContainer = %TrayContainer
 
 var catalog: PartCatalog
@@ -106,6 +108,7 @@ func _ready() -> void:
 	if not btn_reset_view: btn_reset_view = find_child("BtnResetView", true, false)
 	if not btn_finish: btn_finish = find_child("BtnFinish", true, false)
 	if not btn_leave: btn_leave = find_child("BtnLeave", true, false)
+	if not btn_settings: btn_settings = find_child("BtnSettings", true, false)
 	if not tray_container: tray_container = find_child("TrayContainer", true, false)
 	if camera_rig: camera_rig._ready()
 	
@@ -140,6 +143,10 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null)
 		session.timer_expired.connect(_on_timer_expired)
 	if not session.inventory_refilled.is_connected(_on_inventory_refilled):
 		session.inventory_refilled.connect(_on_inventory_refilled)
+	if not session.ready_status_changed.is_connected(_on_ready_status_changed):
+		session.ready_status_changed.connect(_on_ready_status_changed)
+	if not session.phase_changed.is_connected(_on_session_phase_changed):
+		session.phase_changed.connect(_on_session_phase_changed)
 		
 	if label_timer:
 		label_timer.visible = session.timer_enabled
@@ -213,10 +220,12 @@ func _connect_ui() -> void:
 		opt_catalog_category.item_selected.connect(func(_i): _populate_catalog_grid())
 	if line_catalog_search and not line_catalog_search.text_changed.is_connected(func(_t): _populate_catalog_grid()):
 		line_catalog_search.text_changed.connect(func(_t): _populate_catalog_grid())
-	if btn_finish and not btn_finish.pressed.is_connected(func(): finish_requested.emit()):
-		btn_finish.pressed.connect(func(): finish_requested.emit())
+	if btn_finish and not btn_finish.pressed.is_connected(_on_finish_pressed):
+		btn_finish.pressed.connect(_on_finish_pressed)
 	if btn_leave and not btn_leave.pressed.is_connected(func(): leave_requested.emit()):
 		btn_leave.pressed.connect(func(): leave_requested.emit())
+	if btn_settings and not btn_settings.pressed.is_connected(func(): settings_requested.emit()):
+		btn_settings.pressed.connect(func(): settings_requested.emit())
 
 func _setup_inventory_tray() -> void:
 	if not tray_container:
@@ -671,6 +680,8 @@ func _on_place_pressed() -> void:
 		var player_id = cur_player.get("id", "p0")
 		session.submit_placement(player_id, selected_part_id, current_grid_pos.x, current_grid_pos.y, current_layer_plate, current_rotation_step)
 		_setup_inventory_tray()
+		if btn_finish:
+			btn_finish.text = "🚶 Explore"
 		
 	if audio_director:
 		audio_director.play_click(placement_id)
@@ -685,6 +696,29 @@ func _on_place_pressed() -> void:
 # =========================================================================
 # LB-036 Building Rules, Undo/Redo, Timers, and Solo Browser
 # =========================================================================
+
+func _on_finish_pressed() -> void:
+	if not session or session.players.size() <= 1:
+		finish_requested.emit()
+		return
+		
+	var cur_player = session.get_current_player()
+	var cur_id = cur_player.get("id", "")
+	var is_ready = cur_player.get("is_ready_to_explore", false)
+	session.set_ready_to_explore(cur_id, not is_ready)
+
+func _on_ready_status_changed(_player_id: String, _is_ready: bool, ready_count: int, total_players: int) -> void:
+	if btn_finish:
+		if ready_count == total_players:
+			btn_finish.text = "🚶 Explore (%d/%d)" % [ready_count, total_players]
+		else:
+			btn_finish.text = "🚶 Ready (%d/%d)" % [ready_count, total_players]
+	if label_status:
+		label_status.text = "Finish Agreement: %d/%d players ready" % [ready_count, total_players]
+
+func _on_session_phase_changed(new_phase: SessionManager.SessionPhase) -> void:
+	if new_phase == SessionManager.SessionPhase.EXPLORATION:
+		finish_requested.emit()
 
 func _on_turn_advanced(player_id: String, player_idx: int) -> void:
 	if not session:
