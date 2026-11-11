@@ -141,30 +141,106 @@ func render_to_video_stream(exporter: VideoExporter, output_filename: String, fp
 	# Build initial state
 	load_build_history(placements_data)
 	
-	# Simulate frame-by-frame rendering with bounded memory buffer
-	var dummy_frame: Image = Image.create(exporter.target_width, exporter.target_height, false, Image.FORMAT_RGBA8)
-	dummy_frame.fill(Color(0.2, 0.4, 0.6))
-	
 	var frames_per_piece = max(1, int(seconds_per_placement * float(fps)))
 	var frame_idx = 0
 	
+	# Render cumulative construction sequence
 	for i in range(placements_data.size()):
 		_instantiate_piece(placements_data[i], false)
+		var orbit_y = float(frame_idx) * (360.0 / float(total_frames))
+		if camera_rig: camera_rig.rotation_degrees.y = orbit_y
+		
+		# Generate real frame of the cumulative model
+		var frame_img = _generate_cumulative_frame(i, exporter.target_width, exporter.target_height, orbit_y, false)
+		
 		for f in range(frames_per_piece):
-			if not exporter.push_frame(dummy_frame):
+			if not exporter.push_frame(frame_img):
 				exporter.cancel_recording()
 				return false
 			frame_idx += 1
 			
 	# Render final reveal frames
+	in_final_reveal = true
 	var reveal_frames = total_frames - frame_idx
 	for f in range(reveal_frames):
-		if not exporter.push_frame(dummy_frame):
+		var orbit_y = float(frame_idx) * (360.0 / float(total_frames))
+		if camera_rig: camera_rig.rotation_degrees.y = orbit_y
+		var frame_img = _generate_cumulative_frame(placements_data.size() - 1, exporter.target_width, exporter.target_height, orbit_y, true)
+		if not exporter.push_frame(frame_img):
 			exporter.cancel_recording()
 			return false
+		frame_idx += 1
 			
 	var result_path = exporter.finish_recording()
 	return result_path != ""
+
+## Generate genuine cumulative visual representation of the creation (LB-046)
+func _generate_cumulative_frame(current_step: int, width: int, height: int, _orbit_y: float, is_reveal: bool) -> Image:
+	# If running with an active Viewport, grab rendered pixels
+	if is_inside_tree() and get_viewport():
+		var tex = get_viewport().get_texture()
+		if tex:
+			var img = tex.get_image()
+			if img and not img.is_empty():
+				img.resize(width, height)
+				return img
+				
+	# Generate genuine 2D cumulative isometric representation of the model on the baseplate
+	var img = Image.create(width, height, false, Image.FORMAT_RGBA8)
+	# Warm table background
+	img.fill(Color(0.52, 0.38, 0.26))
+	
+	# Draw 32x32 green baseplate centered
+	var bp_size = min(width, height) * 0.65
+	var bp_left = int((width - bp_size) / 2.0)
+	var bp_top = int((height - bp_size) / 2.0)
+	var bp_right = int(bp_left + bp_size)
+	var bp_bottom = int(bp_top + bp_size)
+	
+	for y in range(bp_top, bp_bottom):
+		for x in range(bp_left, bp_right):
+			img.set_pixel(x, y, Color(0.18, 0.58, 0.24))
+			
+	# Stud scale
+	var stud_px = bp_size / 32.0
+	
+	# Render each placed brick cumulatively up to current_step
+	var max_step = min(current_step, placements_data.size() - 1)
+	for i in range(max_step + 1):
+		var p = placements_data[i]
+		var pid = p.get("part_id", "brick_2x4")
+		var p_def = catalog.get_part(pid)
+		var dims = p_def.get("dimensions_studs", [1, 3, 1])
+		var rot = p.get("rotation_step", 0)
+		var col: Color = p.get("color", Color(0.85, 0.15, 0.15))
+		var fp_x = dims[0] if (rot % 2 == 0) else dims[2]
+		var fp_z = dims[2] if (rot % 2 == 0) else dims[0]
+		var gx = p.get("grid_x", 16)
+		var gz = p.get("grid_z", 16)
+		
+		var px_start = int(bp_left + gx * stud_px)
+		var py_start = int(bp_top + gz * stud_px)
+		var px_end = int(clamp(px_start + fp_x * stud_px, 0, width - 1))
+		var py_end = int(clamp(py_start + fp_z * stud_px, 0, height - 1))
+		
+		# Draw brick fill with 3D bevel edges
+		for y in range(py_start, py_end):
+			for x in range(px_start, px_end):
+				if x == px_start or y == py_start:
+					img.set_pixel(x, y, col.lightened(0.25))
+				elif x == px_end - 1 or y == py_end - 1:
+					img.set_pixel(x, y, col.darkened(0.25))
+				else:
+					img.set_pixel(x, y, col)
+					
+	if is_reveal:
+		# Add subtle golden showcase rim on reveal
+		for x in range(bp_left - 4, bp_right + 4):
+			if x >= 0 and x < width:
+				if bp_top - 4 >= 0: img.set_pixel(x, bp_top - 4, Color(1.0, 0.85, 0.3))
+				if bp_bottom + 3 < height: img.set_pixel(x, bp_bottom + 3, Color(1.0, 0.85, 0.3))
+				
+	return img
 
 ## Check that the final scene matches the source build placement by placement
 func verify_final_scene_matches_build() -> bool:
