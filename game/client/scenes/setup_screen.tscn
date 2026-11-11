@@ -1,0 +1,242 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1m4x8y2k3d5a"]
+
+[ext_resource type="Script" path="res://client/scripts/setup_screen.gd" id="1_setup"]
+
+[node name="SetupScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_setup")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.14, 0.18, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = -24.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="BtnBack" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 36)
+layout_mode = 2
+text = "← Back"
+
+[node name="Spacer" type="Control" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MainPanel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -260.0
+offset_top = -220.0
+offset_right = 260.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="MainPanel"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LabelModeTitle" type="Label" parent="MainPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "Set Up Your Table"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="MainPanel/VBox"]
+layout_mode = 2
+
+[node name="ContainerSolo" type="VBoxContainer" parent="MainPanel/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelName" type="Label" parent="MainPanel/VBox/ContainerSolo"]
+layout_mode = 2
+text = "Creation Name:"
+
+[node name="LineEditSoloName" type="LineEdit" parent="MainPanel/VBox/ContainerSolo"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Sunny Harbour"
+
+[node name="LabelTheme" type="Label" parent="MainPanel/VBox/ContainerSolo"]
+layout_mode = 2
+text = "Table Theme:"
+
+[node name="OptSoloTheme" type="OptionButton" parent="MainPanel/VBox/ContainerSolo"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Cozy Coastal Harbour"
+popup/item_0/id = 0
+popup/item_1/text = "Rustic Forest Cabin"
+popup/item_1/id = 1
+
+[node name="LabelMode" type="Label" parent="MainPanel/VBox/ContainerSolo"]
+layout_mode = 2
+text = "Building Rules:"
+
+[node name="OptSoloMode" type="OptionButton" parent="MainPanel/VBox/ContainerSolo"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Themed Mixed Bags"
+popup/item_0/id = 0
+popup/item_1/text = "Free Build (Full Catalogue)"
+popup/item_1/id = 1
+
+[node name="ContainerPassPlay" type="VBoxContainer" parent="MainPanel/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelPlayers" type="Label" parent="MainPanel/VBox/ContainerPassPlay"]
+layout_mode = 2
+text = "Number of Players:"
+
+[node name="OptPlayerCount" type="OptionButton" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 3
+popup/item_0/text = "2 Players"
+popup/item_0/id = 0
+popup/item_1/text = "3 Players"
+popup/item_1/id = 1
+popup/item_2/text = "4 Players"
+popup/item_2/id = 2
+
+[node name="LinePlayer1" type="LineEdit" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Player 1 (Red)"
+text = "Player 1"
+
+[node name="LinePlayer2" type="LineEdit" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Player 2 (Blue)"
+text = "Player 2"
+
+[node name="LinePlayer3" type="LineEdit" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+placeholder_text = "Player 3 (Yellow)"
+text = "Player 3"
+
+[node name="LinePlayer4" type="LineEdit" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+placeholder_text = "Player 4 (Green)"
+text = "Player 4"
+
+[node name="LabelPassTheme" type="Label" parent="MainPanel/VBox/ContainerPassPlay"]
+layout_mode = 2
+text = "Theme:"
+
+[node name="OptPassTheme" type="OptionButton" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "Cozy Coastal Harbour"
+popup/item_0/id = 0
+popup/item_1/text = "Rustic Forest Cabin"
+popup/item_1/id = 1
+
+[node name="LabelPassTimer" type="Label" parent="MainPanel/VBox/ContainerPassPlay"]
+layout_mode = 2
+text = "Turn Timer:"
+
+[node name="OptPassTimer" type="OptionButton" parent="MainPanel/VBox/ContainerPassPlay"]
+unique_name_in_owner = true
+layout_mode = 2
+selected = 0
+item_count = 4
+popup/item_0/text = "20 Seconds (Standard)"
+popup/item_0/id = 0
+popup/item_1/text = "30 Seconds"
+popup/item_1/id = 1
+popup/item_2/text = "45 Seconds"
+popup/item_2/id = 2
+popup/item_3/text = "Disabled (Unlimited)"
+popup/item_3/id = 3
+
+[node name="ContainerOnline" type="VBoxContainer" parent="MainPanel/VBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelOnlineName" type="Label" parent="MainPanel/VBox/ContainerOnline"]
+layout_mode = 2
+text = "Your Display Name:"
+
+[node name="LineOnlineName" type="LineEdit" parent="MainPanel/VBox/ContainerOnline"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Explorer"
+text = "Explorer1"
+
+[node name="BtnCreateRoom" type="Button" parent="MainPanel/VBox/ContainerOnline"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Create Private Room"
+
+[node name="HSeparator2" type="HSeparator" parent="MainPanel/VBox/ContainerOnline"]
+layout_mode = 2
+
+[node name="LabelJoin" type="Label" parent="MainPanel/VBox/ContainerOnline"]
+layout_mode = 2
+text = "Or Join with Code:"
+
+[node name="LineOnlineCode" type="LineEdit" parent="MainPanel/VBox/ContainerOnline"]
+unique_name_in_owner = true
+layout_mode = 2
+placeholder_text = "Enter 6-letter room code (e.g. LBRICK)"
+
+[node name="BtnJoinRoom" type="Button" parent="MainPanel/VBox/ContainerOnline"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Join Room"
+
+[node name="Spacer" type="Control" parent="MainPanel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="BtnStart" type="Button" parent="MainPanel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Start Building"

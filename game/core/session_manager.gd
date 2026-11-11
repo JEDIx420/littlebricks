@@ -195,6 +195,46 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 	_advance_turn()
 	return true
 
+## Submit placement directly by part_id (used by TableView/solo builder and authoritative router)
+func submit_placement(player_id: String, part_id: String, gx: int, gz: int, z_plate: int, rot_step: int, piece_color = null) -> bool:
+	var col = piece_color
+	if col == null and not players.is_empty():
+		col = players[current_player_idx].get("color", Color.WHITE)
+	elif col == null:
+		col = Color.WHITE
+		
+	var placement_record = {
+		"placement_id": "pl_%d" % (placements.size() + 1),
+		"sequence": _next_event_seq,
+		"player_id": player_id,
+		"part_id": part_id,
+		"grid_x": gx,
+		"grid_z": gz,
+		"layer_plate": z_plate,
+		"rotation_step": rot_step,
+		"color": col
+	}
+	placements.append(placement_record)
+	_record_event("PLACEMENT_ACCEPTED", placement_record)
+	
+	# If player has this piece in hand, consume and refill
+	if not players.is_empty():
+		var player = players[current_player_idx]
+		var hand = player.get("hand", [])
+		for i in range(hand.size()):
+			if hand[i].get("part_id") == part_id:
+				var new_piece = _draw_piece_from_theme(i, hand)
+				player["hand"][i] = new_piece
+				inventory_refilled.emit(player_id, new_piece, i)
+				break
+				
+	_clear_all_readiness()
+	placement_accepted.emit(placement_record)
+	
+	if mode != GameMode.SOLO_CREATIVE and players.size() > 1:
+		_advance_turn()
+	return true
+
 ## Vote ready to explore
 func set_ready_to_explore(player_id: String, is_ready: bool) -> void:
 	var p_found = false

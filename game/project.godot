@@ -8,7 +8,7 @@ config_version=5
 
 config/name="LittleBricks"
 config/description="Cooperative tabletop brick building game"
-run/main_scene="res://client/scenes/main.tscn"
+run/main_scene="res://client/scenes/app_root.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
 

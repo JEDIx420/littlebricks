@@ -1,0 +1,107 @@
+[gd_scene load_steps=2 format=3 uid="uid://c8m2v6x4b1d3a"]
+
+[ext_resource type="Script" path="res://client/scripts/welcome_screen.gd" id="1_welcome"]
+
+[node name="WelcomeScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_welcome")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.14, 0.18, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = -24.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="Spacer" type="Control" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="BtnMute" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 36)
+layout_mode = 2
+text = "🔊 Sound"
+
+[node name="CenterBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -220.0
+offset_top = -200.0
+offset_right = 220.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="Title" type="Label" parent="CenterBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 46
+text = "LittleBricks"
+horizontal_alignment = 1
+
+[node name="Tagline" type="Label" parent="CenterBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 18
+text = "Build together, one brick at a time"
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="CenterBox"]
+layout_mode = 2
+
+[node name="BtnContinue" type="Button" parent="CenterBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Continue Creation"
+
+[node name="LabelContinueInfo" type="Label" parent="CenterBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.75, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "Resume: My Castle"
+horizontal_alignment = 1
+
+[node name="BtnPlay" type="Button" parent="CenterBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "New Creation (Play)"
+
+[node name="BtnMyBuilds" type="Button" parent="CenterBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "My Builds"
+
+[node name="BtnSettings" type="Button" parent="CenterBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Settings"

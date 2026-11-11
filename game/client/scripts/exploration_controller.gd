@@ -31,9 +31,12 @@ func _ready() -> void:
 	_connect_ui()
 
 func _connect_ui() -> void:
-	btn_toggle_pov.pressed.connect(_on_toggle_pov)
-	btn_reset_fig.pressed.connect(_on_reset_figure)
-	btn_return_table.pressed.connect(_on_return_to_table)
+	if btn_toggle_pov and not btn_toggle_pov.pressed.is_connected(_on_toggle_pov):
+		btn_toggle_pov.pressed.connect(_on_toggle_pov)
+	if btn_reset_fig and not btn_reset_fig.pressed.is_connected(_on_reset_figure):
+		btn_reset_fig.pressed.connect(_on_reset_figure)
+	if btn_return_table and not btn_return_table.pressed.is_connected(_on_return_to_table):
+		btn_return_table.pressed.connect(_on_return_to_table)
 
 func _ensure_nodes() -> void:
 	if not world_colliders_container:

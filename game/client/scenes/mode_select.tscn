@@ -1,0 +1,184 @@
+[gd_scene load_steps=2 format=3 uid="uid://b5m3x9y1k2d4a"]
+
+[ext_resource type="Script" path="res://client/scripts/mode_select.gd" id="1_mode"]
+
+[node name="ModeSelectScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_mode")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.12, 0.14, 0.18, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 24.0
+offset_top = 20.0
+offset_right = -24.0
+offset_bottom = 60.0
+grow_horizontal = 2
+
+[node name="BtnBack" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 36)
+layout_mode = 2
+text = "← Back"
+
+[node name="Spacer" type="Control" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="HeadingBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 70.0
+offset_bottom = 130.0
+grow_horizontal = 2
+alignment = 1
+
+[node name="Heading" type="Label" parent="HeadingBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 32
+text = "Choose How to Build"
+horizontal_alignment = 1
+
+[node name="Subheading" type="Label" parent="HeadingBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.78, 0.85, 1)
+theme_override_font_sizes/font_size = 16
+text = "Select your tabletop building experience"
+horizontal_alignment = 1
+
+[node name="CardsContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -460.0
+offset_top = -140.0
+offset_right = 460.0
+offset_bottom = 180.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 24
+alignment = 1
+
+[node name="CardSolo" type="PanelContainer" parent="CardsContainer"]
+custom_minimum_size = Vector2(280, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CardsContainer/CardSolo"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Icon" type="Label" parent="CardsContainer/CardSolo/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "🔨"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="CardsContainer/CardSolo/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Build Solo"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="CardsContainer/CardSolo/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "Build at your pace, then explore and make a film."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BtnSolo" type="Button" parent="CardsContainer/CardSolo/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Select Solo"
+
+[node name="CardPassPlay" type="PanelContainer" parent="CardsContainer"]
+custom_minimum_size = Vector2(280, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CardsContainer/CardPassPlay"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Icon" type="Label" parent="CardsContainer/CardPassPlay/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "🤝"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="CardsContainer/CardPassPlay/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Pass & Play"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="CardsContainer/CardPassPlay/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "Take turns with 2–4 people on this device."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BtnPassPlay" type="Button" parent="CardsContainer/CardPassPlay/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Select Pass & Play"
+
+[node name="CardOnline" type="PanelContainer" parent="CardsContainer"]
+custom_minimum_size = Vector2(280, 300)
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="CardsContainer/CardOnline"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 1
+
+[node name="Icon" type="Label" parent="CardsContainer/CardOnline/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 36
+text = "🌐"
+horizontal_alignment = 1
+
+[node name="Title" type="Label" parent="CardsContainer/CardOnline/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Play Online"
+horizontal_alignment = 1
+
+[node name="Desc" type="Label" parent="CardsContainer/CardOnline/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.82, 0.88, 1)
+theme_override_font_sizes/font_size = 14
+text = "Build with friends in a private room."
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BtnOnline" type="Button" parent="CardsContainer/CardOnline/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Select Online"

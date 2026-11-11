@@ -5,11 +5,15 @@ extends Node3D
 ## canonical stud lattice, surface-following Auto Height, manual height override,
 ## discoverable camera modes, and robust touch/desktop input ownership.
 
+signal finish_requested()
+signal leave_requested()
+
 const CameraController = preload("res://client/scripts/camera_controller.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 const PartCatalog = preload("res://core/part_catalog.gd")
 const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const PlacementRules = preload("res://core/placement_rules.gd")
+const SessionManager = preload("res://core/session_manager.gd")
 
 @onready var camera_rig: CameraController = $CameraRig
 @onready var table_view: TableView = $TableView
@@ -30,10 +34,15 @@ const PlacementRules = preload("res://core/placement_rules.gd")
 @onready var btn_top_view: Button = %BtnTopView
 @onready var btn_frame_build: Button = %BtnFrameBuild
 @onready var btn_reset_view: Button = %BtnResetView
+@onready var btn_finish: Button = %BtnFinish
+@onready var btn_leave: Button = %BtnLeave
 @onready var tray_container: HBoxContainer = %TrayContainer
 
 var catalog: PartCatalog
 var rules: PlacementRules
+var session: SessionManager = null
+var audio_director = null
+var haptics_adapter = null
 
 # State
 var current_rotation_step: int = 0 # 0, 1, 2, 3 representing 0, 90, 180, 270 degrees
@@ -73,6 +82,8 @@ func _ready() -> void:
 	if not btn_top_view: btn_top_view = get_node_or_null("%BtnTopView")
 	if not btn_frame_build: btn_frame_build = get_node_or_null("%BtnFrameBuild")
 	if not btn_reset_view: btn_reset_view = get_node_or_null("%BtnResetView")
+	if not btn_finish: btn_finish = get_node_or_null("%BtnFinish")
+	if not btn_leave: btn_leave = get_node_or_null("%BtnLeave")
 	if not tray_container: tray_container = get_node_or_null("%TrayContainer")
 	if camera_rig: camera_rig._ready()
 	
@@ -84,6 +95,35 @@ func _ready() -> void:
 	_setup_inventory_tray()
 	_update_height_mode_ui()
 	_rebuild_ghost()
+	_validate_and_update_ghost()
+
+func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null) -> void:
+	session = p_session
+	audio_director = p_audio
+	haptics_adapter = p_haptics
+	
+	if not session:
+		return
+		
+	# Reconstruct existing placements from session
+	placed_pieces_data.clear()
+	for child in placed_bricks_container.get_children():
+		child.queue_free()
+		
+	for p in session.placements:
+		var pid = p.get("part_id", "brick_2x4")
+		var col = p.get("color", Color.WHITE)
+		var p_def = catalog.get_part(pid)
+		var dims = p_def.get("dimensions_studs", [1, 3, 1])
+		var rot = p.get("rotation_step", 0)
+		var node = PartMeshBuilder.build_part_node(p_def, col)
+		node.position = TableView.grid_to_world(p.get("grid_x", 0), p.get("grid_z", 0), p.get("layer_plate", 0), dims, rot)
+		node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
+		placed_bricks_container.add_child(node)
+		placed_pieces_data.append(p)
+		
+	_setup_inventory_tray()
+	_update_pointer_target()
 	_validate_and_update_ghost()
 
 func _connect_ui() -> void:
@@ -109,30 +149,49 @@ func _connect_ui() -> void:
 		btn_frame_build.pressed.connect(_on_frame_build)
 	if not btn_reset_view.pressed.is_connected(camera_rig.set_default_view):
 		btn_reset_view.pressed.connect(camera_rig.set_default_view)
+	if btn_finish and not btn_finish.pressed.is_connected(func(): finish_requested.emit()):
+		btn_finish.pressed.connect(func(): finish_requested.emit())
+	if btn_leave and not btn_leave.pressed.is_connected(func(): leave_requested.emit()):
+		btn_leave.pressed.connect(func(): leave_requested.emit())
 
 func _setup_inventory_tray() -> void:
 	for child in tray_container.get_children():
 		child.queue_free()
 		
-	var available_parts = [
-		{"id": "brick_2x4", "name": "2x4 Brick", "color": Color(0.85, 0.15, 0.15)},
-		{"id": "brick_2x2", "name": "2x2 Brick", "color": Color(0.15, 0.35, 0.85)},
-		{"id": "brick_1x4", "name": "1x4 Brick", "color": Color(0.9, 0.75, 0.1)},
-		{"id": "brick_1x2", "name": "1x2 Brick", "color": Color(0.92, 0.92, 0.92)},
-		{"id": "plate_2x4", "name": "2x4 Plate", "color": Color(0.15, 0.65, 0.25)},
-		{"id": "arch_1x4",  "name": "1x4 Arch",  "color": Color(0.3, 0.3, 0.35)}
-	]
+	var pieces_to_show = []
+	if session and session.players.size() > 0:
+		var cur_player = session.get_current_player()
+		pieces_to_show = cur_player.get("hand", [])
+		if label_status:
+			label_status.text = "Turn: %s" % cur_player.get("name", "Player")
 	
-	for piece in available_parts:
+	if pieces_to_show.is_empty():
+		pieces_to_show = [
+			{"part_id": "brick_2x4", "name": "2x4 Brick", "color": Color(0.85, 0.15, 0.15)},
+			{"part_id": "brick_2x2", "name": "2x2 Brick", "color": Color(0.15, 0.35, 0.85)},
+			{"part_id": "brick_1x4", "name": "1x4 Brick", "color": Color(0.9, 0.75, 0.1)},
+			{"part_id": "brick_1x2", "name": "1x2 Brick", "color": Color(0.92, 0.92, 0.92)},
+			{"part_id": "plate_2x4", "name": "2x4 Plate", "color": Color(0.15, 0.65, 0.25)},
+			{"part_id": "arch_1x4",  "name": "1x4 Arch",  "color": Color(0.3, 0.3, 0.35)}
+		]
+	
+	for piece in pieces_to_show:
+		var pid = piece.get("part_id", piece.get("id", "brick_2x4"))
+		var pname = piece.get("name", pid)
+		var pcolor = piece.get("color", Color(0.85, 0.15, 0.15))
 		var btn: Button = Button.new()
-		btn.text = piece["name"]
+		btn.text = pname
 		btn.custom_minimum_size = Vector2(90, 48)
-		btn.pressed.connect(func(): _select_piece(piece["id"], piece["color"]))
+		btn.pressed.connect(func(): _select_piece(pid, pcolor))
 		tray_container.add_child(btn)
 
 func _select_piece(part_id: String, color: Color) -> void:
 	selected_part_id = part_id
 	selected_color = color
+	if audio_director:
+		audio_director.play_pickup()
+	if haptics_adapter:
+		haptics_adapter.vibrate_light()
 	_rebuild_ghost()
 	_update_pointer_target()
 	_validate_and_update_ghost()
@@ -413,11 +472,15 @@ func _handle_pointer_position(screen_pos: Vector2) -> void:
 
 func _on_rotate_left() -> void:
 	current_rotation_step = (current_rotation_step - 1 + 4) % 4
+	if audio_director:
+		audio_director.play_rotate()
 	_update_pointer_target()
 	_validate_and_update_ghost()
 
 func _on_rotate_right() -> void:
 	current_rotation_step = (current_rotation_step + 1) % 4
+	if audio_director:
+		audio_director.play_rotate()
 	_update_pointer_target()
 	_validate_and_update_ghost()
 
@@ -488,6 +551,10 @@ func _set_node_material_color(node: Node, color: Color) -> void:
 
 func _on_place_pressed() -> void:
 	if not is_current_placement_valid:
+		if audio_director:
+			audio_director.play_reject()
+		if haptics_adapter:
+			haptics_adapter.vibrate_error()
 		return
 		
 	# Spawn permanent brick
@@ -497,9 +564,10 @@ func _on_place_pressed() -> void:
 	placed_node.rotation = ghost_preview.rotation
 	placed_bricks_container.add_child(placed_node)
 	
+	var placement_id: String = "p_%d" % placed_pieces_data.size()
 	# Record piece state
 	var piece_record = {
-		"placement_id": "p_%d" % placed_pieces_data.size(),
+		"placement_id": placement_id,
 		"part_id": selected_part_id,
 		"grid_x": current_grid_pos.x,
 		"grid_z": current_grid_pos.y,
@@ -508,6 +576,17 @@ func _on_place_pressed() -> void:
 		"color": selected_color
 	}
 	placed_pieces_data.append(piece_record)
+	
+	if session and session.players.size() > 0:
+		var cur_player = session.get_current_player()
+		var player_id = cur_player.get("id", "p0")
+		session.submit_placement(player_id, selected_part_id, current_grid_pos.x, current_grid_pos.y, current_layer_plate, current_rotation_step)
+		_setup_inventory_tray()
+		
+	if audio_director:
+		audio_director.play_click(placement_id)
+	if haptics_adapter:
+		haptics_adapter.vibrate_placement()
 	
 	# NOTE: We DO NOT unconditionally add piece height to current_layer_plate!
 	# The surface targeting automatically detects the top surface under the pointer (PC-01).
