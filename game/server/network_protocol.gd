@@ -51,3 +51,28 @@ static func make_reconnect_request(room_code: String, token: String, last_seq: i
 		"player_token": token,
 		"last_seq": last_seq
 	}
+
+static func make_vote_ready_request(token: String, is_ready: bool) -> Dictionary:
+	return {
+		"version": PROTOCOL_VERSION,
+		"op": OP_VOTE_READY,
+		"player_token": token,
+		"is_ready": is_ready
+	}
+
+static func make_command_rejected(req_id: String, code: String, error_msg: String) -> Dictionary:
+	return {
+		"version": PROTOCOL_VERSION,
+		"op": OP_COMMAND_REJECTED,
+		"request_id": req_id,
+		"code": code,
+		"error": error_msg
+	}
+
+static func make_roster_update(players: Array, current_turn_id: String) -> Dictionary:
+	return {
+		"version": PROTOCOL_VERSION,
+		"op": OP_ROSTER_UPDATE,
+		"players": players,
+		"current_turn": current_turn_id
+	}
