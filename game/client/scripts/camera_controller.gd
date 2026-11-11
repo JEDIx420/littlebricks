@@ -14,6 +14,12 @@ class_name CameraController
 @onready var camera: Camera3D = $Camera3D
 
 var is_camera_mode: bool = false
+var is_input_enabled: bool = true
+var is_orbiting: bool:
+	get: return _is_orbiting
+var is_panning: bool:
+	get: return _is_panning
+
 var _is_orbiting: bool = false
 var _is_panning: bool = false
 var _last_mouse_pos: Vector2 = Vector2.ZERO
@@ -29,7 +35,18 @@ func _ready() -> void:
 		camera = get_node_or_null("Camera3D")
 	_update_transform()
 
-func _input(event: InputEvent) -> void:
+func reset_gesture_state() -> void:
+	_is_orbiting = false
+	_is_panning = false
+	_touches.clear()
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		reset_gesture_state()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_input_enabled:
+		return
 	# Desktop Mouse / Trackpad Handling
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
@@ -48,6 +65,8 @@ func _input(event: InputEvent) -> void:
 			else:
 				_is_orbiting = false
 				_is_panning = false
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 				
 		# Middle button: always pan
 		elif mb.button_index == MOUSE_BUTTON_MIDDLE:
@@ -57,6 +76,8 @@ func _input(event: InputEvent) -> void:
 				_last_mouse_pos = mb.position
 			else:
 				_is_panning = false
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 				
 		# Left button in dedicated Camera Mode: orbit (or pan if Shift held)
 		elif mb.button_index == MOUSE_BUTTON_LEFT and is_camera_mode:
@@ -71,12 +92,18 @@ func _input(event: InputEvent) -> void:
 			else:
 				_is_orbiting = false
 				_is_panning = false
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 				
 		# Wheel Zoom
 		elif mb.button_index == MOUSE_BUTTON_WHEEL_UP and mb.pressed:
 			zoom_by(-1.5)
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 		elif mb.button_index == MOUSE_BUTTON_WHEEL_DOWN and mb.pressed:
 			zoom_by(1.5)
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 	
 	elif event is InputEventMouseMotion:
 		var mm: InputEventMouseMotion = event
@@ -85,8 +112,12 @@ func _input(event: InputEvent) -> void:
 		
 		if _is_orbiting:
 			orbit_by(-delta.x * 0.4, -delta.y * 0.4)
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 		elif _is_panning:
 			pan_by(delta)
+			if get_viewport():
+				get_viewport().set_input_as_handled()
 			
 	# Touch & Gesture Handling (Mobile 2-finger orbit and pinch-zoom)
 	elif event is InputEventScreenTouch:

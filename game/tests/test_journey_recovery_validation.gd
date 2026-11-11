@@ -70,6 +70,9 @@ func _init() -> void:
 	# Solo finish agreement: solo builder ready -> transition to exploration automatically
 	session.set_ready_to_explore("p_1", true)
 	assert(session.phase == SessionManager.SessionPhase.EXPLORATION, "Solo exploration phase triggered")
+	var showcase = app_root.current_view.find_child("ShowcaseOverlay", true, false)
+	if showcase:
+		showcase.explore_requested.emit()
 	assert("ExplorationView" in app_root.current_view.name or app_root.current_view is ExplorationController, "Exploration view active")
 	var exp_view = app_root.current_view
 	assert(exp_view.explorer_instance != null, "ToyExplorer character spawned")
@@ -108,22 +111,42 @@ func _init() -> void:
 	assert(session.players.size() == 2, "2 players registered in session")
 	assert(session.get_current_player_id() == "p_1", "Alice's turn first")
 
-	# Alice places brick
-	table.selected_part_id = "brick_2x4"
+	# Test outside hand rejection (PT-05): attempt to place part not in Alice's hand
+	var alice_hand = session.get_current_player().get("hand", [])
+	assert(not alice_hand.is_empty(), "Alice has pieces in hand")
+	var outside_part = "brick_1x1"
+	for p in alice_hand:
+		if p.get("part_id") == outside_part:
+			outside_part = "character_explorer_scout"
+			break
+	table.selected_part_id = outside_part
 	table.current_grid_pos = Vector2i(8, 8)
 	table.current_layer_plate = 0
 	table._validate_and_update_ghost()
 	table._on_place_pressed()
-	assert(session.placements.size() == 1, "Alice placed brick")
+	assert(session.placements.size() == 0, "Outside hand piece correctly rejected")
+	assert(session.get_current_player_id() == "p_1", "Turn remained on Alice after rejection")
+
+	# Alice places permitted piece from hand
+	var alice_piece = alice_hand[0]["part_id"]
+	table.selected_part_id = alice_piece
+	table.current_grid_pos = Vector2i(8, 8)
+	table.current_layer_plate = 0
+	table._validate_and_update_ghost()
+	table._on_place_pressed()
+	assert(session.placements.size() == 1, "Alice placed piece from hand")
 	assert(session.get_current_player_id() == "p_2", "Turn automatically passed to Bob")
 
-	# Bob places plate
-	table.selected_part_id = "plate_2x2"
+	# Bob places permitted piece from hand
+	var bob_hand = session.get_current_player().get("hand", [])
+	assert(not bob_hand.is_empty(), "Bob has pieces in hand")
+	var bob_piece = bob_hand[0]["part_id"]
+	table.selected_part_id = bob_piece
 	table.current_grid_pos = Vector2i(16, 16)
 	table.current_layer_plate = 0
 	table._validate_and_update_ghost()
 	table._on_place_pressed()
-	assert(session.placements.size() == 2, "Bob placed plate")
+	assert(session.placements.size() == 2, "Bob placed piece from hand")
 	assert(session.get_current_player_id() == "p_1", "Turn automatically passed to Alice")
 
 	# Test Undo: Alice undoes Bob's placement

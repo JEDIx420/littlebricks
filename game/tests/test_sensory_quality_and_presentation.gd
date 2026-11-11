@@ -222,7 +222,7 @@ func test_accessibility_touch_and_settings() -> void:
 	
 	# Verify player ID high-contrast cue: [P1
 	assert("[P1" in main.label_status.text, "Player text contains high-contrast ID [P1")
-	assert("✓ [VALID]" in main.label_status.text or "✕ [INVALID]" in main.label_status.text or "Turn:" in main.label_status.text, "Clear symbolic cues in status")
+	assert("✓" in main.label_status.text or "✕" in main.label_status.text or "Turn:" in main.label_status.text, "Clear symbolic cues in status")
 	
 	# Clean up
 	root.remove_child(main)

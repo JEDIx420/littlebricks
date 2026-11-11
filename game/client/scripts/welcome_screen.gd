@@ -29,6 +29,21 @@ func _ready() -> void:
 	if not btn_mute: btn_mute = find_child("BtnMute", true, false)
 	if not label_continue_info: label_continue_info = find_child("LabelContinueInfo", true, false)
 	
+	# Apply craft-table theme tokens (LB-060)
+	var card_panel = find_child("CardPanel", true, false) as PanelContainer
+	if card_panel:
+		UIThemeHelper.apply_card(card_panel)
+	if btn_play:
+		UIThemeHelper.apply_primary_button(btn_play)
+	if btn_continue:
+		UIThemeHelper.apply_secondary_button(btn_continue)
+	if btn_my_builds:
+		UIThemeHelper.apply_secondary_button(btn_my_builds)
+	if btn_settings:
+		UIThemeHelper.apply_secondary_button(btn_settings)
+	if btn_mute:
+		UIThemeHelper.apply_secondary_button(btn_mute)
+	
 	if btn_continue and not btn_continue.pressed.is_connected(_on_continue_clicked):
 		btn_continue.pressed.connect(_on_continue_clicked)
 	if btn_play and not btn_play.pressed.is_connected(_on_play_clicked):
@@ -40,7 +55,21 @@ func _ready() -> void:
 	if btn_mute and not btn_mute.pressed.is_connected(_on_mute_pressed):
 		btn_mute.pressed.connect(_on_mute_pressed)
 	
+	_update_mute_display()
 	_check_for_latest_save()
+
+func set_mute_state(muted: bool) -> void:
+	is_muted = muted
+	_update_mute_display()
+
+func _update_mute_display() -> void:
+	if btn_mute:
+		btn_mute.text = "Sound: OFF" if is_muted else "Sound: ON"
+
+func _on_mute_pressed() -> void:
+	is_muted = not is_muted
+	_update_mute_display()
+	mute_toggled.emit(is_muted)
 
 func _on_continue_clicked() -> void:
 	continue_pressed.emit()
@@ -86,7 +115,4 @@ func _check_for_latest_save() -> void:
 		btn_continue.visible = false
 		label_continue_info.visible = false
 
-func _on_mute_pressed() -> void:
-	is_muted = not is_muted
-	btn_mute.text = "🔇 Muted" if is_muted else "🔊 Sound"
-	mute_toggled.emit(is_muted)
+

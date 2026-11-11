@@ -144,8 +144,8 @@ func _run_all_tests() -> void:
 	_poll_all(50)
 	assert(client_c.state == NetworkClient.State.DISCONNECTED, "Charlie is disconnected")
 	
-	# Bob takes his turn while Charlie is offline (placing at non-colliding location X=20)
-	client_b.submit_placement("bob_move_2", 0, 20, 16, 0, 0)
+	# Bob takes his turn while Charlie is offline (placing at non-colliding location X=4, Z=4)
+	client_b.submit_placement("bob_move_2", 0, 4, 4, 0, 0)
 	var bob_placed = _wait_for_condition(func():
 		return a_received.size() == 2 and b_received.size() == 2
 	)

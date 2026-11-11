@@ -18,6 +18,27 @@ func _ready() -> void:
 	if not btn_online: btn_online = find_child("BtnOnline", true, false)
 	if not btn_back: btn_back = find_child("BtnBack", true, false)
 	
+	# Apply craft-table theme tokens (LB-060)
+	if btn_back:
+		UIThemeHelper.apply_secondary_button(btn_back)
+	
+	var card_solo = find_child("CardSolo", true, false) as PanelContainer
+	if card_solo:
+		UIThemeHelper.apply_card(card_solo, UIThemeHelper.COLOR_ACCENT_CORAL)
+	var card_pass = find_child("CardPassPlay", true, false) as PanelContainer
+	if card_pass:
+		UIThemeHelper.apply_card(card_pass, UIThemeHelper.COLOR_ACCENT_SKY)
+	var card_online = find_child("CardOnline", true, false) as PanelContainer
+	if card_online:
+		UIThemeHelper.apply_card(card_online, UIThemeHelper.COLOR_ACCENT_YELLOW)
+		
+	if btn_solo:
+		UIThemeHelper.apply_primary_button(btn_solo)
+	if btn_pass_play:
+		UIThemeHelper.apply_primary_button(btn_pass_play)
+	if btn_online:
+		UIThemeHelper.apply_primary_button(btn_online)
+	
 	if btn_solo and not btn_solo.pressed.is_connected(_on_solo_pressed):
 		btn_solo.pressed.connect(_on_solo_pressed)
 	if btn_pass_play and not btn_pass_play.pressed.is_connected(_on_pass_play_pressed):

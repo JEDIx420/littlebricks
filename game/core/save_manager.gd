@@ -129,8 +129,8 @@ static func load_from_file(filepath: String) -> Dictionary:
 		return {"success": false, "code": "INVALID_FORMAT", "error": "Save root is not a dictionary"}
 		
 	# Check schema version
-	var ver: String = data.get("schema_version", "")
-	if ver != CURRENT_SCHEMA_VERSION:
+	var ver: String = str(data.get("schema_version", ""))
+	if ver != CURRENT_SCHEMA_VERSION and ver != "1":
 		return {
 			"success": false,
 			"code": "UNSUPPORTED_VERSION",

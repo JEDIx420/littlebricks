@@ -1,0 +1,130 @@
+[gd_scene load_steps=2 format=3 uid="uid://m1b2g3s4x5d6a"]
+
+[ext_resource type="Script" path="res://client/scripts/my_builds_gallery.gd" id="1_gallery"]
+
+[node name="MyBuildsGallery" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_gallery")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 0.957, 0.875, 1)
+
+[node name="TopBar" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 28.0
+offset_top = 24.0
+offset_right = -28.0
+offset_bottom = 72.0
+grow_horizontal = 2
+
+[node name="BtnBack" type="Button" parent="TopBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 48)
+layout_mode = 2
+text = "← Back"
+
+[node name="Spacer" type="Control" parent="TopBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MainLayout" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 28.0
+offset_top = 80.0
+offset_right = -28.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 16
+
+[node name="HeadingBox" type="VBoxContainer" parent="MainLayout"]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Heading" type="Label" parent="MainLayout/HeadingBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
+theme_override_font_sizes/font_size = 32
+text = "My Builds"
+horizontal_alignment = 1
+
+[node name="Subheading" type="Label" parent="MainLayout/HeadingBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
+theme_override_font_sizes/font_size = 15
+text = "Your saved tabletop creations"
+horizontal_alignment = 1
+
+[node name="GalleryScroll" type="ScrollContainer" parent="MainLayout"]
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CenterWrapper" type="CenterContainer" parent="MainLayout/GalleryScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GridContainer" type="HFlowContainer" parent="MainLayout/GalleryScroll/CenterWrapper"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/h_separation = 20
+theme_override_constants/v_separation = 20
+alignment = 1
+
+[node name="EmptyCard" type="PanelContainer" parent="MainLayout/GalleryScroll/CenterWrapper"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(360, 240)
+layout_mode = 2
+
+[node name="Margin" type="MarginContainer" parent="MainLayout/GalleryScroll/CenterWrapper/EmptyCard"]
+layout_mode = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="VBox" type="VBoxContainer" parent="MainLayout/GalleryScroll/CenterWrapper/EmptyCard/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 16
+alignment = 1
+
+[node name="EmptyTitle" type="Label" parent="MainLayout/GalleryScroll/CenterWrapper/EmptyCard/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
+theme_override_font_sizes/font_size = 22
+text = "No Saved Builds Yet"
+horizontal_alignment = 1
+
+[node name="EmptyDesc" type="Label" parent="MainLayout/GalleryScroll/CenterWrapper/EmptyCard/Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
+theme_override_font_sizes/font_size = 14
+text = "Start building on the table and your creations will appear here for exploring and sharing!"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="BtnStartNew" type="Button" parent="MainLayout/GalleryScroll/CenterWrapper/EmptyCard/Margin/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "Start Building"

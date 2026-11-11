@@ -60,6 +60,20 @@ func _ensure_nodes() -> void:
 
 func _ready() -> void:
 	_ensure_nodes()
+	
+	# Apply craft-table theme tokens (LB-060)
+	if btn_back:
+		UIThemeHelper.apply_secondary_button(btn_back)
+	var main_panel = find_child("MainPanel", true, false) as PanelContainer
+	if main_panel:
+		UIThemeHelper.apply_card(main_panel)
+	if btn_start:
+		UIThemeHelper.apply_primary_button(btn_start)
+	if btn_create_room:
+		UIThemeHelper.apply_primary_button(btn_create_room)
+	if btn_join_room:
+		UIThemeHelper.apply_secondary_button(btn_join_room)
+		
 	if btn_back and not btn_back.pressed.is_connected(_on_back_pressed):
 		btn_back.pressed.connect(_on_back_pressed)
 	if btn_start and not btn_start.pressed.is_connected(_on_start_pressed):
@@ -147,15 +161,22 @@ func _on_start_pressed() -> void:
 		
 	start_session_requested.emit(config)
 
+func _generate_room_code() -> String:
+	var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+	var code = ""
+	for i in range(6):
+		code += chars[randi() % chars.length()]
+	return code
+
 func _on_create_room_pressed() -> void:
 	var player_name = line_online_name.text.strip_edges()
 	if player_name.is_empty():
 		player_name = "Explorer1"
-	var code = "LBRICK"
+	var code = _generate_room_code()
 	start_session_requested.emit({
 		"mode": "online",
 		"theme_id": "harbour",
-		"creation_name": "Online Room",
+		"creation_name": "Online Room (%s)" % code,
 		"players": [player_name],
 		"room_code": code,
 		"is_host": true,
@@ -172,7 +193,7 @@ func _on_join_room_pressed() -> void:
 	start_session_requested.emit({
 		"mode": "online",
 		"theme_id": "harbour",
-		"creation_name": "Online Room",
+		"creation_name": "Online Room (%s)" % code,
 		"players": [player_name],
 		"room_code": code,
 		"is_host": false,

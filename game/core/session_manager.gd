@@ -138,25 +138,77 @@ func skip_turn() -> void:
 	# Advance turn without consuming any pieces
 	_advance_turn()
 
-## Attempt placement on current turn
-func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, z_plate: int, rot_step: int) -> bool:
+## Attempt placement on current turn (Authoritative)
+func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, z_plate: int, rot_step: int, piece_color = null, part_id_override: String = "") -> bool:
 	if phase != SessionPhase.BUILDING:
 		placement_rejected.emit("Not in building phase", "INVALID_PHASE")
 		return false
 		
+	if mode == GameMode.SOLO_CREATIVE:
+		var part_id = part_id_override
+		if part_id.is_empty():
+			if not players.is_empty() and hand_slot_idx >= 0 and hand_slot_idx < players[current_player_idx]["hand"].size():
+				part_id = players[current_player_idx]["hand"][hand_slot_idx].get("part_id", "brick_2x4")
+			else:
+				part_id = "brick_2x4"
+				
+		var col = piece_color
+		if col == null:
+			if not players.is_empty():
+				col = players[current_player_idx].get("color", Color.WHITE)
+			else:
+				col = Color.WHITE
+				
+		var val_res = rules.validate_placement(part_id, gx, gz, z_plate, rot_step, placements)
+		if not val_res.get("valid", false):
+			placement_rejected.emit(val_res.get("reason", "Placement invalid"), val_res.get("code", "INVALID"))
+			return false
+			
+		var placement_record = {
+			"placement_id": "pl_%d" % (placements.size() + 1),
+			"sequence": _next_event_seq,
+			"player_id": player_id,
+			"part_id": part_id,
+			"grid_x": gx,
+			"grid_z": gz,
+			"layer_plate": z_plate,
+			"rotation_step": rot_step,
+			"color": col
+		}
+		placements.append(placement_record)
+		_record_event("PLACEMENT_ACCEPTED", placement_record)
+		_clear_all_readiness()
+		placement_accepted.emit(placement_record)
+		return true
+
+	# Bag / Pass & Play / Online mode: strictly validate active player and hand slot
 	if player_id != get_current_player_id():
 		placement_rejected.emit("Not this player's turn", "WRONG_TURN")
 		return false
 		
 	var player = players[current_player_idx]
 	var hand: Array = player["hand"]
-	if hand_slot_idx < 0 or hand_slot_idx >= hand.size():
-		placement_rejected.emit("Invalid hand slot", "INVALID_SLOT")
-		return false
+	var slot_to_use: int = hand_slot_idx
+	if slot_to_use < 0 or slot_to_use >= hand.size() or (not part_id_override.is_empty() and hand[slot_to_use].get("part_id") != part_id_override):
+		# Search hand for part_id_override
+		var found_slot: int = -1
+		if not part_id_override.is_empty():
+			for i in range(hand.size()):
+				if hand[i].get("part_id") == part_id_override:
+					found_slot = i
+					break
+		if found_slot != -1:
+			slot_to_use = found_slot
+		else:
+			if not part_id_override.is_empty():
+				placement_rejected.emit("Selected part '%s' is not in active hand" % part_id_override, "OUTSIDE_HAND")
+			else:
+				placement_rejected.emit("Invalid hand slot", "INVALID_SLOT")
+			return false
 		
-	var piece_item: Dictionary = hand[hand_slot_idx]
+	var piece_item: Dictionary = hand[slot_to_use]
 	var part_id: String = piece_item.get("part_id", "")
-	var piece_color: Color = piece_item.get("color", player["color"])
+	var col = piece_color if piece_color != null else piece_item.get("color", player["color"])
 	
 	# Authoritative rule check
 	var val_res = rules.validate_placement(part_id, gx, gz, z_plate, rot_step, placements)
@@ -174,66 +226,34 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 		"grid_z": gz,
 		"layer_plate": z_plate,
 		"rotation_step": rot_step,
-		"color": piece_color
-	}
-	placements.append(placement_record)
-	
-	# Record accepted event
-	_record_event("PLACEMENT_ACCEPTED", placement_record)
-	
-	# Refill hand slot
-	var new_piece = _draw_piece_from_theme(hand_slot_idx, player["hand"])
-	player["hand"][hand_slot_idx] = new_piece
-	inventory_refilled.emit(player_id, new_piece, hand_slot_idx)
-	
-	# Any new placement clears readiness votes
-	_clear_all_readiness()
-	
-	placement_accepted.emit(placement_record)
-	
-	# Advance turn
-	_advance_turn()
-	return true
-
-## Submit placement directly by part_id (used by TableView/solo builder and authoritative router)
-func submit_placement(player_id: String, part_id: String, gx: int, gz: int, z_plate: int, rot_step: int, piece_color = null) -> bool:
-	var col = piece_color
-	if col == null and not players.is_empty():
-		col = players[current_player_idx].get("color", Color.WHITE)
-	elif col == null:
-		col = Color.WHITE
-		
-	var placement_record = {
-		"placement_id": "pl_%d" % (placements.size() + 1),
-		"sequence": _next_event_seq,
-		"player_id": player_id,
-		"part_id": part_id,
-		"grid_x": gx,
-		"grid_z": gz,
-		"layer_plate": z_plate,
-		"rotation_step": rot_step,
 		"color": col
 	}
 	placements.append(placement_record)
 	_record_event("PLACEMENT_ACCEPTED", placement_record)
 	
-	# If player has this piece in hand, consume and refill
-	if not players.is_empty():
-		var player = players[current_player_idx]
-		var hand = player.get("hand", [])
-		for i in range(hand.size()):
-			if hand[i].get("part_id") == part_id:
-				var new_piece = _draw_piece_from_theme(i, hand)
-				player["hand"][i] = new_piece
-				inventory_refilled.emit(player_id, new_piece, i)
-				break
-				
+	# Refill hand slot
+	var new_piece = _draw_piece_from_theme(slot_to_use, player["hand"])
+	player["hand"][slot_to_use] = new_piece
+	inventory_refilled.emit(player_id, new_piece, slot_to_use)
+	
 	_clear_all_readiness()
 	placement_accepted.emit(placement_record)
 	
-	if mode != GameMode.SOLO_CREATIVE and players.size() > 1:
+	# Advance turn
+	if players.size() > 1:
 		_advance_turn()
 	return true
+
+## Submit placement directly by part_id (used by TableView/solo builder and authoritative router)
+func submit_placement(player_id: String, part_id: String, gx: int, gz: int, z_plate: int, rot_step: int, piece_color = null) -> bool:
+	var slot_idx: int = -1
+	if not players.is_empty():
+		var hand = players[current_player_idx].get("hand", [])
+		for i in range(hand.size()):
+			if hand[i].get("part_id") == part_id:
+				slot_idx = i
+				break
+	return request_placement(player_id, slot_idx, gx, gz, z_plate, rot_step, piece_color, part_id)
 
 ## Vote ready to explore
 func set_ready_to_explore(player_id: String, is_ready: bool) -> void:

@@ -35,8 +35,9 @@ func _init() -> void:
 	assert_true(session != null, "Active session exists")
 	assert_eq(session.players.size(), 2, "2 players registered")
 	
-	# Alice places a brick
-	table.selected_part_id = "brick_2x4"
+	# Alice places a piece from her hand
+	var alice_piece = session.players[0]["hand"][0]["part_id"]
+	table._select_piece_from_slot(0, alice_piece, Color.RED)
 	table.current_grid_pos = Vector2i(8, 8)
 	table.current_layer_plate = 0
 	table._validate_and_update_ghost()
@@ -46,8 +47,9 @@ func _init() -> void:
 	session.set_ready_to_explore("p_1", true)
 	assert_eq(session.phase, SessionManager.SessionPhase.BUILDING, "Building phase persists with 1/2 ready")
 	
-	# Bob places a piece (should invalidate Alice's vote)
-	table.selected_part_id = "brick_2x4"
+	# Bob places a piece from his hand (should invalidate Alice's vote)
+	var bob_piece = session.players[1]["hand"][0]["part_id"]
+	table._select_piece_from_slot(0, bob_piece, Color.BLUE)
 	table.current_grid_pos = Vector2i(16, 8)
 	table.current_layer_plate = 0
 	table._validate_and_update_ghost()
@@ -56,22 +58,30 @@ func _init() -> void:
 	assert_false(session.players[0]["is_ready_to_explore"], "Alice's ready vote cleared on new placement")
 	assert_false(session.players[1]["is_ready_to_explore"], "Bob's ready vote cleared on new placement")
 	
-	# Now both players vote ready
+	# Alice places arch doorway from her hand (slot 0)
+	session.players[0]["hand"][0]["part_id"] = "arch_1x4"
+	table._select_piece_from_slot(0, "arch_1x4", Color.WHITE)
+	table.current_grid_pos = Vector2i(12, 12)
+	table.current_layer_plate = 0
+	table._validate_and_update_ghost()
+	table._on_place_pressed()
+	
+	# Both players now vote ready to finish
 	session.set_ready_to_explore("p_1", true)
 	session.set_ready_to_explore("p_2", true)
 	assert_eq(session.phase, SessionManager.SessionPhase.EXPLORATION, "Unanimous agreement transitions to EXPLORATION")
-	print("PASS: Unanimous finish agreement and vote invalidation on new placement verified.")
+	print("PASS: Unanimous finish agreement, 3 placements and vote invalidation on new placement verified.")
 	
 	# =========================================================================
 	# Test Group 2: Doorway Building, Clearances & Exploration World
 	# =========================================================================
 	print("\n[Group 2: Doorway Building, Clearances & Exploration]")
 	
-	# Add an arch doorway to placements
-	session.submit_placement("p_1", "arch_1x4", 12, 12, 0, 0, Color.WHITE)
-	
-	# Transition through AppRoot to Exploration
+	# Transition through AppRoot to Exploration (Showcase Overlay -> Explore)
 	app_root._on_table_finish_requested()
+	var showcase = app_root.current_view.find_child("ShowcaseOverlay", true, false)
+	if showcase:
+		showcase.explore_requested.emit()
 	assert_true(app_root.current_view is ExplorationController, "AppRoot entered ExplorationScene")
 	var exp_view = app_root.current_view as ExplorationController
 	

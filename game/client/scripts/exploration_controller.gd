@@ -53,11 +53,17 @@ func _ensure_nodes() -> void:
 		world_gen = ExplorationWorld.new(catalog)
 
 func setup_exploration(placements: Array, theme_id: String = "harbour") -> void:
-	setup_exploration_scene(placements)
+	setup_exploration_scene(placements, theme_id)
 
 ## Initialize exploration world from frozen build placements
-func setup_exploration_scene(placements: Array) -> void:
+func setup_exploration_scene(placements: Array, theme_id: String = "harbour") -> void:
 	_ensure_nodes()
+	
+	# Apply theme presentation lighting (LB-063)
+	var world_env = find_child("WorldEnvironment", true, false) as WorldEnvironment
+	var sun = find_child("DirectionalLight3D", true, false) as DirectionalLight3D
+	var pres = PresentationController.new()
+	pres.apply_presentation(theme_id, world_env, sun)
 	
 	# Clear previous instances
 	for c in world_colliders_container.get_children():
@@ -88,7 +94,7 @@ func setup_exploration_scene(placements: Array) -> void:
 		p_node.rotation_degrees = PlacementRules.get_rotation_degrees(rot_step)
 		visual_pieces_container.add_child(p_node)
 		
-	# 3. Instantiate explorer at valid spawn
+	# 3. Instantiate explorer at valid spawn facing toward creation (LB-063)
 	var spawn_pos = world_gen.find_default_spawn(placements)
 	var exp_scene: PackedScene = load("res://client/scenes/explorer.tscn")
 	explorer_instance = exp_scene.instantiate() as ToyExplorer
@@ -96,6 +102,24 @@ func setup_exploration_scene(placements: Array) -> void:
 	
 	explorer_container.add_child(explorer_instance)
 	explorer_instance._ready()
+
+	# Face toward the center of the build
+	if not placements.is_empty():
+		var sum_x: float = 0.0
+		var sum_z: float = 0.0
+		for p in placements:
+			var gx = p.get("grid_x", 16)
+			var gz = p.get("grid_z", 16)
+			var w = TableView.grid_to_world(gx, gz, 0)
+			sum_x += w.x
+			sum_z += w.z
+		var center_target = Vector3(sum_x / float(placements.size()), spawn_pos.y, sum_z / float(placements.size()))
+		if spawn_pos.distance_squared_to(center_target) > 0.1:
+			if explorer_instance.is_inside_tree():
+				explorer_instance.look_at(center_target, Vector3.UP)
+			else:
+				explorer_instance.look_at_from_position(spawn_pos, center_target, Vector3.UP)
+			explorer_instance.rotate_y(PI)
 	
 	# Attach visual explorer mesh
 	var exp_def = catalog.get_part("explorer_candidate_01")

@@ -113,42 +113,44 @@ unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(70, 44)
 layout_mode = 2
-text = "⏭ Pass"
+text = "Pass"
 
 [node name="BtnUndo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(75, 44)
 layout_mode = 2
-text = "↩ Undo"
+text = "Undo"
 
 [node name="BtnRedo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(75, 44)
 layout_mode = 2
-text = "↪ Redo"
+text = "Redo"
 
 [node name="LabelCoords" type="Label" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
+visible = false
 layout_mode = 2
+theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
 text = "Stud: (16, 16) | Layer: 0 | Yaw: 0°  "
 
 [node name="BtnFinish" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(120, 44)
 layout_mode = 2
-text = "🚶 Explore"
+text = "Explore"
 
 [node name="BtnLeave" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 44)
+custom_minimum_size = Vector2(110, 44)
 layout_mode = 2
-text = "💾 Save & Leave"
+text = "Save & Leave"
 
 [node name="BtnSettings" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(85, 44)
 layout_mode = 2
-text = "⚙ Settings"
+text = "Settings"
 
 [node name="RightControls" type="VBoxContainer" parent="UI/RootControl"]
 layout_mode = 1
@@ -218,6 +220,12 @@ custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Place (Enter)"
 
+[node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Cancel (Esc)"
+
 [node name="HSeparator3" type="HSeparator" parent="UI/RootControl/RightControls"]
 layout_mode = 2
 
@@ -263,7 +271,7 @@ theme_override_constants/separation = 12
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 48)
 layout_mode = 2
-text = "📚 All Parts"
+text = "All Parts"
 
 [node name="VSep" type="VSeparator" parent="UI/RootControl/BottomPanel/BottomHBox"]
 layout_mode = 2

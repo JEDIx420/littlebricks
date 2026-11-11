@@ -44,6 +44,7 @@ const PresentationController = preload("res://client/scripts/presentation_contro
 @onready var btn_layer_up: Button = %BtnLayerUp
 @onready var btn_return_base: Button = %BtnReturnBase
 @onready var btn_place: Button = %BtnPlace
+@onready var btn_cancel: Button = %BtnCancel
 @onready var btn_camera_mode: Button = %BtnCameraMode
 @onready var btn_top_view: Button = %BtnTopView
 @onready var btn_frame_build: Button = %BtnFrameBuild
@@ -52,6 +53,12 @@ const PresentationController = preload("res://client/scripts/presentation_contro
 @onready var btn_leave: Button = %BtnLeave
 @onready var btn_settings: Button = %BtnSettings
 @onready var tray_container: HBoxContainer = %TrayContainer
+
+enum InputState { IDLE, HOLDING, CAMERA_GESTURE, PENDING_ACCEPTANCE, MODAL }
+
+var current_input_state: InputState = InputState.HOLDING
+var selected_hand_slot: int = 0
+var has_valid_target_surface: bool = false
 
 var catalog: PartCatalog
 var rules: PlacementRules
@@ -107,6 +114,7 @@ func _ready() -> void:
 	if not btn_layer_up: btn_layer_up = find_child("BtnLayerUp", true, false)
 	if not btn_return_base: btn_return_base = find_child("BtnReturnBase", true, false)
 	if not btn_place: btn_place = find_child("BtnPlace", true, false)
+	if not btn_cancel: btn_cancel = find_child("BtnCancel", true, false)
 	if not btn_camera_mode: btn_camera_mode = find_child("BtnCameraMode", true, false)
 	if not btn_top_view: btn_top_view = find_child("BtnTopView", true, false)
 	if not btn_frame_build: btn_frame_build = find_child("BtnFrameBuild", true, false)
@@ -150,6 +158,10 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null,
 		return
 		
 	# Connect session signals
+	if not session.placement_accepted.is_connected(_on_placement_accepted):
+		session.placement_accepted.connect(_on_placement_accepted)
+	if not session.placement_rejected.is_connected(_on_placement_rejected):
+		session.placement_rejected.connect(_on_placement_rejected)
 	if not session.turn_advanced.is_connected(_on_turn_advanced):
 		session.turn_advanced.connect(_on_turn_advanced)
 	if not session.timer_ticked.is_connected(_on_timer_ticked):
@@ -214,6 +226,8 @@ func _connect_ui() -> void:
 		btn_return_base.pressed.connect(_return_to_base)
 	if btn_place and not btn_place.pressed.is_connected(_on_place_pressed):
 		btn_place.pressed.connect(_on_place_pressed)
+	if btn_cancel and not btn_cancel.pressed.is_connected(_on_cancel_held_piece):
+		btn_cancel.pressed.connect(_on_cancel_held_piece)
 	if btn_camera_mode and not btn_camera_mode.pressed.is_connected(_toggle_camera_mode):
 		btn_camera_mode.pressed.connect(_toggle_camera_mode)
 	if btn_top_view and camera_rig and not btn_top_view.pressed.is_connected(camera_rig.set_top_view):
@@ -270,17 +284,45 @@ func _setup_inventory_tray() -> void:
 			{"part_id": "arch_1x4",  "name": "1x4 Arch",  "color": Color(0.3, 0.3, 0.35)}
 		]
 	
-	for piece in pieces_to_show:
+	for i in range(pieces_to_show.size()):
+		var piece = pieces_to_show[i]
 		var pid = piece.get("part_id", piece.get("id", "brick_2x4"))
 		var pname = piece.get("name", pid)
 		var pcolor = piece.get("color", Color(0.85, 0.15, 0.15))
+		var is_selected: bool = (selected_hand_slot == i)
+		
 		var btn: Button = Button.new()
 		btn.text = pname
-		btn.custom_minimum_size = Vector2(90, 48)
-		btn.pressed.connect(func(): _select_piece(pid, pcolor))
+		btn.custom_minimum_size = Vector2(96, 48)
+		
+		# Visual styling with swatch color and selection border (LB-061)
+		var sb = StyleBoxFlat.new()
+		sb.bg_color = UIThemeHelper.COLOR_SURFACE_PAPER
+		sb.border_color = UIThemeHelper.COLOR_PRIMARY_TEAL if is_selected else UIThemeHelper.COLOR_BORDER_WARM
+		sb.set_border_width_all(3 if is_selected else 1)
+		sb.set_corner_radius_all(12)
+		sb.set_content_margin_all(8)
+		btn.add_theme_stylebox_override("normal", sb)
+		btn.add_theme_stylebox_override("hover", sb)
+		btn.add_theme_stylebox_override("pressed", sb)
+		btn.add_theme_stylebox_override("focus", sb)
+		btn.add_theme_color_override("font_color", UIThemeHelper.COLOR_TEXT_INK)
+		btn.modulate = Color(1.0, 1.0, 1.0, 1.0) if is_selected else Color(0.95, 0.95, 0.95, 0.9)
+		
+		var slot_idx = i
+		btn.pressed.connect(func():
+			selected_hand_slot = slot_idx
+			_select_piece_from_slot(slot_idx, pid, pcolor)
+			_setup_inventory_tray()
+		)
 		tray_container.add_child(btn)
 
+func _select_piece_from_slot(slot_idx: int, part_id: String, color: Color) -> void:
+	selected_hand_slot = slot_idx
+	_select_piece(part_id, color)
+
 func _select_piece(part_id: String, color: Color) -> void:
+	current_input_state = InputState.HOLDING
 	selected_part_id = part_id
 	selected_color = color
 	if feedback:
@@ -310,6 +352,12 @@ func _rebuild_ghost() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	# If catalog modal is open, prevent all world interaction
 	if catalog_modal and catalog_modal.visible:
+		return
+
+	# Handle cancel / escape key (LB-058)
+	if event is InputEventKey and event.pressed and (event.keycode == KEY_ESCAPE or event.is_action_pressed("ui_cancel")):
+		_on_cancel_held_piece()
+		_consume_input()
 		return
 
 	# Safe input handling: UI controls consume events first so clicking
@@ -375,30 +423,42 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_pass_turn_pressed()
 			_consume_input()
 			return
-
-	# If catalog modal is open, prevent world interaction
-	if catalog_modal and catalog_modal.visible:
-		return
-
-	# Mouse/Touch placement in 3D world (only when NOT in camera drag mode)
-	if not camera_rig.is_camera_mode:
-		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-			_on_place_pressed()
+		elif k == KEY_F3:
+			if label_coords:
+				label_coords.visible = not label_coords.visible
 			_consume_input()
 			return
 
-	if event is InputEventMouseMotion:
-		_last_pointer_screen_pos = event.position
-		_handle_pointer_position(event.position)
-	elif event is InputEventScreenDrag:
-		# Touch dragging with vertical offset to avoid finger obscuring target
-		var offset_pos: Vector2 = event.position - Vector2(0, 50)
-		_last_pointer_screen_pos = offset_pos
-		_handle_pointer_position(offset_pos)
-	elif event is InputEventScreenTouch and event.pressed:
-		var offset_pos: Vector2 = event.position - Vector2(0, 50)
-		_last_pointer_screen_pos = offset_pos
-		_handle_pointer_position(offset_pos)
+	# Mouse/Touch placement in 3D world (only when NOT in camera mode or orbiting/panning)
+	var is_cam_busy: bool = camera_rig and (camera_rig.is_camera_mode or camera_rig.is_orbiting or camera_rig.is_panning)
+	if not is_cam_busy and current_input_state == InputState.HOLDING:
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			# Direct world click resolves at click's exact screen position (PT-01 / PT-03)
+			var target = _find_target_surface(event.position)
+			if target.get("valid", false):
+				current_grid_pos = target["grid_pos"]
+				current_layer_plate = target["layer_plate"]
+				has_valid_target_surface = true
+				_validate_and_update_ghost()
+				if is_current_placement_valid:
+					_on_place_pressed()
+			else:
+				_invalidate_candidate()
+			_consume_input()
+			return
+
+	if not is_cam_busy:
+		if event is InputEventMouseMotion:
+			_last_pointer_screen_pos = event.position
+			_handle_pointer_position(event.position)
+		elif event is InputEventScreenDrag:
+			var offset_pos: Vector2 = event.position - Vector2(0, 50)
+			_last_pointer_screen_pos = offset_pos
+			_handle_pointer_position(offset_pos)
+		elif event is InputEventScreenTouch and event.pressed:
+			var offset_pos: Vector2 = event.position - Vector2(0, 50)
+			_last_pointer_screen_pos = offset_pos
+			_handle_pointer_position(offset_pos)
 
 func _consume_input() -> void:
 	if get_viewport():
@@ -498,13 +558,16 @@ func find_target_surface_from_ray(from: Vector3, dir: Vector3) -> Dictionary:
 		var t: float = (plane_y - from.y) / dir.y
 		if t > 0.0:
 			var hit_pos: Vector3 = from + dir * t
-			var grid_pos: Vector2i = TableView.world_to_grid(hit_pos, dims, current_rotation_step)
-			return {
-				"valid": true,
-				"grid_pos": grid_pos,
-				"layer_plate": manual_layer_plate,
-				"hit_pos": hit_pos
-			}
+			var grid_x_f: float = (hit_pos.x / TableView.STUD_SPACING) + 15.5
+			var grid_z_f: float = (hit_pos.z / TableView.STUD_SPACING) + 15.5
+			if grid_x_f >= -0.5 and grid_x_f <= 31.5 and grid_z_f >= -0.5 and grid_z_f <= 31.5:
+				var grid_pos: Vector2i = TableView.world_to_grid(hit_pos, dims, current_rotation_step)
+				return {
+					"valid": true,
+					"grid_pos": grid_pos,
+					"layer_plate": manual_layer_plate,
+					"hit_pos": hit_pos
+				}
 		return {"valid": false}
 		
 	# AUTO HEIGHT MODE:
@@ -576,17 +639,43 @@ func find_target_surface_from_ray(from: Vector3, dir: Vector3) -> Dictionary:
 	}
 
 func _handle_pointer_position(screen_pos: Vector2) -> void:
+	if current_input_state == InputState.IDLE:
+		return
+	if camera_rig and (camera_rig.is_camera_mode or camera_rig.is_orbiting or camera_rig.is_panning):
+		return
+		
 	var target = _find_target_surface(screen_pos)
 	if not target.get("valid", false):
+		_invalidate_candidate()
 		return
+		
+	has_valid_target_surface = true
+	if ghost_preview and not ghost_preview.visible:
+		ghost_preview.visible = true
 		
 	var new_grid: Vector2i = target["grid_pos"]
 	var new_layer: int = target["layer_plate"]
 	
-	if new_grid != current_grid_pos or new_layer != current_layer_plate:
+	if new_grid != current_grid_pos or new_layer != current_layer_plate or not is_current_placement_valid:
 		current_grid_pos = new_grid
 		current_layer_plate = new_layer
 		_validate_and_update_ghost()
+
+func _invalidate_candidate() -> void:
+	has_valid_target_surface = false
+	is_current_placement_valid = false
+	if ghost_preview:
+		ghost_preview.visible = false
+	if btn_place:
+		btn_place.disabled = true
+	if label_status:
+		label_status.text = "Pointer outside building area"
+
+func _on_cancel_held_piece() -> void:
+	current_input_state = InputState.IDLE
+	_invalidate_candidate()
+	if label_status:
+		label_status.text = "Placement canceled. Select a piece from the tray to build."
 
 func _on_rotate_left() -> void:
 	current_rotation_step = (current_rotation_step - 1 + 4) % 4
@@ -618,6 +707,10 @@ func _validate_and_update_ghost() -> void:
 	)
 	
 	is_current_placement_valid = last_validation_result.get("valid", false)
+	if is_current_placement_valid:
+		has_valid_target_surface = true
+		if ghost_preview:
+			ghost_preview.visible = true
 	if feedback:
 		feedback.notify_preview_validity_changed(is_current_placement_valid)
 	
@@ -631,33 +724,55 @@ func _validate_and_update_ghost() -> void:
 	# Update visual tint and cues
 	_apply_validity_appearance(is_current_placement_valid)
 	
-	# Update UI feedback text
+	# Update UI feedback text with friendly family messages (LB-061)
 	var status_text: String
 	var player_prefix = ""
-	if session and session.players.size() > 0:
+	if session and session.players.size() > 1:
 		var cur_p = session.get_current_player()
-		var p_num = session.current_player_idx + 1
-		player_prefix = "[P%d %s] " % [p_num, cur_p.get("name", "Player")]
+		player_prefix = "[P%d] %s: " % [session.current_player_idx + 1, cur_p.get("name", "Player")]
 		
+	var code = last_validation_result.get("code", "ERROR")
+	var reason = last_validation_result.get("reason", "")
+	var friendly_msg = _format_friendly_validation_message(is_current_placement_valid, code, reason)
+	
 	if is_current_placement_valid:
 		btn_place.disabled = false
-		status_text = "%s✓ [VALID] Ready to place (%s)" % [player_prefix, last_validation_result.get("reason", "OK")]
+		status_text = "%s✓ %s" % [player_prefix, friendly_msg]
 	else:
 		btn_place.disabled = true
-		status_text = "%s✕ [INVALID] %s: %s" % [
-			player_prefix,
-			last_validation_result.get("code", "ERROR"),
-			last_validation_result.get("reason", "Cannot place here")
-		]
+		status_text = "%s✕ %s" % [player_prefix, friendly_msg]
 		
 	if label_status:
 		label_status.text = status_text
 		
-	if label_coords:
+	if label_coords and label_coords.visible:
 		var mode_str = "Auto" if is_auto_height else "Manual"
 		label_coords.text = "Stud: (%d, %d) | Plate: %d [%s] | Yaw: %d°  " % [
 			current_grid_pos.x, current_grid_pos.y, current_layer_plate, mode_str, current_rotation_step * 90
 		]
+
+func _format_friendly_validation_message(valid: bool, code: String, reason: String) -> String:
+	if valid:
+		if current_layer_plate == 0:
+			return "Ready to place on table"
+		return "Ready to place"
+	match code:
+		"COLLISION":
+			return "Space is already occupied"
+		"FLOATING":
+			return "Needs support underneath"
+		"OUT_OF_BOUNDS":
+			return "Must stay on the baseplate"
+		"OUTSIDE_HAND":
+			return "Pick a brick from your hand"
+		"UNATTACHED":
+			return "Connect to studs"
+		"INVALID_STUD_ALIGNMENT":
+			return "Must align with stud grid"
+		"STUD_COLLISION":
+			return "Studs don't fit there"
+		_:
+			return reason if not reason.is_empty() else "Cannot place here"
 
 func _apply_validity_appearance(is_valid: bool) -> void:
 	if not _ghost_node:
@@ -681,6 +796,8 @@ func _set_node_material_color(node: Node, color: Color) -> void:
 		_set_node_material_color(child, color)
 
 func _on_place_pressed() -> void:
+	if current_input_state == InputState.IDLE or current_input_state == InputState.PENDING_ACCEPTANCE:
+		return
 	if not is_current_placement_valid:
 		var code = last_validation_result.get("code", "ERROR")
 		var reason = last_validation_result.get("reason", "Invalid placement")
@@ -693,16 +810,28 @@ func _on_place_pressed() -> void:
 				haptics_adapter.vibrate_error()
 		return
 		
-	# Spawn permanent brick
-	var p_def: Dictionary = catalog.get_part(selected_part_id)
-	var placed_node: Node3D = PartMeshBuilder.build_part_node(p_def, selected_color)
-	placed_node.position = ghost_preview.position
-	placed_node.rotation = ghost_preview.rotation
-	placed_bricks_container.add_child(placed_node)
-	
-	var placement_id: String = "p_%d" % placed_pieces_data.size()
-	# Record piece state
-	var piece_record = {
+	current_input_state = InputState.PENDING_ACCEPTANCE
+	if session:
+		var cur_player = session.get_current_player()
+		var player_id = cur_player.get("id", "p0")
+		var ok = session.request_placement(
+			player_id,
+			selected_hand_slot,
+			current_grid_pos.x,
+			current_grid_pos.y,
+			current_layer_plate,
+			current_rotation_step,
+			selected_color,
+			selected_part_id
+		)
+		if not ok:
+			current_input_state = InputState.HOLDING
+	else:
+		_handle_local_placement_fallback()
+
+func _handle_local_placement_fallback() -> void:
+	var placement_id: String = "pl_%d" % (placed_pieces_data.size() + 1)
+	var placement_record = {
 		"placement_id": placement_id,
 		"part_id": selected_part_id,
 		"grid_x": current_grid_pos.x,
@@ -711,16 +840,27 @@ func _on_place_pressed() -> void:
 		"rotation_step": current_rotation_step,
 		"color": selected_color
 	}
-	placed_pieces_data.append(piece_record)
+	_on_placement_accepted(placement_record)
+
+func _on_placement_accepted(placement_record: Dictionary) -> void:
+	current_input_state = InputState.HOLDING
 	
-	if session and session.players.size() > 0:
-		var cur_player = session.get_current_player()
-		var player_id = cur_player.get("id", "p0")
-		session.submit_placement(player_id, selected_part_id, current_grid_pos.x, current_grid_pos.y, current_layer_plate, current_rotation_step)
-		_setup_inventory_tray()
-		if btn_finish:
-			btn_finish.text = "🚶 Explore"
-		
+	var pid = placement_record.get("part_id", selected_part_id)
+	var col = placement_record.get("color", selected_color)
+	var p_def: Dictionary = catalog.get_part(pid)
+	var placed_node: Node3D = PartMeshBuilder.build_part_node(p_def, col)
+	var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
+	var rot: int = placement_record.get("rotation_step", current_rotation_step)
+	var gx: int = placement_record.get("grid_x", current_grid_pos.x)
+	var gz: int = placement_record.get("grid_z", current_grid_pos.y)
+	var layer: int = placement_record.get("layer_plate", current_layer_plate)
+	
+	placed_node.position = TableView.grid_to_world(gx, gz, layer, dims, rot)
+	placed_node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
+	placed_bricks_container.add_child(placed_node)
+	placed_pieces_data.append(placement_record)
+	
+	var placement_id = placement_record.get("placement_id", "pl_%d" % placed_pieces_data.size())
 	if feedback:
 		feedback.notify_placement_accepted(placement_id, placed_node, false, false)
 	else:
@@ -728,11 +868,36 @@ func _on_place_pressed() -> void:
 			audio_director.play_click(placement_id)
 		if haptics_adapter:
 			haptics_adapter.vibrate_placement()
-	
+			
+	if btn_finish:
+		btn_finish.text = "Explore"
+		
+	# Update active hand selection if in turn-based mode
+	if session and session.players.size() > 1:
+		_setup_inventory_tray()
+		var cur_player = session.get_current_player()
+		var hand = cur_player.get("hand", [])
+		if not hand.is_empty():
+			var slot_idx = clampi(selected_hand_slot, 0, hand.size() - 1)
+			var slot_piece = hand[slot_idx]
+			_select_piece_from_slot(slot_idx, slot_piece.get("part_id", "brick_2x4"), slot_piece.get("color", cur_player.get("color", Color.WHITE)))
+	else:
+		_setup_inventory_tray()
+		
 	# NOTE: We DO NOT unconditionally add piece height to current_layer_plate!
 	# The surface targeting automatically detects the top surface under the pointer (PC-01).
 	_update_pointer_target()
 	_validate_and_update_ghost()
+
+func _on_placement_rejected(reason: String, code: String) -> void:
+	current_input_state = InputState.HOLDING
+	if feedback:
+		feedback.notify_placement_rejected("%s: %s" % [code, reason])
+	else:
+		if audio_director:
+			audio_director.play_reject()
+		if haptics_adapter:
+			haptics_adapter.vibrate_error()
 
 # =========================================================================
 # LB-036 Building Rules, Undo/Redo, Timers, and Solo Browser
@@ -751,11 +916,11 @@ func _on_finish_pressed() -> void:
 func _on_ready_status_changed(_player_id: String, _is_ready: bool, ready_count: int, total_players: int) -> void:
 	if btn_finish:
 		if ready_count == total_players:
-			btn_finish.text = "🚶 Explore (%d/%d)" % [ready_count, total_players]
+			btn_finish.text = "Explore (%d/%d)" % [ready_count, total_players]
 			if feedback:
 				feedback.notify_build_finished()
 		else:
-			btn_finish.text = "🚶 Ready (%d/%d)" % [ready_count, total_players]
+			btn_finish.text = "Ready (%d/%d)" % [ready_count, total_players]
 	if label_status:
 		label_status.text = "Finish Agreement: %d/%d players ready" % [ready_count, total_players]
 
@@ -773,6 +938,11 @@ func _on_turn_advanced(player_id: String, player_idx: int) -> void:
 	if label_status:
 		label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")]
 	_setup_inventory_tray()
+	selected_hand_slot = 0
+	var hand = cur_player.get("hand", [])
+	if not hand.is_empty():
+		var piece = hand[0]
+		_select_piece_from_slot(0, piece.get("part_id", "brick_2x4"), piece.get("color", cur_player.get("color", Color.WHITE)))
 	if feedback:
 		feedback.notify_turn_changed(cur_player.get("name", "Player"))
 	elif audio_director:
@@ -898,6 +1068,16 @@ func _populate_catalog_grid() -> void:
 		catalog_grid.remove_child(child)
 		child.queue_free()
 		
+	# Responsive grid column count based on viewport or modal width
+	if catalog_modal:
+		var modal_w: float = catalog_modal.size.x
+		if modal_w < 500.0:
+			catalog_grid.columns = 2
+		elif modal_w < 720.0:
+			catalog_grid.columns = 3
+		else:
+			catalog_grid.columns = 4
+		
 	var selected_cat_idx = opt_catalog_category.selected if opt_catalog_category else 0
 	var filter_text = line_catalog_search.text.strip_edges().to_lower() if line_catalog_search else ""
 	
@@ -906,6 +1086,7 @@ func _populate_catalog_grid() -> void:
 	
 	var all_ids = catalog.get_all_part_ids()
 	all_ids.sort()
+	var matched_count: int = 0
 	
 	for pid in all_ids:
 		var p_def = catalog.get_part(pid)
@@ -917,12 +1098,28 @@ func _populate_catalog_grid() -> void:
 		if not filter_text.is_empty() and not p_name.to_lower().contains(filter_text) and not pid.to_lower().contains(filter_text):
 			continue
 			
+		matched_count += 1
 		var btn = Button.new()
 		btn.text = p_name
-		btn.custom_minimum_size = Vector2(140, 42)
+		btn.custom_minimum_size = Vector2(130, 44)
+		UIThemeHelper.apply_secondary_button(btn)
 		btn.pressed.connect(func():
-			_select_piece(pid, selected_color)
+			if session and session.mode != SessionManager.GameMode.SOLO_CREATIVE:
+				if label_status:
+					label_status.text = "In Mixed Bags mode, build using your 6 hand pieces!"
+				if feedback:
+					feedback.notify_placement_rejected("OUTSIDE_HAND: Use hand pieces")
+				elif audio_director:
+					audio_director.play_reject()
+			else:
+				_select_piece(pid, selected_color)
 			if catalog_modal:
 				catalog_modal.visible = false
 		)
 		catalog_grid.add_child(btn)
+		
+	if matched_count == 0:
+		var empty_lbl = Label.new()
+		empty_lbl.text = "No parts match '%s'" % filter_text if not filter_text.is_empty() else "No parts in this category"
+		empty_lbl.add_theme_color_override("font_color", UIThemeHelper.COLOR_TEXT_SECONDARY)
+		catalog_grid.add_child(empty_lbl)

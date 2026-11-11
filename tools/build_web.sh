@@ -29,6 +29,23 @@ echo "Using Godot: ${GODOT_BIN} ($(${GODOT_BIN} --version))"
 # 2. Ensure export target directory exists
 mkdir -p "${BUILDS_DIR}"
 
+# 2.5 Update build metadata
+GIT_SHA="$(git -C "${PROJECT_ROOT}" rev-parse --short HEAD 2>/dev/null || echo "unknown")"
+BUILD_DATE="$(date -u +"%Y-%m-%d")"
+cat <<EOF > "${GAME_DIR}/core/build_info.gd"
+class_name BuildInfo
+
+const VERSION: String = "2.0.0-dev"
+const GIT_SHA: String = "${GIT_SHA}"
+const BUILD_DATE: String = "${BUILD_DATE}"
+const ENGINE_VERSION: String = "4.7.2.stable.official"
+const RENDERER: String = "gl_compatibility"
+
+static func get_build_summary() -> String:
+	return "LittleBricks v%s (%s • %s • %s)" % [VERSION, GIT_SHA, BUILD_DATE, RENDERER]
+EOF
+echo "Embedded build info: ${GIT_SHA} (${BUILD_DATE})"
+
 # 3. Export Web (HTML5/WASM)
 echo ""
 echo "[Export] Exporting WebAssembly (HTML5) Release to ${BUILDS_DIR}/index.html..."

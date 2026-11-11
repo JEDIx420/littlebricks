@@ -14,6 +14,7 @@ signal closed()
 @onready var check_haptics: CheckBox = %CheckHaptics
 @onready var check_reduced_motion: CheckBox = %CheckReducedMotion
 @onready var check_high_contrast: CheckBox = %CheckHighContrast
+@onready var label_build_info: Label = %LabelBuildInfo
 @onready var btn_close: Button = %BtnClose
 
 var settings_manager: SettingsManager
@@ -29,6 +30,7 @@ func _ensure_nodes() -> void:
 	if not check_haptics: check_haptics = find_child("CheckHaptics", true, false)
 	if not check_reduced_motion: check_reduced_motion = find_child("CheckReducedMotion", true, false)
 	if not check_high_contrast: check_high_contrast = find_child("CheckHighContrast", true, false)
+	if not label_build_info: label_build_info = find_child("LabelBuildInfo", true, false)
 	if not btn_close: btn_close = find_child("BtnClose", true, false)
 
 func setup(p_settings: SettingsManager, p_audio: AudioDirector, p_haptics: HapticsAdapter) -> void:
@@ -40,6 +42,13 @@ func setup(p_settings: SettingsManager, p_audio: AudioDirector, p_haptics: Hapti
 
 func _ready() -> void:
 	_ensure_nodes()
+	
+	var panel = find_child("Panel", true, false) as PanelContainer
+	if panel:
+		UIThemeHelper.apply_card(panel)
+	if btn_close:
+		UIThemeHelper.apply_secondary_button(btn_close)
+		
 	if btn_close and not btn_close.pressed.is_connected(_on_close_pressed):
 		btn_close.pressed.connect(_on_close_pressed)
 	if check_sound and not check_sound.toggled.is_connected(_on_sound_toggled):
@@ -70,6 +79,7 @@ func _sync_ui_to_settings() -> void:
 	if check_haptics: check_haptics.button_pressed = settings_manager.haptics_enabled if "haptics_enabled" in settings_manager else true
 	if check_reduced_motion: check_reduced_motion.button_pressed = settings_manager.reduced_motion
 	if check_high_contrast: check_high_contrast.button_pressed = settings_manager.high_contrast_cues
+	if label_build_info: label_build_info.text = BuildInfo.get_build_summary()
 
 func _on_sound_toggled(pressed: bool) -> void:
 	if settings_manager:
