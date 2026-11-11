@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: Milestone M3 complete; Milestone M4 in progress.
+- Stage: Milestone M4 complete; Milestone M5 in progress.
 - Product name: LittleBricks.
-- Game implementation: M0, M1, M2, and M3 complete. LB-013..LB-016 verified (exploration colliders, toy explorer, dual POV cameras, reset figure, scale).
+- Game implementation: M0..M4 complete. LB-017..LB-020 verified (authoritative multiplayer, idempotency, reconnect tail, UGC moderation).
 - Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
-- Current implementation milestone: **M4 - Private online rooms**.
-- Active worker assignments: LB-017 (headless WSS room authority, player identity tokens, ordered events, idempotent commands).
-- Next task: **LB-017**; implement authoritative network server and protocol in `game/server/network_server.gd`.
-- Next implementation action: create `game/server/network_server.gd` and client network adapter with WebSocket protocol, idempotent request IDs, and authoritative turn deadlines.
+- Current implementation milestone: **M5 - Construction films and sharing**.
+- Active worker assignments: LB-021 (event replay reconstruction, cinematic camera framing, final reveal).
+- Next task: **LB-021**; implement replay timeline controller in `game/replay/replay_timeline.gd`.
+- Next implementation action: create `game/replay/replay_timeline.gd` to reconstruct builds from accepted event sequences without human idle time, animate piece placement bounce, and reveal final scene.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -23,8 +23,8 @@ Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRA
 | M1 - Precise brick placement | done | LB-005..LB-008 verified; rules engine, inventory, camera, scaling benchmarks |
 | M2 - Complete local building | done | LB-009..LB-012 verified; state machine, save/resume, undo/redo, pacing |
 | M3 - Explore the finished world | done | LB-013..LB-016 verified; exploration colliders, toy explorer, dual POV, reset figure |
-| M4 - Private online rooms | in_progress | LB-017 in progress; authoritative server, recovery, 2-4 clients |
-| M5 - Construction films and sharing | planned | Correct replay and actual video/share output |
+| M4 - Private online rooms | done | LB-017..LB-020 verified; authority, tokens, idempotency, reconnect, moderation |
+| M5 - Construction films and sharing | in_progress | LB-021 in progress; replay timeline, export adapters, reveal camera |
 | M6 - Content, polish and performance | planned | Audited content and measured integrated experience |
 | M7 - Release readiness | planned | Reproducible candidate, evidence, licences and store preparation |
 
@@ -52,11 +52,11 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-014 | done | littlebricks-worlds | docs/evidence/LB-014-toy-explorer-controller-pov.md |
 | LB-015 | done | littlebricks-gameplay | docs/evidence/LB-015-exploration-integration-reset-return.md |
 | LB-016 | done | littlebricks-verifier | docs/evidence/LB-016-playtest-scale-and-interiors.md |
-| LB-017 | in_progress | littlebricks-platform | planned |
-| LB-018 | planned | unassigned | none |
-| LB-019 | planned | unassigned | none |
-| LB-020 | planned | unassigned | none |
-| LB-021 | planned | unassigned | none |
+| LB-017 | done | littlebricks-platform | docs/evidence/LB-017-room-authority-and-idempotency.md |
+| LB-018 | done | littlebricks-platform | docs/evidence/LB-018-durable-room-persistence-reconnect.md |
+| LB-019 | done | littlebricks-platform | docs/evidence/LB-019-lobby-convergence-4-players.md |
+| LB-020 | done | littlebricks-verifier | docs/evidence/LB-020-resilience-and-moderation-flow.md |
+| LB-021 | in_progress | littlebricks-worlds | planned |
 | LB-022 | planned | unassigned | none |
 | LB-023 | planned | unassigned | none |
 | LB-024 | planned | unassigned | none |
