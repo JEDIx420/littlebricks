@@ -1,0 +1,4 @@
+interface:
+  display_name: "LittleBricks Assets"
+  short_description: "Prepare licensed bricks and reliable connection data"
+  default_prompt: "Use $littlebricks-assets to prepare a verified LittleBricks asset pack."

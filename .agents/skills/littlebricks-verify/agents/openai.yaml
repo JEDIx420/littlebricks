@@ -1,0 +1,4 @@
+interface:
+  display_name: "LittleBricks Verification"
+  short_description: "Verify gameplay, recovery, visuals and real device gates"
+  default_prompt: "Use $littlebricks-verify to independently verify the current LittleBricks milestone."

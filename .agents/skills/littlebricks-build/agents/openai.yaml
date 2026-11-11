@@ -1,0 +1,4 @@
+interface:
+  display_name: "LittleBricks Builder"
+  short_description: "Build the complete game through verified milestones"
+  default_prompt: "Use $littlebricks-build to implement LittleBricks through the complete project plan."

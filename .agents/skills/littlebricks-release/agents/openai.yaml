@@ -1,0 +1,4 @@
+interface:
+  display_name: "LittleBricks Release"
+  short_description: "Prepare reproducible builds and a reviewable release"
+  default_prompt: "Use $littlebricks-release to prepare a verified LittleBricks release candidate."

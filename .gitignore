@@ -1,0 +1,39 @@
+# Godot generated cache; keep source resources, .uid files, and export presets.
+.godot/
+.import/
+export_credentials.cfg
+
+# Generated artifacts and local test output.
+/build/
+/dist/
+/artifacts/
+/tmp/
+/test-results/
+/coverage/
+*.apk
+*.aab
+*.pck
+*.log
+
+# Platform caches and local machine settings.
+.gradle/
+local.properties
+.DS_Store
+__pycache__/
+*.pyc
+.venv/
+node_modules/
+
+# Credentials and signing material.
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+.agents/mcp_config.json
+.agents/settings.local.json
+
+# Preserve committed portable configuration and reviewable source assets.
