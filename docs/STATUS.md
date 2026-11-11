@@ -11,9 +11,8 @@ Last updated: **2026-11-11**
 - Required repairs: canonical stud alignment, automatic surface height, camera/input usability, application integration, actual networking and real video output.
 - Required experience work: Welcome/mode/setup screens, music/ambience, brick sounds, supported haptics, lighting/showcase, accessibility and a staged 120-shape verified library (150 stretch).
 - Current deliverable: revised project/agent instructions. This documentation update makes no runtime repairs or deployment.
-- **Next task: LB-053 (surface targeting and height selection). Then LB-055 (camera/input).**
-- Parallel preparation: LB-034 application contracts and LB-039 audio under disjoint ownership.
-- Next implementation action: implement Auto Height surface raycasting, layer controls, and Return to Base in LB-053.
+- **Next task: LB-034 (Application lifecycle & session routing). Then LB-035 (First three screens & onboarding) and LB-039 (Audio preparation).**
+- Next implementation action: establish application router and scene navigation contracts in LB-034.
 
 Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
 
@@ -103,9 +102,9 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 | LB-050 | Independently verify complete journeys and sensory quality | planned | unassigned | none |
 | LB-051 | Reconcile release packaging, licences and store preparation | planned | unassigned | none |
 | LB-052 | Close the recovery with truthful evidence | planned | unassigned | none |
-| LB-053 | Fix surface targeting and height selection | planned | unassigned | none |
+| LB-053 | Fix surface targeting and height selection | done | coordinator | docs/evidence/LB-053-surface-height-and-baseplate-return.md |
 | LB-054 | Establish one canonical stud lattice and pivot contract | done | coordinator | docs/evidence/LB-054-canonical-stud-lattice.md |
-| LB-055 | Make the camera and input ownership work in the browser | planned | unassigned | none |
+| LB-055 | Make the camera and input ownership work in the browser | done | coordinator | docs/evidence/LB-055-browser-camera-and-input.md |
 | LB-056 | Expand the usable catalogue in verified stages | planned | unassigned | none |
 
 ## Environment and support audit
