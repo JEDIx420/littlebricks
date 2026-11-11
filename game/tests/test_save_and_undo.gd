@@ -17,6 +17,11 @@ func _init() -> void:
 	
 	sm.setup_session(SessionManager.GameMode.SOLO_CREATIVE, ["SoloBuilder"], "harbour", false)
 	
+	# Pinned parts in hand for deterministic test
+	sm.players[0]["hand"][0] = {"instance_id": "i0", "part_id": "brick_2x4", "name": "Brick 2x4", "color": Color.RED}
+	sm.players[0]["hand"][1] = {"instance_id": "i1", "part_id": "brick_2x4", "name": "Brick 2x4", "color": Color.BLUE}
+	sm.players[0]["hand"][2] = {"instance_id": "i2", "part_id": "brick_2x4", "name": "Brick 2x4", "color": Color.GREEN}
+	
 	# 1. Place two bricks
 	sm.request_placement("p_1", 0, 10, 10, 0, 0)
 	sm.request_placement("p_1", 1, 15, 15, 0, 0)
@@ -93,6 +98,7 @@ func _init() -> void:
 	
 	# 6. Test Dependent-Move Protection
 	# Place a brick on top of placement 2 (at z=3)
+	sm.players[0]["hand"][2] = {"instance_id": "i2", "part_id": "brick_2x4", "name": "Brick 2x4", "color": Color.GREEN}
 	sm.request_placement("p_1", 2, 15, 15, 3, 0) # Brick on top of brick at (15, 15)
 	if sm.placements.size() != 3:
 		print("FAILED: Stacking piece at z=3 failed")
