@@ -6,12 +6,12 @@ Last updated: **2026-11-11**
 
 - Stage: M0 foundation in progress.
 - Product name: LittleBricks.
-- Game implementation: M0 in progress; project initialized, table scene created, desktop and web export verified.
+- Game implementation: M0 in progress; 16 shapes + explorer metadata verified in test suite.
 - Playable release, game test evidence, physical-device results and store submission: none.
 - Current implementation milestone: **M0 - Foundation and technical spikes**.
-- Active worker assignments: LB-003 (12-20 representative shapes, explorer candidate, versioned part metadata).
-- Next task: **LB-003**; curate representative shapes, part definitions, and explorer figure.
-- Next implementation action: define catalog schema, shape manifests, connector/collision metadata, and candidate meshes.
+- Active worker assignments: LB-004 (Android replay-render/encoder spike and phone render scene).
+- Next task: **LB-004**; evaluate Android video export feasibility and representative phone benchmark scene.
+- Next implementation action: create representative 500-piece phone stress scene fixture and platform video adapter interface.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -38,8 +38,8 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | --- | --- | --- | --- |
 | LB-001 | done | coordinator | docs/evidence/LB-001-toolchain-discovery.md |
 | LB-002 | done | coordinator | docs/evidence/LB-002-project-table-scene.md |
-| LB-003 | in_progress | littlebricks-worlds | planned |
-| LB-004 | planned | unassigned | none |
+| LB-003 | done | littlebricks-worlds | docs/evidence/LB-003-parts-metadata-audit.md |
+| LB-004 | in_progress | littlebricks-platform | planned |
 | LB-005 | planned | unassigned | none |
 | LB-006 | planned | unassigned | none |
 | LB-007 | planned | unassigned | none |
