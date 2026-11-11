@@ -47,4 +47,7 @@ This directory contains rigorous runtime evidence reports for all completed task
 - [LB-028: Integrated Journeys & Independent Verification](LB-028-integrated-journeys-verification.md) — Complete solo, pass-and-play, and replay pipelines.
 
 ### Milestone M7: Release Readiness
-- *(In Progress: LB-029..LB-032)*
+- [LB-029: Reproducible Release Packaging & Build Pipeline](LB-029-reproducible-packaging.md) — Multi-platform export script, checksums, Android signing guide.
+- [LB-030: Licensing, Attribution & Store Declarations](LB-030-licensing-and-store-declarations.md) — MIT/CC0 licensing, brand disclaimer, Google Play Data Safety, IARC rating.
+- [LB-031: Clean-Checkout & Contributor Verification](LB-031-clean-checkout-verification.md) — 12-suite automated verification runner, environment discovery.
+- [LB-032: Release Candidate Index & Final Checkpoint](LB-032-release-candidate-index.md) — Release notes, complete user instructions, reviewable release candidate.
