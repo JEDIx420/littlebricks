@@ -10,6 +10,46 @@ const STUD_HEIGHT: float = 0.18
 const STUD_SPACING: float = 1.0
 const PLATE_HEIGHT: float = 0.4
 
+const KENNEY_PART_MAP: Dictionary = {
+	"brick_1x1": {"file": "bevel-hq-brick-1x1.glb", "swap_xz": false},
+	"brick_1x2": {"file": "bevel-hq-brick-1x2.glb", "swap_xz": true},
+	"brick_1x4": {"file": "bevel-hq-brick-1x4.glb", "swap_xz": true},
+	"brick_1x6": {"file": "bevel-hq-brick-1x6.glb", "swap_xz": true},
+	"brick_1x8": {"file": "bevel-hq-brick-1x8.glb", "swap_xz": true},
+	"brick_2x2": {"file": "bevel-hq-brick-2x2.glb", "swap_xz": false},
+	"brick_2x4": {"file": "bevel-hq-brick-2x4.glb", "swap_xz": true},
+	"brick_2x6": {"file": "bevel-hq-brick-2x6.glb", "swap_xz": true},
+	"brick_2x8": {"file": "bevel-hq-brick-2x8.glb", "swap_xz": true},
+	"plate_1x1": {"file": "bevel-hq-plate-1x1.glb", "swap_xz": false},
+	"plate_1x2": {"file": "bevel-hq-plate-1x2.glb", "swap_xz": true},
+	"plate_1x4": {"file": "bevel-hq-plate-1x4.glb", "swap_xz": true},
+	"plate_1x6": {"file": "bevel-hq-plate-1x6.glb", "swap_xz": true},
+	"plate_1x8": {"file": "bevel-hq-plate-1x8.glb", "swap_xz": true},
+	"plate_2x2": {"file": "bevel-hq-plate-2x2.glb", "swap_xz": false},
+	"plate_2x4": {"file": "bevel-hq-plate-2x4.glb", "swap_xz": true},
+	"plate_2x6": {"file": "bevel-hq-plate-2x6.glb", "swap_xz": true},
+	"plate_2x8": {"file": "bevel-hq-plate-2x8.glb", "swap_xz": true},
+	"plate_4x4": {"file": "bevel-hq-plate-4x4.glb", "swap_xz": false},
+	"plate_4x6": {"file": "bevel-hq-plate-4x6.glb", "swap_xz": true},
+	"plate_4x8": {"file": "bevel-hq-plate-4x8.glb", "swap_xz": true},
+	"plate_round_1x1": {"file": "bevel-hq-plate-1x1-round.glb", "swap_xz": false},
+	"slope_2x2": {"file": "bevel-hq-brick-slope-2x2.glb", "swap_xz": false},
+	"slope_2x4_45": {"file": "bevel-hq-brick-slope-2x4.glb", "swap_xz": true},
+	"slope_33_3x2": {"file": "bevel-hq-brick-slope-3x2.glb", "swap_xz": true},
+	"slope_inverted_1x2": {"file": "bevel-hq-brick-slope-inverted-1x2.glb", "swap_xz": true},
+	"slope_inverted_2x2": {"file": "bevel-hq-brick-slope-inverted-2x2.glb", "swap_xz": false},
+	"plate_corner_2x2": {"file": "bevel-hq-plate-corner.glb", "swap_xz": false},
+	"brick_corner_3x3": {"file": "bevel-hq-brick-corner.glb", "swap_xz": false}
+}
+
+const LDRAW_PART_MAP: Dictionary = {
+	"slope_curved_1x4": {"file": "slope_curved_top_6091.obj", "scale": Vector3(1.0, 1.0, 1.0)},
+	"slope_curved_2x2": {"file": "slope_curved_top_6091.obj", "scale": Vector3(1.0, 1.0, 1.0)},
+	"steering_wheel_2x2": {"file": "steering_wheel_3829c01.obj", "scale": Vector3(1.0, 1.0, 1.0)},
+	"window_1x2x2": {"file": "window_frame_60592.obj", "scale": Vector3(1.0, 1.0, 1.0)},
+	"window_1x2x3": {"file": "window_frame_60592.obj", "scale": Vector3(1.0, 1.25, 1.0)}
+}
+
 ## Build a 3D Node representing the part with accurate body, studs, and material.
 static func build_part_node(part_def: Dictionary, color: Color) -> Node3D:
 	var root: Node3D = Node3D.new()
@@ -24,6 +64,10 @@ static func build_part_node(part_def: Dictionary, color: Color) -> Node3D:
 	var cat: String = part_def.get("category", "brick")
 	var dims: Array = part_def.get("dimensions_studs", [1, 3, 1])
 	var body_top_y: float = float(dims[1]) * PLATE_HEIGHT
+	
+	# Priority 1: Check for vetted sourced 3D model (Kenney Brick Kit or LDraw Library) (LB-072)
+	if _try_build_sourced_mesh(root, pid, dims, mat):
+		return root
 	
 	# Select specialized visual builder
 	if cat == "character":
@@ -404,3 +448,39 @@ static func _build_character_mesh(root: Node3D, part_def: Dictionary, _mat: Stan
 	hat_material.albedo_color = hat_col
 	hat.material_override = hat_material
 	root.add_child(hat)
+
+## Attempts to build part node using vetted sourced 3D model (LB-072).
+static func _try_build_sourced_mesh(root: Node3D, pid: String, dims: Array, mat: StandardMaterial3D) -> bool:
+	if KENNEY_PART_MAP.has(pid):
+		var info: Dictionary = KENNEY_PART_MAP[pid]
+		var path: String = "res://assets/sourced/kenney_bricks/" + info["file"]
+		var scene = load(path)
+		if scene:
+			var inst = scene.instantiate()
+			# Scale from Kenney 0.08m units to LittleBricks canonical stud units (12.5x)
+			inst.scale = Vector3(12.5, 12.5, 12.5)
+			if info.get("swap_xz", false):
+				inst.rotation_degrees.y = 90.0
+			_apply_material_recursive(inst, mat)
+			root.add_child(inst)
+			return true
+			
+	if LDRAW_PART_MAP.has(pid):
+		var info: Dictionary = LDRAW_PART_MAP[pid]
+		var path: String = "res://assets/sourced/ldraw/" + info["file"]
+		var mesh_res = load(path)
+		if mesh_res:
+			var mi: MeshInstance3D = MeshInstance3D.new()
+			mi.mesh = mesh_res
+			mi.scale = info.get("scale", Vector3.ONE)
+			mi.material_override = mat
+			root.add_child(mi)
+			return true
+			
+	return false
+
+static func _apply_material_recursive(node: Node, mat: StandardMaterial3D) -> void:
+	if node is MeshInstance3D:
+		node.material_override = mat
+	for child in node.get_children():
+		_apply_material_recursive(child, mat)

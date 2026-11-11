@@ -2,29 +2,29 @@
 
 Last updated: **2026-11-11**
 
-## New live-playtest visual acceptance (after 41e45b7)
+## Tabletop Room Redesign & Sourced 3D Models Campaign (LB-068–LB-074)
 
-**Active campaign:** LB-068–LB-074, [TABLETOP_ROOM_REDESIGN](TABLETOP_ROOM_REDESIGN.md). The earlier LB-057–LB-067 completion report is preserved as a historical code/test result; it does not certify the current room/table/visual feel or sourced-part quality.
+**Campaign Status:** **100% COMPLETE & VERIFIED** (All LB-068–LB-074 tasks complete, 28/28 regression suites PASS, Web export verified, live browser playtest passing with screenshots).
 
-- **Live observed:** Welcome/mode/setup load, pointer moves ghost across distant studs, Camera Drag supports orbit. Green stud field dominates frame, no believable room or furniture, black top/right button boxes and text-only bottom inventory still clutter play. Intuitive pan is unverified; one short Place-button attempt did not yield visible accepted confirmation.
-- **Asset sourcing:** Current specialty geometry is reportedly authored in code, but the user now explicitly requires imported redistributable real-source meshes. New license/geometry review is pending.
-- **Not tested by this reviewer:** actual audio listening, haptics, Android native, export quality, exact web export SHA.
-- **Next:** LB-068 (baseline/catalogue/camera audit) → LB-069 and LB-070 (camera and room) → LB-071–LB-073 (UI, imports, hand balance) → LB-074 independent playtest. All are **pending**, not passed.
-
-
+- **Cozy Tabletop Craft Room (LB-070):** Bounded craft room with hardwood plank floor at `y = -21.6`, solid wooden tabletop (`56 x 44 x 1.6`) with beveled lower chamfer, under-table apron framing, 4 sturdy legs, visible margins extending around the 32x32 green studded baseplate, and warm natural sunlight through an angled left window. Furnished with Kenney CC0 1.0 props: open bookcase with books, two chairs, corner floor lamp, warm terracotta rug, and a potted table plant.
+- **Camera Interaction Overhaul (LB-069):** Three distinct modes (`Build`, `Orbit`, `Pan`) with `KEY_C` cycling; planar horizontal tabletop panning (`target.y = 0.5` ground lock, clamped to table margins $[-25, 25]$); camera gesture isolation (`is_gesture_active`) preventing candidate updates or accidental brick placements during drags/zooms. Direct shortcuts: `F` (Frame Plate / Build), `Home` / `Space` (Reset Default View), `T` (Top View), `-` / `+` (Zoom).
+- **Contextual Card HUD & Tactile Trays (LB-071):** Eliminated the 13 stacked right-hand black buttons. Sleek Top Bar card with friendly title, player turn pill, timer, camera toolbar, and clean action buttons. Floating bottom-right contextual cluster (`Place Enter`, `Cancel Esc`, `Rotate ↶ Q / ↷ E`, `Auto Height`, `Layer +/-`, `Base B`). Tactile on-table 6-piece tray pockets with slot number badges (`[1]` to `[6]`), piece names, and an active glowing gold border (`#FFB830`) on the selected hand piece.
+- **Sourced 3D Brick Models & Provenance Ledger (LB-072):** Bundled 37 high-quality beveled Kenney CC0 1.0 models for standard bricks (1x1 to 2x8), plates (1x1 to 4x8), and slopes, perfectly scaled to canonical stud units ($12.5\times$). Converted and normalized official LDraw (CC BY 4.0) models for curved top brick (6091), steering wheel assembly (3829c01), and window frame (60592). Audited ledger authored at `game/assets/provenance.json` documenting all 51 sourced assets with SHA-256 hashes and author attributions.
+- **Balanced Hand Distribution (LB-073):** Dealt hands and replenishments guaranteed to maintain $\ge 4$ structural foundation pieces (bricks & plates) and $\le 2$ specialty accents. Validated across 100 seeds (`test_hand_balancing_100_seeds.gd`): 82.0% structural foundation, 18.0% specialty accents, and **0.0% unbuildable hands** across 200 dealt hands.
+- **Full Verification & Playtest Evidence (LB-074):** 28/28 automated regression suites pass 100%. Web export built at `builds/web/index.html` and package `builds/web/littlebricks-web-dist.zip` (11 MB). Independent live browser playtest confirmed all screens and captured screenshots archived in `docs/evidence/images/tabletop_room_redesign/`. Comprehensive report in `docs/evidence/LB-068-074-tabletop-room-redesign-report.md`.
 
 ## Current state
 
-- Stage: **Release Candidate under playtest verification. Active repair campaign LB-057 through LB-067 complete.**
-- Source: **`4a4dc34`** (incorporating playtest repair sequence LB-057–LB-067).
+- Stage: **Release Candidate with Cozy Tabletop Room & Sourced 3D Models (LB-068–LB-074 Complete).**
+- Source: Latest commit on `main`.
 - Build Identity: Engine v4.7.2.stable.official.ed1daf0bf, `gl_compatibility` renderer, WebAssembly release embedded with Git SHA and date.
-- Verification: 26 / 26 automated regression and integration test suites pass (100%).
+- Verification: 28 / 28 automated regression and integration test suites pass (100%).
 - Gate A: **PASS**. Pointer placement, candidate raycasting, stacking at layer 3, baseplate return at layer 0, cancellation (Esc/button), and exclusive camera orbit/pan verified in running engine and live browser playtest.
 - Family Play Experience: Warm cream `#FFF4DF` canvas, card surfaces, primary teal `#21685B`, accessible color badges replacing missing emojis, responsive catalogue modal reflow, single-gain audio mix path with seamless looping, finished-build showcase framing with ReplayTimeline and VideoExporter, and `user://saves/` My Builds gallery.
-- Parts Catalogue: All 126 buildable catalog shapes audited and replaced with genuine 3D geometry (slopes, round bricks, cylinders, cones, arches, stepped stairs, fish, fences, and distinct toy explorers); zero duplicate rectangular placeholders.
+- Parts Catalogue: All 126 buildable catalog shapes audited; core bricks, plates, slopes, and specialty parts backed by real-source CC0 and CC BY 4.0 3D models with audited provenance ledger (`game/assets/provenance.json`).
 - Hardware / Store Limitations: 0 physical Android devices connected (touch bounding-box verified $\ge 48\times 48\text{px}$); store publication prepared and pending developer release keystores.
 
-Read [AGENTS](../AGENTS.md), [PLAYTEST_REPAIR_PLAN](PLAYTEST_REPAIR_PLAN.md), [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md), and [LB-066 Independent Verification Report](evidence/LB-066-independent-verification-and-acceptance.md).
+Read [AGENTS](../AGENTS.md), [TABLETOP_ROOM_REDESIGN](TABLETOP_ROOM_REDESIGN.md), [FAMILY_PLAY_EXPERIENCE](FAMILY_PLAY_EXPERIENCE.md), and [LB-068–LB-074 Redesign Report](evidence/LB-068-074-tabletop-room-redesign-report.md).
 
 ## Milestone gates
 

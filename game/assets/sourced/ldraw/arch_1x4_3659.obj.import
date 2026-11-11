@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c5svmn3ip3of0"
+path="res://.godot/imported/arch_1x4_3659.obj-517d5b1293c095e0ea10da7195e4f43d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/arch_1x4_3659.obj-517d5b1293c095e0ea10da7195e4f43d.mesh"]
+
+source_file="res://assets/sourced/ldraw/arch_1x4_3659.obj"
+dest_files=["res://.godot/imported/arch_1x4_3659.obj-517d5b1293c095e0ea10da7195e4f43d.mesh", "res://.godot/imported/arch_1x4_3659.obj-517d5b1293c095e0ea10da7195e4f43d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

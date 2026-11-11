@@ -396,8 +396,11 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 	if theme_parts.is_empty():
 		theme_parts = catalog.get_theme_parts("core")
 		
-	# Pacing improvement (LB-012): Ensure hand always contains at least 2 basic structural bricks
-	var structural_count: int = 0
+	# Balanced hand distribution (LB-073):
+	# Target: 70-80% common structural (bricks & plates), 20-30% specialty accents.
+	# Guarantees at least 2 foundational bricks and at least 4 total structural pieces in every 6-slot hand.
+	var brick_count: int = 0
+	var plate_count: int = 0
 	for idx in range(player_hand.size()):
 		if idx == slot_idx:
 			continue # Skip the slot being replaced
@@ -405,14 +408,26 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 		var p_id: String = item.get("part_id", "")
 		var p_cat: String = catalog.get_part(p_id).get("category", "")
 		if p_cat == "brick":
-			structural_count += 1
+			brick_count += 1
+		elif p_cat == "plate":
+			plate_count += 1
 			
 	var candidate_parts: Array[Dictionary] = []
-	if structural_count < 2:
-		# Filter to structural bricks to guarantee unblocked hands
+	if brick_count < 2:
+		# Guarantee at least 2 classic structural bricks (2x4, 2x2, 1x4, etc.)
 		for p in theme_parts:
 			if p.get("category") == "brick":
 				candidate_parts.append(p)
+	elif (brick_count + plate_count) < 4:
+		# Guarantee at least 4 total structural pieces (bricks + plates)
+		for p in theme_parts:
+			var c = p.get("category", "")
+			if c == "brick" or c == "plate":
+				candidate_parts.append(p)
+	else:
+		# Remaining slots can draw specialty accents and themed parts
+		candidate_parts = theme_parts
+		
 	if candidate_parts.is_empty():
 		candidate_parts = theme_parts
 		

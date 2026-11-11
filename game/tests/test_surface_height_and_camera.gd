@@ -160,10 +160,11 @@ func _init() -> void:
 	cam_rig.frame_build(Vector3(-5, 0, -5), Vector3(5, 5, 5))
 	assert_eq(cam_rig.target, Vector3(0, 2.5, 0), "Frame build target must center on bounding box")
 	
-	# Dedicated Camera Mode test
+	# Dedicated Camera Mode test (BUILD -> ORBIT -> PAN -> BUILD)
 	assert_false(cam_rig.is_camera_mode, "Default camera mode must be OFF")
 	main._toggle_camera_mode()
-	assert_true(cam_rig.is_camera_mode, "Camera mode must be ON after toggle")
+	assert_true(cam_rig.is_camera_mode, "Camera mode must be ON after toggle (ORBIT)")
+	assert_eq(cam_rig.interaction_mode, CameraController.InteractionMode.ORBIT, "Mode must be ORBIT")
 	
 	# When camera mode is ON, left-click does not place pieces
 	var placements_cam_mode = main.placed_pieces_data.size()
@@ -174,7 +175,12 @@ func _init() -> void:
 	assert_eq(main.placed_pieces_data.size(), placements_cam_mode, "In Camera Mode, left-click must NOT place pieces")
 	
 	main._toggle_camera_mode()
-	assert_false(cam_rig.is_camera_mode, "Camera mode toggled back OFF")
+	assert_true(cam_rig.is_camera_mode, "Mode must cycle to PAN")
+	assert_eq(cam_rig.interaction_mode, CameraController.InteractionMode.PAN, "Mode must be PAN")
+	
+	main._toggle_camera_mode()
+	assert_false(cam_rig.is_camera_mode, "Camera mode toggled back OFF (BUILD)")
+	assert_eq(cam_rig.interaction_mode, CameraController.InteractionMode.BUILD, "Mode must be BUILD")
 	print("PASS: Full camera orbit, pan, zoom, top view, frame build, and Camera Mode verified.")
 	
 	print("\nALL LB-053 & LB-055 REGRESSION CHECKS PASSED.")

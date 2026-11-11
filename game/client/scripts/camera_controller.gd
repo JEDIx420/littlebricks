@@ -1,28 +1,53 @@
 extends Node3D
 class_name CameraController
 
-## Smooth orbit, pan, and zoom camera controller for LittleBricks tabletop view.
-## Supports desktop mouse/trackpad/keyboard, dedicated Camera Mode, and mobile multi-touch gestures.
+## Smooth orbit, pan, and zoom camera controller for LittleBricks tabletop view (LB-069).
+## Supports desktop mouse/trackpad/keyboard, dedicated Camera Modes (Build, Orbit, Pan),
+## and mobile multi-touch gestures without accidental piece placement.
+
+enum InteractionMode {
+	BUILD,   ## Default building: left-click places; right-drag orbits; middle/shift+right pans
+	ORBIT,   ## Left-drag orbits; right-drag orbits; middle/shift+right pans
+	PAN      ## Left-drag pans; middle-drag pans; right-drag orbits
+}
+
+signal mode_changed(mode: InteractionMode, mode_name: String)
 
 @export var target: Vector3 = Vector3(0, 0.5, 0)
 @export var distance: float = 24.0
 @export var min_distance: float = 6.0
-@export var max_distance: float = 45.0
+@export var max_distance: float = 48.0
 @export var pitch: float = -38.0 # degrees
 @export var yaw: float = 45.0   # degrees
 
 @onready var camera: Camera3D = $Camera3D
 
-var is_camera_mode: bool = false
+var interaction_mode: InteractionMode = InteractionMode.BUILD:
+	set(val):
+		interaction_mode = val
+		mode_changed.emit(interaction_mode, get_mode_name())
+
+var is_camera_mode: bool:
+	get: return interaction_mode != InteractionMode.BUILD
+	set(val):
+		interaction_mode = InteractionMode.ORBIT if val else InteractionMode.BUILD
+
 var is_input_enabled: bool = true
+
 var is_orbiting: bool:
 	get: return _is_orbiting
+
 var is_panning: bool:
 	get: return _is_panning
+
+var is_gesture_active: bool:
+	get: return _is_orbiting or _is_panning or _touches.size() >= 2
 
 var _is_orbiting: bool = false
 var _is_panning: bool = false
 var _last_mouse_pos: Vector2 = Vector2.ZERO
+var _last_click_time: float = 0.0
+const DOUBLE_CLICK_THRESHOLD: float = 0.28 # seconds
 
 # Touch gesture tracking
 var _touches: Dictionary = {}
@@ -34,6 +59,23 @@ func _ready() -> void:
 	if not camera:
 		camera = get_node_or_null("Camera3D")
 	_update_transform()
+
+func get_mode_name() -> String:
+	match interaction_mode:
+		InteractionMode.BUILD: return "Build"
+		InteractionMode.ORBIT: return "Orbit"
+		InteractionMode.PAN: return "Pan"
+	return "Build"
+
+func cycle_camera_mode() -> InteractionMode:
+	match interaction_mode:
+		InteractionMode.BUILD:
+			interaction_mode = InteractionMode.ORBIT
+		InteractionMode.ORBIT:
+			interaction_mode = InteractionMode.PAN
+		InteractionMode.PAN:
+			interaction_mode = InteractionMode.BUILD
+	return interaction_mode
 
 func reset_gesture_state() -> void:
 	_is_orbiting = false
@@ -47,6 +89,7 @@ func _notification(what: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_input_enabled:
 		return
+
 	# Desktop Mouse / Trackpad Handling
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event
@@ -79,11 +122,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			if get_viewport():
 				get_viewport().set_input_as_handled()
 				
-		# Left button in dedicated Camera Mode: orbit (or pan if Shift held)
+		# Left button handling in ORBIT or PAN modes
 		elif mb.button_index == MOUSE_BUTTON_LEFT and is_camera_mode:
 			if mb.pressed:
 				_last_mouse_pos = mb.position
-				if shift_pressed:
+				if interaction_mode == InteractionMode.PAN or shift_pressed:
 					_is_panning = true
 					_is_orbiting = false
 				else:
@@ -119,7 +162,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			if get_viewport():
 				get_viewport().set_input_as_handled()
 			
-	# Touch & Gesture Handling (Mobile 2-finger orbit and pinch-zoom)
+	# Touch & Gesture Handling (Mobile 2-finger orbit, pan & pinch-zoom)
 	elif event is InputEventScreenTouch:
 		var st: InputEventScreenTouch = event
 		if st.pressed:
@@ -132,18 +175,23 @@ func _unhandled_input(event: InputEvent) -> void:
 				_last_centroid = (p1 + p2) * 0.5
 			elif _touches.size() == 1 and is_camera_mode:
 				_last_mouse_pos = st.position
-				_is_orbiting = true
+				if interaction_mode == InteractionMode.PAN:
+					_is_panning = true
+				else:
+					_is_orbiting = true
 		else:
 			_touches.erase(st.index)
 			if _touches.is_empty():
 				_is_orbiting = false
 				_is_panning = false
+			elif _touches.size() == 1:
+				_last_mouse_pos = _touches.values()[0]
 			
 	elif event is InputEventScreenDrag:
 		var sd: InputEventScreenDrag = event
 		_touches[sd.index] = sd.position
 		if _touches.size() == 2:
-			# 2-finger gesture: pinch zoom & centroid orbit
+			# 2-finger gesture: pinch zoom & lateral pan/orbit
 			var p1: Vector2 = _touches.values()[0]
 			var p2: Vector2 = _touches.values()[1]
 			var current_dist: float = p1.distance_to(p2)
@@ -154,11 +202,17 @@ func _unhandled_input(event: InputEvent) -> void:
 			var current_centroid: Vector2 = (p1 + p2) * 0.5
 			var centroid_delta: Vector2 = current_centroid - _last_centroid
 			_last_centroid = current_centroid
-			orbit_by(-centroid_delta.x * 0.4, -centroid_delta.y * 0.4)
-		elif _touches.size() == 1 and is_camera_mode and _is_orbiting:
+			if interaction_mode == InteractionMode.PAN:
+				pan_by(centroid_delta * 1.5)
+			else:
+				orbit_by(-centroid_delta.x * 0.4, -centroid_delta.y * 0.4)
+		elif _touches.size() == 1 and is_camera_mode:
 			var delta: Vector2 = sd.position - _last_mouse_pos
 			_last_mouse_pos = sd.position
-			orbit_by(-delta.x * 0.4, -delta.y * 0.4)
+			if _is_panning or interaction_mode == InteractionMode.PAN:
+				pan_by(delta)
+			else:
+				orbit_by(-delta.x * 0.4, -delta.y * 0.4)
 
 	# Keyboard navigation
 	elif event is InputEventKey and event.pressed:
@@ -175,8 +229,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif k == KEY_RIGHT: orbit_by(-5.0, 0.0)
 			elif k == KEY_UP: orbit_by(0.0, 4.0)
 			elif k == KEY_DOWN: orbit_by(0.0, -4.0)
-			elif k == KEY_BRACKETLEFT: zoom_by(-1.5)
-			elif k == KEY_BRACKETRIGHT: zoom_by(1.5)
+			elif k == KEY_BRACKETLEFT or k == KEY_MINUS: zoom_by(1.5)
+			elif k == KEY_BRACKETRIGHT or k == KEY_EQUAL: zoom_by(-1.5)
+			elif k == KEY_F: frame_plate()
+			elif k == KEY_HOME: set_default_view()
 
 func orbit_by(delta_yaw: float, delta_pitch: float) -> void:
 	yaw += delta_yaw
@@ -185,15 +241,16 @@ func orbit_by(delta_yaw: float, delta_pitch: float) -> void:
 
 func pan_by(delta_screen: Vector2) -> void:
 	var cam_basis: Basis = camera.global_transform.basis if (camera and camera.is_inside_tree()) else Basis()
-	var right_dir: Vector3 = cam_basis.x
-	var up_dir: Vector3 = cam_basis.y
-	# Screen pixels to world translation proportional to distance
-	var factor: float = distance * 0.0018
-	target -= (right_dir * delta_screen.x - up_dir * delta_screen.y) * factor
-	# Keep target on or near the 32x32 table
-	target.x = clamp(target.x, -20.0, 20.0)
-	target.z = clamp(target.z, -20.0, 20.0)
-	target.y = clamp(target.y, 0.0, 15.0)
+	# For planar tabletop panning, project screen motions onto horizontal tabletop plane
+	var forward_planar: Vector3 = Vector3(-cam_basis.z.x, 0, -cam_basis.z.z).normalized()
+	var right_planar: Vector3 = Vector3(cam_basis.x.x, 0, cam_basis.x.z).normalized()
+	
+	var factor: float = distance * 0.0022
+	target -= (right_planar * delta_screen.x - forward_planar * delta_screen.y) * factor
+	# Keep target bounded on tabletop
+	target.x = clamp(target.x, -25.0, 25.0)
+	target.z = clamp(target.z, -25.0, 25.0)
+	target.y = 0.5
 	_update_transform()
 
 func zoom_by(delta_dist: float) -> void:
@@ -210,6 +267,17 @@ func set_default_view() -> void:
 	distance = 24.0
 	pitch = -38.0
 	yaw = 45.0
+	_update_transform()
+
+func frame_plate() -> void:
+	target = Vector3(0, 0.5, 0)
+	distance = 24.0
+	pitch = -38.0
+	yaw = 45.0
+	_update_transform()
+
+func recenter_on(world_pos: Vector3) -> void:
+	target = Vector3(clamp(world_pos.x, -20.0, 20.0), 0.5, clamp(world_pos.z, -20.0, 20.0))
 	_update_transform()
 
 func frame_build(min_pos: Vector3, max_pos: Vector3) -> void:
@@ -231,5 +299,5 @@ func _update_transform() -> void:
 	) * distance
 	
 	position = target + offset
-	if is_inside_tree():
-		look_at(target, Vector3.UP)
+	if is_inside_tree() and camera:
+		camera.look_at(target, Vector3.UP)

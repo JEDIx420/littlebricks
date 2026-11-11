@@ -230,6 +230,8 @@ func _connect_ui() -> void:
 		btn_cancel.pressed.connect(_on_cancel_held_piece)
 	if btn_camera_mode and not btn_camera_mode.pressed.is_connected(_toggle_camera_mode):
 		btn_camera_mode.pressed.connect(_toggle_camera_mode)
+	if camera_rig and not camera_rig.mode_changed.is_connected(_on_camera_mode_changed):
+		camera_rig.mode_changed.connect(_on_camera_mode_changed)
 	if btn_top_view and camera_rig and not btn_top_view.pressed.is_connected(camera_rig.set_top_view):
 		btn_top_view.pressed.connect(camera_rig.set_top_view)
 	if btn_frame_build and not btn_frame_build.pressed.is_connected(_on_frame_build):
@@ -292,22 +294,22 @@ func _setup_inventory_tray() -> void:
 		var is_selected: bool = (selected_hand_slot == i)
 		
 		var btn: Button = Button.new()
-		btn.text = pname
-		btn.custom_minimum_size = Vector2(96, 48)
+		btn.text = "[%d] %s" % [i + 1, pname]
+		btn.custom_minimum_size = Vector2(108, 52)
 		
-		# Visual styling with swatch color and selection border (LB-061)
+		# Visual styling: on-table tactile craft tray slot with warm border and glow (LB-071)
 		var sb = StyleBoxFlat.new()
-		sb.bg_color = UIThemeHelper.COLOR_SURFACE_PAPER
-		sb.border_color = UIThemeHelper.COLOR_PRIMARY_TEAL if is_selected else UIThemeHelper.COLOR_BORDER_WARM
+		sb.bg_color = Color(1.0, 0.98, 0.94) if is_selected else UIThemeHelper.COLOR_SURFACE_PAPER
+		sb.border_color = Color(0.95, 0.65, 0.15) if is_selected else UIThemeHelper.COLOR_BORDER_WARM
 		sb.set_border_width_all(3 if is_selected else 1)
-		sb.set_corner_radius_all(12)
+		sb.set_corner_radius_all(10)
 		sb.set_content_margin_all(8)
 		btn.add_theme_stylebox_override("normal", sb)
 		btn.add_theme_stylebox_override("hover", sb)
 		btn.add_theme_stylebox_override("pressed", sb)
 		btn.add_theme_stylebox_override("focus", sb)
 		btn.add_theme_color_override("font_color", UIThemeHelper.COLOR_TEXT_INK)
-		btn.modulate = Color(1.0, 1.0, 1.0, 1.0) if is_selected else Color(0.95, 0.95, 0.95, 0.9)
+		btn.modulate = Color(1.0, 1.0, 1.0, 1.0) if is_selected else Color(0.96, 0.96, 0.96, 0.92)
 		
 		var slot_idx = i
 		btn.pressed.connect(func():
@@ -316,6 +318,15 @@ func _setup_inventory_tray() -> void:
 			_setup_inventory_tray()
 		)
 		tray_container.add_child(btn)
+
+func _select_slot_by_index(slot_idx: int) -> void:
+	var hand: Array = []
+	if session and session.players.size() > 0:
+		hand = session.get_current_player().get("hand", [])
+	if slot_idx >= 0 and slot_idx < hand.size():
+		var piece = hand[slot_idx]
+		_select_piece_from_slot(slot_idx, piece.get("part_id", "brick_2x4"), piece.get("color", Color(0.85, 0.15, 0.15)))
+		_setup_inventory_tray()
 
 func _select_piece_from_slot(slot_idx: int, part_id: String, color: Color) -> void:
 	selected_hand_slot = slot_idx
@@ -423,14 +434,19 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_pass_turn_pressed()
 			_consume_input()
 			return
+		elif k >= KEY_1 and k <= KEY_6:
+			var slot_idx: int = k - KEY_1
+			_select_slot_by_index(slot_idx)
+			_consume_input()
+			return
 		elif k == KEY_F3:
 			if label_coords:
 				label_coords.visible = not label_coords.visible
 			_consume_input()
 			return
 
-	# Mouse/Touch placement in 3D world (only when NOT in camera mode or orbiting/panning)
-	var is_cam_busy: bool = camera_rig and (camera_rig.is_camera_mode or camera_rig.is_orbiting or camera_rig.is_panning)
+	# Mouse/Touch placement in 3D world (only when NOT in camera mode or performing camera gestures)
+	var is_cam_busy: bool = camera_rig and (camera_rig.is_camera_mode or camera_rig.is_gesture_active)
 	if not is_cam_busy and current_input_state == InputState.HOLDING:
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 			# Direct world click resolves at click's exact screen position (PT-01 / PT-03)
@@ -499,11 +515,22 @@ func _return_to_base() -> void:
 	_validate_and_update_ghost()
 
 func _toggle_camera_mode() -> void:
-	camera_rig.is_camera_mode = not camera_rig.is_camera_mode
+	if camera_rig:
+		camera_rig.cycle_camera_mode()
+
+func _on_camera_mode_changed(_mode: int, mode_name: String) -> void:
 	if btn_camera_mode:
-		btn_camera_mode.text = "Camera: Pan (C)" if camera_rig.is_camera_mode else "Camera: Drag (C)"
-	if label_status:
-		label_status.text = "Camera Mode Active (Left-drag orbits table)" if camera_rig.is_camera_mode else "Ready to build"
+		btn_camera_mode.text = "Mode: %s (C)" % mode_name
+	if label_status and camera_rig:
+		match camera_rig.interaction_mode:
+			CameraController.InteractionMode.BUILD:
+				var cur_player = session.get_current_player() if session else {}
+				var p_num = (session.current_player_idx + 1) if session else 1
+				label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")] if not cur_player.is_empty() else "Ready to build"
+			CameraController.InteractionMode.ORBIT:
+				label_status.text = "Camera: Orbit mode (Drag to rotate, scroll/pinch to zoom)"
+			CameraController.InteractionMode.PAN:
+				label_status.text = "Camera: Pan mode (Drag to slide view across table)"
 
 func _update_height_mode_ui() -> void:
 	if btn_auto_height:
@@ -641,7 +668,7 @@ func find_target_surface_from_ray(from: Vector3, dir: Vector3) -> Dictionary:
 func _handle_pointer_position(screen_pos: Vector2) -> void:
 	if current_input_state == InputState.IDLE:
 		return
-	if camera_rig and (camera_rig.is_camera_mode or camera_rig.is_orbiting or camera_rig.is_panning):
+	if camera_rig and (camera_rig.is_camera_mode or camera_rig.is_gesture_active):
 		return
 		
 	var target = _find_target_surface(screen_pos)

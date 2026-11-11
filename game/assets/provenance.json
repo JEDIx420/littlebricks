@@ -1,0 +1,486 @@
+{
+  "ledger_version": "1.0.0",
+  "last_updated": "2026-11-11",
+  "total_assets": 51,
+  "packages": {
+    "kenney_brick_kit": {
+      "author": "Kenney (Asset Jesus)",
+      "website": "https://kenney.nl/assets/brick-kit",
+      "license": "CC0 1.0 Universal (Public Domain)",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "kenney_furniture_kit": {
+      "author": "Kenney (Asset Jesus)",
+      "website": "https://kenney.nl/assets/furniture-kit",
+      "license": "CC0 1.0 Universal (Public Domain)",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    "ldraw_official_library": {
+      "author": "LDraw.org Community Authors",
+      "website": "https://library.ldraw.org",
+      "license": "Creative Commons Attribution 4.0 International (CC BY 4.0)",
+      "license_url": "https://creativecommons.org/licenses/by/4.0/"
+    }
+  },
+  "assets": [
+    {
+      "file": "assets/sourced/kenney_furniture/bookcaseOpen.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "750702218d68c062b15dfef6ab06a4014d1cfa8bd05f02e57c53b7e13bec157c",
+      "size_bytes": 18020,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/books.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "b8dc56e5d29f6fc1f4727fccb1b9642627fee9942c48060a00034e98df02701c",
+      "size_bytes": 6864,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/chair.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "c8a11eec93e89e31250ba91afc1b8d56c3bec7ae86640fd1239f595ff4180883",
+      "size_bytes": 10756,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/chairCushion.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "33544228984857f2cb502b58452fed72157335f9b1caf29e96da5c9094c53fdc",
+      "size_bytes": 12588,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/lampRoundFloor.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "50fe1b5b588edf15bfa9cc880f71a02a4fda6036350b24733d0ef4de5cc5e908",
+      "size_bytes": 6600,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/plantSmall1.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "2b9c022feb47be857b2c4fdc29f36522766ba9b70c578c31d7c05d71b4377d15",
+      "size_bytes": 8224,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/pottedPlant.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "5b760eda2766f75fda36b2c5df652a1662f82981ef64cd8fa7fe7bcd386b3a15",
+      "size_bytes": 7576,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/rugRectangle.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "a989d2d59c04e3071e0c90388b113a9a8f339ce1814ef984c51cb6dcd7c8e0eb",
+      "size_bytes": 3188,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/wall.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "69273d5d623bddfce41d12d4e5eeb5621ea04f1edcbd8f35c00a60c2fd3258b7",
+      "size_bytes": 3340,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/wallWindow.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "sha256": "166a10fddb8a78d942bc2791186913f7015dfee8501d20efd7a7b8f196fc5c3e",
+      "size_bytes": 10744,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/ldraw/arch_1x4_3659.obj",
+      "package": "ldraw_official_library",
+      "license": "CC-BY-4.0",
+      "upstream_url": "https://library.ldraw.org",
+      "sha256": "969e3a86881a2860f09f84a51a77a2acd47e752932f496b72c481e7cd0d9f41c",
+      "size_bytes": 21999,
+      "attribution": "LDraw.org Parts Library - CC BY 4.0"
+    },
+    {
+      "file": "assets/sourced/ldraw/slope_curved_top_6091.obj",
+      "package": "ldraw_official_library",
+      "license": "CC-BY-4.0",
+      "upstream_url": "https://library.ldraw.org",
+      "sha256": "f9cc97a3661b9d8fd1bacd4ff31b4d8b9c9e997e74bbb4e976dbfe4a232b674c",
+      "size_bytes": 9151,
+      "attribution": "LDraw.org Parts Library - CC BY 4.0"
+    },
+    {
+      "file": "assets/sourced/ldraw/steering_wheel_3829c01.obj",
+      "package": "ldraw_official_library",
+      "license": "CC-BY-4.0",
+      "upstream_url": "https://library.ldraw.org",
+      "sha256": "64e4d5e710cdbc47f839a1191679ff8d384f21a43c63b772d2578a9e394cabca",
+      "size_bytes": 50930,
+      "attribution": "LDraw.org Parts Library - CC BY 4.0"
+    },
+    {
+      "file": "assets/sourced/ldraw/window_frame_60592.obj",
+      "package": "ldraw_official_library",
+      "license": "CC-BY-4.0",
+      "upstream_url": "https://library.ldraw.org",
+      "sha256": "8fe561bf0ec105b6d3771a863c94ade466b2d34e5f6c9281ec92543e1133e873",
+      "size_bytes": 40911,
+      "attribution": "LDraw.org Parts Library - CC BY 4.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x1-round.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "fc69117bc2898b165b300600a766044b22c13c59b2261d674b310566fef57b10",
+      "size_bytes": 7120,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x1.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "c53d30b962c9554ef3392653ad2e302ecacf66da4e70ac59ac84d8903eb1ff04",
+      "size_bytes": 5008,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "cd477efafc13ae7c54f25807323e2a2b1f47d9fa236eedfd9b825957a038db8a",
+      "size_bytes": 6656,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "2273514c74f883bd017f160277a135075abd471dc07ccf9e540ba3046c9284bd",
+      "size_bytes": 9964,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x6.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "e4c2fdbf544b223c8e7fbff9f1970f409707627d27a64acbe3f8d7b3e7eb7b83",
+      "size_bytes": 13264,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-1x8.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "380715b2eb0f6ddbf3ba58e49c18f87d8bd78ed465b55f0ba7aae0639e973967",
+      "size_bytes": 17540,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "464fd0c6e7d1c450105d7f31fed4e2ee84673085e4d7637bef91defee6ba9eea",
+      "size_bytes": 9960,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-2x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "769a2de47204c2fe8bcb8db0392c0141fcf3330e945623c6b23caa2632224d48",
+      "size_bytes": 17540,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-2x6.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "a9650aa4a2a2b90b5b8f662167ffe4ffb67823a75adf976663a0618d4e9571e5",
+      "size_bytes": 24616,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-2x8.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "bc5a4316abbeec1a182b429ebd4f1b7009358fd3b775b9957de8e349942351c6",
+      "size_bytes": 31652,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-corner.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "1db231d72bf6913824b0fac203083d63bccb9b7b172b658d3d7b185bf6ab947a",
+      "size_bytes": 9124,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-1x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "ff530fe8ffbfc25c263f2560625ee132e1e143b2cbdb142075975eb489108cbe",
+      "size_bytes": 5320,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "756633dc7ac953fe444b4a9c13aaa19d544fc02f87a1a59bd360411cde8b153c",
+      "size_bytes": 6976,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-2x3.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "a37ecdd7e5ed3295b5148f649155830a1b87f19ae6a8e3e995007206ea373e44",
+      "size_bytes": 8628,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-2x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "55f5b4c7854ae9d668392a3c59802f3a2b30dcee7d9c89fe259e202716895690",
+      "size_bytes": 10276,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-3x1.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "076b83ce9aee64117c864af433c29a3124944f849cc6b657aa30f92250f30324",
+      "size_bytes": 5324,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-3x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "51d4808880b24563735cd0c6157f7e9b636b881acdc14c6eca37a41a57ccc2de",
+      "size_bytes": 6980,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-corner-inside-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "8d9167e2b3e4c4ae1aed046d5510ca2b3439a923bde14c950816e6dc457022c2",
+      "size_bytes": 8968,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-corner-inside-inverted-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "3f52bb41849050818a3896a1799ed03c08f7147d3450adcde70d92f0d224ca58",
+      "size_bytes": 10544,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-corner-outside-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "db3343551853c1e3a276d576e9537061004467c2f43f202598ffeeb6e94bafe4",
+      "size_bytes": 5464,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-corner-outside-inverted-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "1c7d083088f5592130bb2d193eaf91af4845b8008dcc4185a5c7214a07019da2",
+      "size_bytes": 10552,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-inverted-1x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "d3f5a2c4ef59e662b16ebcfb998d76cf830d42e279044d42770617ef832fc5c8",
+      "size_bytes": 7004,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-brick-slope-inverted-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "d981ef3af0979f811b9298c1320ef5b86b37c6954f78a1a7e5ff5b9dcbb5ba15",
+      "size_bytes": 10304,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x1-round.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "0d5fef3ea46d926f7d1be0e1e33ed13fa33783d8de37cc8f5eec18c9b4723d68",
+      "size_bytes": 7124,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x1.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "c44419d46f61df84dc0f96f4177ecb4742d2272f1f2e067d0974e8dc90878a5c",
+      "size_bytes": 5008,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "96a9ce68a903b81d3190ef39f2071769c7d8a2f8c8ea9228b8a3c11b96ac89b8",
+      "size_bytes": 6656,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "66714a372001092139d026f99058c86fc2a27b9094fc191a94ee0b748b4afefd",
+      "size_bytes": 9964,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x6.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "3d3e9b04c4d2e230de9d52cd0d57bbd0581927261ee48047ed1183d1e99c3eea",
+      "size_bytes": 13264,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-1x8.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "aa8f9027c9e91345a1579d19b1d580098de0feb8126271b4b22644d03a759a22",
+      "size_bytes": 17540,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-2x2.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "a64f46db2dc132bfda469dfce1b20cd212aec6e6c82efc6c67e14041ec9364dc",
+      "size_bytes": 9960,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-2x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "95ddaab85b879401738363b3fa4b0adf77117d1672e6149ac64681b35d46e682",
+      "size_bytes": 17540,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-2x6.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "31b927b1aa7b3d1215946004ca37d041da9a1f70be0e4d762baa29f437bcfa6d",
+      "size_bytes": 24596,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-2x8.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "50d085f0230e2f68c0fe3b047b73aa34c45bf45c88bda3aff3e84fd06e9f7e4a",
+      "size_bytes": 31652,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-4x4.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "e3b4f8fe37fdd3a5061d44789a2eebf276097317e43fd683d483ce3ab7a315d3",
+      "size_bytes": 31652,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-4x6.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "4d39a053fbec4cf05c1121bbd50479f74c60913fb1ae95c1e076a974b2f79350",
+      "size_bytes": 45764,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-4x8.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "25251a1ee0d734a8096a6d503e108452444440bedc0f2c2fe04c13c5d7225ee9",
+      "size_bytes": 59884,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    },
+    {
+      "file": "assets/sourced/kenney_bricks/bevel-hq-plate-corner.glb",
+      "package": "kenney_brick_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/brick-kit",
+      "sha256": "c915f201910380702be36426756459a27ff96029f3e701ce43d5378f0f3a7e28",
+      "size_bytes": 9128,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0"
+    }
+  ]
+}
