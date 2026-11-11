@@ -75,9 +75,10 @@ func setup_exploration_scene(placements: Array) -> void:
 		var color: Color = p.get("color", Color.WHITE)
 		
 		var p_def = catalog.get_part(part_id)
+		var dims = p_def.get("dimensions_studs", [1, 3, 1])
 		var p_node = PartMeshBuilder.build_part_node(p_def, color)
-		p_node.position = TableView.grid_to_world(gx, gz, z_plate)
-		p_node.rotation_degrees = Vector3(0, float(rot_step * 90), 0)
+		p_node.position = TableView.grid_to_world(gx, gz, z_plate, dims, rot_step)
+		p_node.rotation_degrees = PlacementRules.get_rotation_degrees(rot_step)
 		visual_pieces_container.add_child(p_node)
 		
 	# 3. Instantiate explorer at valid spawn

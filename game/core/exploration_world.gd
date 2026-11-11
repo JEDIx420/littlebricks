@@ -46,8 +46,9 @@ func generate_world_colliders(placements: Array) -> StaticBody3D:
 		if p_def.is_empty():
 			continue
 			
+		var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
 		var col_boxes: Array = p_def.get("collision_boxes", [])
-		var base_world: Vector3 = TableView.grid_to_world(gx, gz, z_plate)
+		var base_world: Vector3 = TableView.grid_to_world(gx, gz, z_plate, dims, rot_step)
 		
 		for b in col_boxes:
 			var c_raw: Array = b.get("center", [0.0, 0.6, 0.0])
@@ -91,8 +92,9 @@ func validate_spawn(gx: int, gz: int, z_plate: int, placements: Array) -> Dictio
 		var prot: int = p.get("rotation_step", 0)
 		
 		var p_def: Dictionary = catalog.get_part(part_id)
+		var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
 		var col_boxes: Array = p_def.get("collision_boxes", [])
-		var base_w: Vector3 = TableView.grid_to_world(pgx, pgz, pz)
+		var base_w: Vector3 = TableView.grid_to_world(pgx, pgz, pz, dims, prot)
 		
 		for b in col_boxes:
 			var c_raw: Array = b.get("center", [0.0, 0.6, 0.0])

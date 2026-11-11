@@ -113,10 +113,11 @@ func _instantiate_piece(p: Dictionary, animate_bounce: bool = true) -> Node3D:
 	var color: Color = p.get("color", Color.WHITE)
 	
 	var p_def = catalog.get_part(part_id)
+	var dims = p_def.get("dimensions_studs", [1, 3, 1])
 	var node = PartMeshBuilder.build_part_node(p_def, color)
-	var target_wpos = TableView.grid_to_world(gx, gz, z)
+	var target_wpos = TableView.grid_to_world(gx, gz, z, dims, rot)
 	
-	node.rotation_degrees = Vector3(0, float(rot * 90), 0)
+	node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
 	node.position = target_wpos
 	pieces_root.add_child(node)
 	

@@ -12,6 +12,41 @@ const EPSILON: float = 0.01
 
 const PartCatalog = preload("res://core/part_catalog.gd")
 
+## Calculate 2D bounding footprint (dx, dz) in studs given dimensions and rotation step
+static func get_part_footprint(dims_studs: Array, rot_step: int) -> Vector2i:
+	var dx: int = int(dims_studs[0])
+	var dz: int = int(dims_studs[2])
+	return Vector2i(dz, dx) if (rot_step % 2) == 1 else Vector2i(dx, dz)
+
+## Calculate exact continuous geometric center of the part in grid coordinates.
+## (gx, gz) is the integer minimum stud anchor coordinate on the 32x32 lattice.
+static func get_part_center_grid(dims_studs: Array, gx: int, gz: int, rot_step: int) -> Vector2:
+	var fp: Vector2i = get_part_footprint(dims_studs, rot_step)
+	return Vector2(float(gx) + (float(fp.x) - 1.0) * 0.5, float(gz) + (float(fp.y) - 1.0) * 0.5)
+
+## Convert integer grid anchor (gx, gz, z_plate) to canonical 3D world position (bottom center)
+static func grid_to_world(gx: int, gz: int, z_plate: int, dims_studs: Array = [1, 3, 1], rot_step: int = 0) -> Vector3:
+	var c: Vector2 = get_part_center_grid(dims_studs, gx, gz, rot_step)
+	var half_grid: float = (float(GRID_SIZE) - 1.0) * 0.5 # 15.5
+	var wx: float = (c.x - half_grid) * STUD_SPACING
+	var wz: float = (c.y - half_grid) * STUD_SPACING
+	var wy: float = 0.1 + (float(z_plate) * PLATE_HEIGHT)
+	return Vector3(wx, wy, wz)
+
+## Canonical 3D Euler angles (degrees) for a rotation step around Y axis
+static func get_rotation_degrees(rot_step: int) -> Vector3:
+	return Vector3(0.0, -float(rot_step % 4) * 90.0, 0.0)
+
+## Convert continuous 3D world position to integer grid anchor (minimum occupied stud)
+static func world_to_grid(world_pos: Vector3, dims_studs: Array = [1, 3, 1], rot_step: int = 0) -> Vector2i:
+	var fp: Vector2i = get_part_footprint(dims_studs, rot_step)
+	var half_grid: float = (float(GRID_SIZE) - 1.0) * 0.5
+	var rx: float = (world_pos.x / STUD_SPACING) + half_grid
+	var rz: float = (world_pos.z / STUD_SPACING) + half_grid
+	var gx: int = int(round(rx - (float(fp.x) - 1.0) * 0.5))
+	var gz: int = int(round(rz - (float(fp.y) - 1.0) * 0.5))
+	return Vector2i(clampi(gx, 0, GRID_SIZE - fp.x), clampi(gz, 0, GRID_SIZE - fp.y))
+
 var catalog: PartCatalog
 
 func _init(p_catalog: PartCatalog = null) -> void:
@@ -43,8 +78,9 @@ class GridAABB:
 func get_part_aabbs(part_id: String, gx: int, gz: int, z_plate: int, rot_step: int) -> Array[GridAABB]:
 	var p: Dictionary = catalog.get_part(part_id)
 	var boxes: Array = p.get("collision_boxes", [])
+	var dims: Array = p.get("dimensions_studs", [1, 3, 1])
+	var center_grid: Vector2 = get_part_center_grid(dims, gx, gz, rot_step)
 	var res: Array[GridAABB] = []
-	
 	var base_y: float = float(z_plate) * PLATE_HEIGHT
 	
 	for b in boxes:
@@ -53,7 +89,7 @@ func get_part_aabbs(part_id: String, gx: int, gz: int, z_plate: int, rot_step: i
 		
 		# Rotate center around Y axis
 		var rot_c2d: Vector2 = PartCatalog.rotate_coord(raw_c[0], raw_c[2], rot_step)
-		var center_world: Vector3 = Vector3(float(gx) + rot_c2d.x, base_y + float(raw_c[1]), float(gz) + rot_c2d.y)
+		var center_world: Vector3 = Vector3(center_grid.x + rot_c2d.x, base_y + float(raw_c[1]), center_grid.y + rot_c2d.y)
 		
 		# Size swaps width and depth if rotated 90 or 270 deg
 		var size_world: Vector3
@@ -68,11 +104,14 @@ func get_part_aabbs(part_id: String, gx: int, gz: int, z_plate: int, rot_step: i
 
 ## Calculate all absolute stud positions occupied by bottom sockets of a piece
 func get_absolute_bottom_sockets(part_id: String, gx: int, gz: int, z_plate: int, rot_step: int) -> Array[Vector3i]:
+	var p: Dictionary = catalog.get_part(part_id)
+	var dims: Array = p.get("dimensions_studs", [1, 3, 1])
+	var center_grid: Vector2 = get_part_center_grid(dims, gx, gz, rot_step)
 	var local_sockets: Array[Vector2] = catalog.get_bottom_sockets(part_id, rot_step)
 	var res: Array[Vector3i] = []
 	for s in local_sockets:
-		var sx: int = int(round(float(gx) + s.x))
-		var sz: int = int(round(float(gz) + s.y))
+		var sx: int = int(round(center_grid.x + s.x))
+		var sz: int = int(round(center_grid.y + s.y))
 		res.append(Vector3i(sx, z_plate, sz))
 	return res
 
@@ -81,12 +120,13 @@ func get_absolute_top_studs(part_id: String, gx: int, gz: int, z_plate: int, rot
 	var p: Dictionary = catalog.get_part(part_id)
 	var dims: Array = p.get("dimensions_studs", [1, 3, 1])
 	var top_z_plate: int = z_plate + int(dims[1])
+	var center_grid: Vector2 = get_part_center_grid(dims, gx, gz, rot_step)
 	
 	var local_studs: Array[Vector2] = catalog.get_top_studs(part_id, rot_step)
 	var res: Array[Vector3i] = []
 	for s in local_studs:
-		var sx: int = int(round(float(gx) + s.x))
-		var sz: int = int(round(float(gz) + s.y))
+		var sx: int = int(round(center_grid.x + s.x))
+		var sz: int = int(round(center_grid.y + s.y))
 		res.append(Vector3i(sx, top_z_plate, sz))
 	return res
 
@@ -108,11 +148,15 @@ func validate_placement(part_id: String, gx: int, gz: int, z_plate: int, rot_ste
 		
 	# 2. Board and height bounds
 	var dims: Array = p.get("dimensions_studs", [1, 3, 1])
+	var fp: Vector2i = get_part_footprint(dims, rot_step)
 	var height_plates: int = int(dims[1])
 	if z_plate < 0:
 		return {"valid": false, "code": "OUT_OF_BOUNDS", "reason": "Placement height cannot be negative"}
 	if (z_plate + height_plates) > MAX_LAYER_PLATES:
 		return {"valid": false, "code": "OUT_OF_BOUNDS", "reason": "Placement exceeds maximum height limit"}
+		
+	if gx < 0 or (gx + fp.x) > GRID_SIZE or gz < 0 or (gz + fp.y) > GRID_SIZE:
+		return {"valid": false, "code": "OUT_OF_BOUNDS", "reason": "Piece footprint extends outside 32x32 baseplate"}
 		
 	# Check all socket and body bounds
 	var sockets: Array[Vector3i] = get_absolute_bottom_sockets(part_id, gx, gz, z_plate, rot_step)

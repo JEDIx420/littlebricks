@@ -58,10 +58,12 @@ func _generate_500_piece_scene() -> void:
 			if p_def.is_empty():
 				continue
 				
+			var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
+			var rot_step: int = count % 4
 			var node: Node3D = PartMeshBuilder.build_part_node(p_def, color)
-			var wpos: Vector3 = TableView.grid_to_world(gx, gz, z_plate)
+			var wpos: Vector3 = TableView.grid_to_world(gx, gz, z_plate, dims, rot_step)
 			node.position = wpos
-			node.rotation_degrees = Vector3(0, float((count % 4) * 90), 0)
+			node.rotation_degrees = PlacementRules.get_rotation_degrees(rot_step)
 			pieces_container.add_child(node)
 			count += 1
 			

@@ -148,7 +148,9 @@ func _handle_pointer_position(screen_pos: Vector2) -> void:
 		var t: float = (plane_y - from.y) / dir.y
 		if t > 0:
 			var hit_pos: Vector3 = from + dir * t
-			var new_grid: Vector2i = TableView.world_to_grid(hit_pos)
+			var p_def: Dictionary = catalog.get_part(selected_part_id)
+			var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
+			var new_grid: Vector2i = TableView.world_to_grid(hit_pos, dims, current_rotation_step)
 			if new_grid != current_grid_pos:
 				current_grid_pos = new_grid
 				_validate_and_update_ghost()
@@ -174,10 +176,12 @@ func _validate_and_update_ghost() -> void:
 	
 	is_current_placement_valid = last_validation_result.get("valid", false)
 	
-	# Update ghost transform
-	var world_pos: Vector3 = TableView.grid_to_world(current_grid_pos.x, current_grid_pos.y, current_layer_plate)
+	# Update ghost transform using canonical stud lattice
+	var p_def: Dictionary = catalog.get_part(selected_part_id)
+	var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
+	var world_pos: Vector3 = TableView.grid_to_world(current_grid_pos.x, current_grid_pos.y, current_layer_plate, dims, current_rotation_step)
 	ghost_preview.position = world_pos
-	ghost_preview.rotation_degrees = Vector3(0, float(current_rotation_step) * 90.0, 0)
+	ghost_preview.rotation_degrees = PlacementRules.get_rotation_degrees(current_rotation_step)
 	
 	# Update visual tint and cues
 	_apply_validity_appearance(is_current_placement_valid)

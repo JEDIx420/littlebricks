@@ -75,17 +75,10 @@ func _generate_studs() -> void:
 			mm.set_instance_transform(idx, t)
 			idx += 1
 
-## Convert integer grid (gx in 0..31, gz in 0..31, z_plate in plates) to world coordinates
-static func grid_to_world(gx: int, gz: int, z_plate: int) -> Vector3:
-	var half_grid: float = (GRID_SIZE - 1) * 0.5
-	var wx: float = (float(gx) - half_grid) * STUD_SPACING
-	var wz: float = (float(gz) - half_grid) * STUD_SPACING
-	var wy: float = 0.1 + (float(z_plate) * PLATE_HEIGHT)
-	return Vector3(wx, wy, wz)
+## Convert integer grid (gx, gz, z_plate) to canonical 3D world coordinates
+static func grid_to_world(gx: int, gz: int, z_plate: int, dims_studs: Array = [1, 3, 1], rot_step: int = 0) -> Vector3:
+	return PlacementRules.grid_to_world(gx, gz, z_plate, dims_studs, rot_step)
 
-## Convert world point to closest integer grid (gx, gz) on baseplate
-static func world_to_grid(world_pos: Vector3) -> Vector2i:
-	var half_grid: float = (GRID_SIZE - 1) * 0.5
-	var gx: int = int(round((world_pos.x / STUD_SPACING) + half_grid))
-	var gz: int = int(round((world_pos.z / STUD_SPACING) + half_grid))
-	return Vector2i(clampi(gx, 0, GRID_SIZE - 1), clampi(gz, 0, GRID_SIZE - 1))
+## Convert world point to closest integer grid anchor (gx, gz) on baseplate
+static func world_to_grid(world_pos: Vector3, dims_studs: Array = [1, 3, 1], rot_step: int = 0) -> Vector2i:
+	return PlacementRules.world_to_grid(world_pos, dims_studs, rot_step)

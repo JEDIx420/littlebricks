@@ -24,10 +24,10 @@ func _init() -> void:
 	# Add brick to board
 	board.append({"part_id": "brick_2x4", "grid_x": 10, "grid_z": 10, "layer_plate": 0, "rotation_step": 0})
 	
-	# Test 2: Out of bounds (negative coordinate)
-	var r2 = rules.validate_placement("brick_2x4", 0, 0, 0, 0, board)
-	# 2x4 centered at (0, 0) has sockets at -1.5, -0.5, etc -> extends to -1 which is < 0!
-	if r2.get("valid", false):
+	# Test 2: Out of bounds (negative coordinate and exceeding grid bounds)
+	var r2 = rules.validate_placement("brick_2x4", -1, 10, 0, 0, board)
+	var r2_edge = rules.validate_placement("brick_2x4", 31, 30, 0, 0, board) # 31 + 2 = 33 > 32!
+	if r2.get("valid", false) or r2_edge.get("valid", false):
 		print("FAILED Test 2: Out of bounds placement was accepted!")
 		quit(1)
 		return
@@ -80,8 +80,8 @@ func _init() -> void:
 	var arch_board: Array = [
 		{"part_id": "arch_1x4", "grid_x": 20, "grid_z": 20, "layer_plate": 0, "rotation_step": 0}
 	]
-	# Arch center is open up to height 0.8; placing a 1x1 plate (height 0.4) in the center (grid 20, 20) at z=0 should NOT collide!
-	var r8 = rules.validate_placement("plate_1x2", 20, 20, 0, 0, arch_board)
+	# Arch center is open up to height 0.8; placing a 1x2 plate (height 0.4) in the opening (grid 20, 21) at z=0 should NOT collide!
+	var r8 = rules.validate_placement("plate_1x2", 20, 21, 0, 0, arch_board)
 	if not r8.get("valid", false):
 		print("FAILED Test 8: Arch opening was blocked by false collision: %s" % str(r8))
 		quit(1)
