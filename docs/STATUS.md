@@ -11,9 +11,9 @@ Last updated: **2026-11-11**
 - Required repairs: canonical stud alignment, automatic surface height, camera/input usability, application integration, actual networking and real video output.
 - Required experience work: Welcome/mode/setup screens, music/ambience, brick sounds, supported haptics, lighting/showcase, accessibility and a staged 120-shape verified library (150 stretch).
 - Current deliverable: revised project/agent instructions. This documentation update makes no runtime repairs or deployment.
-- **Next task: LB-033. Then prioritize LB-054 → LB-053 / LB-055; do not choose tasks only by number.**
+- **Next task: LB-054. Then prioritize LB-053 (surface targeting) and LB-055 (camera/input).**
 - Parallel preparation: LB-034 application contracts and LB-039 audio under disjoint ownership.
-- Next implementation action: inspect the actual checkout, read the recovery specifications, reproduce PC-01/PC-04/PC-08 in the local browser build, verify the real toolchain and claim the first work batch.
+- Next implementation action: establish the canonical stud coordinate contract in LB-054 and fix the 1x4 / 2x4 stud alignment across all rotations.
 
 Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
 
@@ -83,7 +83,7 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 
 | Task | Outcome | State | Owner | Evidence / commit |
 | --- | --- | --- | --- | --- |
-| LB-033 | Re-establish the real baseline | planned | unassigned | none |
+| LB-033 | Re-establish the real baseline | done | coordinator | docs/evidence/LB-033-baseline-and-reproduction.md |
 | LB-034 | Connect one application and session lifecycle | planned | unassigned | none |
 | LB-035 | Build the first three screens and onboarding | planned | unassigned | none |
 | LB-036 | Integrate real building rules and safe input | planned | unassigned | none |

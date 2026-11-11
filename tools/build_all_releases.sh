@@ -26,6 +26,9 @@ if [[ -z "${GODOT_BIN}" ]]; then
 fi
 echo "Using Godot: ${GODOT_BIN} ($(${GODOT_BIN} --version))"
 
+TARGET="${1:-all}"
+echo "Build Target: ${TARGET}"
+
 # 2. Prepare build target directories
 mkdir -p "${BUILDS_DIR}/desktop"
 mkdir -p "${BUILDS_DIR}/web"
@@ -33,46 +36,54 @@ mkdir -p "${BUILDS_DIR}/server"
 mkdir -p "${BUILDS_DIR}/android"
 
 # 3. Export macOS Desktop Bundle
-echo ""
-echo "[1/4] Exporting macOS Desktop Release..."
-"${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "macOS" "${BUILDS_DIR}/desktop/LittleBricks-macOS.zip"
-echo "SUCCESS: Created ${BUILDS_DIR}/desktop/LittleBricks-macOS.zip ($(du -h "${BUILDS_DIR}/desktop/LittleBricks-macOS.zip" | cut -f1))"
+if [[ "${TARGET}" == "all" || "${TARGET}" == "desktop" ]]; then
+    echo ""
+    echo "[Export] Exporting macOS Desktop Release..."
+    "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "macOS" "${BUILDS_DIR}/desktop/LittleBricks-macOS.zip"
+    echo "SUCCESS: Created ${BUILDS_DIR}/desktop/LittleBricks-macOS.zip ($(du -h "${BUILDS_DIR}/desktop/LittleBricks-macOS.zip" | cut -f1))"
+fi
 
 # 4. Export WebAssembly Bundle
-echo ""
-echo "[2/4] Exporting WebAssembly (HTML5) Release..."
-"${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "Web" "${BUILDS_DIR}/web/index.html"
-echo "SUCCESS: Created ${BUILDS_DIR}/web/index.html & wasm ($(du -sh "${BUILDS_DIR}/web" | cut -f1))"
+if [[ "${TARGET}" == "all" || "${TARGET}" == "web" ]]; then
+    echo ""
+    echo "[Export] Exporting WebAssembly (HTML5) Release..."
+    "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "Web" "${BUILDS_DIR}/web/index.html"
+    echo "SUCCESS: Created ${BUILDS_DIR}/web/index.html & wasm ($(du -sh "${BUILDS_DIR}/web" | cut -f1))"
+fi
 
 # 5. Export Dedicated Server PCK
-echo ""
-echo "[3/4] Exporting Dedicated Headless Server Package..."
-"${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-pack "macOS" "${BUILDS_DIR}/server/LittleBricksServer.pck"
-echo "SUCCESS: Created ${BUILDS_DIR}/server/LittleBricksServer.pck ($(du -h "${BUILDS_DIR}/server/LittleBricksServer.pck" | cut -f1))"
+if [[ "${TARGET}" == "all" || "${TARGET}" == "server" ]]; then
+    echo ""
+    echo "[Export] Exporting Dedicated Headless Server Package..."
+    "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-pack "macOS" "${BUILDS_DIR}/server/LittleBricksServer.pck"
+    echo "SUCCESS: Created ${BUILDS_DIR}/server/LittleBricksServer.pck ($(du -h "${BUILDS_DIR}/server/LittleBricksServer.pck" | cut -f1))"
+fi
 
 # 6. Android Build Check & Export
-echo ""
-echo "[4/4] Checking Android Export Prerequisites..."
-HAS_JDK=false
-HAS_SDK=false
+if [[ "${TARGET}" == "all" || "${TARGET}" == "android" ]]; then
+    echo ""
+    echo "[Export] Checking Android Export Prerequisites..."
+    HAS_JDK=false
+    HAS_SDK=false
 
-if command -v javac >/dev/null 2>&1; then
-    HAS_JDK=true
-fi
+    if command -v javac >/dev/null 2>&1 && javac -version >/dev/null 2>&1; then
+        HAS_JDK=true
+    fi
 
-if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME:-}" ]] || [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT:-}" ]]; then
-    HAS_SDK=true
-fi
+    if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME:-}" ]] || [[ -n "${ANDROID_SDK_ROOT:-}" && -d "${ANDROID_SDK_ROOT:-}" ]]; then
+        HAS_SDK=true
+    fi
 
-if [[ "${HAS_JDK}" == "true" && "${HAS_SDK}" == "true" ]]; then
-    echo "Android toolchain detected. Exporting Android APK/AAB..."
-    "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "Android" "${BUILDS_DIR}/android/littlebricks.apk"
-    echo "SUCCESS: Created ${BUILDS_DIR}/android/littlebricks.apk"
-else
-    echo "STATUS: BLOCKED (Toolchain). JDK=${HAS_JDK}, Android SDK=${HAS_SDK}."
-    echo "Android APK/AAB export requires JDK 17+ and Android build-tools on PATH."
-    echo "Export preset configuration is validated in game/export_presets.cfg."
-    echo "See docs/BUILD.md for Android signing and local workstation instructions."
+    if [[ "${HAS_JDK}" == "true" && "${HAS_SDK}" == "true" ]]; then
+        echo "Android toolchain detected. Exporting Android APK/AAB..."
+        "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "Android" "${BUILDS_DIR}/android/littlebricks.apk"
+        echo "SUCCESS: Created ${BUILDS_DIR}/android/littlebricks.apk"
+    else
+        echo "STATUS: BLOCKED (Toolchain). JDK=${HAS_JDK}, Android SDK=${HAS_SDK}."
+        echo "Android APK/AAB export requires JDK 17+ and Android build-tools on PATH."
+        echo "Export preset configuration is validated in game/export_presets.cfg."
+        echo "See docs/BUILD.md for Android signing and local workstation instructions."
+    fi
 fi
 
 # 7. Checksums

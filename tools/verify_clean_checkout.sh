@@ -22,13 +22,13 @@ echo "[Step 1/4] Running Environment & Toolchain Discovery..."
 python3 "${SCRIPT_DIR}/env_check.py"
 echo ""
 
-# 2. Basic Smoke Test
-echo "[Step 2/4] Running Engine Headless Smoke Test..."
-python3 "${SCRIPT_DIR}/test_smoke.py"
+# 2. Basic Engine Runtime Smoke Test (Pre-build)
+echo "[Step 2/5] Running Engine Headless Smoke Test..."
+python3 "${SCRIPT_DIR}/test_smoke.py" --runtime-only
 echo ""
 
 # 3. Comprehensive Headless GDScript Test Suites
-echo "[Step 3/4] Executing Comprehensive Automated Test Matrix..."
+echo "[Step 3/5] Executing Comprehensive Automated Test Matrix..."
 TEST_SCRIPTS=(
     "res://tests/test_part_catalog.gd"
     "res://tests/test_placement_rules.gd"
@@ -61,8 +61,13 @@ for test_script in "${TEST_SCRIPTS[@]}"; do
 done
 
 # 4. Reproducible Release Builds
-echo "[Step 4/4] Running Reproducible Release Build Pipeline..."
+echo "[Step 4/5] Running Reproducible Release Build Pipeline..."
 "${SCRIPT_DIR}/build_all_releases.sh"
+echo ""
+
+# 5. Export Artifacts Verification (Post-build)
+echo "[Step 5/5] Validating Generated Release Artifacts..."
+python3 "${SCRIPT_DIR}/test_smoke.py" --artifacts-only
 echo ""
 
 echo "========================================================================"
