@@ -4,14 +4,14 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: Milestone M1 complete; Milestone M2 in progress.
+- Stage: Milestone M2 complete; Milestone M3 in progress.
 - Product name: LittleBricks.
-- Game implementation: M0 and M1 complete. LB-005..LB-008 verified (rules engine, inventory tray, ghost preview, touch/desktop parity, camera presets, profiling).
+- Game implementation: M0, M1, and M2 complete. LB-009..LB-012 verified (session state machine, atomic save/resume, undo/redo, pacing).
 - Playable release, game test evidence, physical-device results and store submission: none (physical Android tests explicitly BLOCKED).
-- Current implementation milestone: **M2 - Complete local building**.
-- Active worker assignments: LB-009 (solo and pass-and-play state machine, turn ownership, timer, finish agreement).
-- Next task: **LB-009**; implement session state machine and turn management in `game/core/session_manager.gd`.
-- Next implementation action: create `game/core/session_manager.gd`, turn transitions, themed bag deals, timer handling, and test suite.
+- Current implementation milestone: **M3 - Explore the finished world**.
+- Active worker assignments: LB-013 (freeze build revision, simplified exploration colliders, clearance validation).
+- Next task: **LB-013**; implement world exploration collision generator and spawn validator.
+- Next implementation action: create `game/core/exploration_world.gd` to generate static collision shapes from placed pieces, smooth over studs, validate walkability/clearance, and spawn points.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -21,8 +21,8 @@ Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRA
 | --- | --- | --- |
 | M0 - Foundation and technical spikes | done | LB-001..LB-004 verified; Godot 4.7, presets, catalog, 500-piece bench, video adapter |
 | M1 - Precise brick placement | done | LB-005..LB-008 verified; rules engine, inventory, camera, scaling benchmarks |
-| M2 - Complete local building | in_progress | LB-009 in progress; solo/local state machine, saves, undo/redo |
-| M3 - Explore the finished world | planned | Original explorer, POV, clearance and phase transitions |
+| M2 - Complete local building | done | LB-009..LB-012 verified; state machine, save/resume, undo/redo, pacing |
+| M3 - Explore the finished world | in_progress | LB-013 in progress; exploration colliders, toy character controller |
 | M4 - Private online rooms | planned | Authority, reconnect, persistence and 2-4-client agreement |
 | M5 - Construction films and sharing | planned | Correct replay and actual video/share output |
 | M6 - Content, polish and performance | planned | Audited content and measured integrated experience |
@@ -44,11 +44,11 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | LB-006 | done | littlebricks-gameplay | docs/evidence/LB-006-selectable-inventory-ghost.md |
 | LB-007 | done | littlebricks-worlds | docs/evidence/LB-007-camera-controls-and-layer-selection.md |
 | LB-008 | done | littlebricks-verifier | docs/evidence/LB-008-placement-performance-profile.md |
-| LB-009 | in_progress | littlebricks-gameplay | planned |
-| LB-010 | planned | unassigned | none |
-| LB-011 | planned | unassigned | none |
-| LB-012 | planned | unassigned | none |
-| LB-013 | planned | unassigned | none |
+| LB-009 | done | littlebricks-gameplay | docs/evidence/LB-009-session-state-machine.md |
+| LB-010 | done | littlebricks-platform | docs/evidence/LB-010-save-resume-and-corruption.md |
+| LB-011 | done | littlebricks-gameplay | docs/evidence/LB-011-undo-redo-and-cooperative-corrections.md |
+| LB-012 | done | littlebricks-verifier | docs/evidence/LB-012-paired-sessions-and-pacing.md |
+| LB-013 | in_progress | littlebricks-worlds | planned |
 | LB-014 | planned | unassigned | none |
 | LB-015 | planned | unassigned | none |
 | LB-016 | planned | unassigned | none |
