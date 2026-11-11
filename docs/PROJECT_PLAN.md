@@ -4,7 +4,7 @@
 
 Build a complete, open-source cooperative brick game: take turns placing one piece on a tabletop, enter the finished creation as a toy-sized explorer, and export a film of its construction. Include useful offline solo play, local pass-and-play, private rooms for 2–4 players, native Android, desktop builds, and a browser version with an explicit tested support matrix.
 
-**Current state: planning and agent setup only. All implementation tasks below are planned.** No playable build, device benchmark, completed test, or store submission is implied by this document. Track actual progress and blockers in [STATUS.md](STATUS.md); record reproducible evidence as described in [VALIDATION.md](VALIDATION.md).
+**Current state: implementation recovery.** A local browser placement prototype and separately tested systems exist. The review found missing integration, incorrect placement/feedback behavior and incomplete networking/video output; the earlier all-complete report is superseded. [RECOVERY_PLAN.md](RECOVERY_PLAN.md) is the active LB-033–LB-056 sequence. The original LB-001–LB-032 requirements below remain binding and are under review in [STATUS.md](STATUS.md). See [the independent review](evidence/2026-11-11-independent-review.md) and [VALIDATION.md](VALIDATION.md) for evidence scope.
 
 Read [AGENTS.md](../AGENTS.md) first. Product behavior belongs in [GAME_DESIGN.md](GAME_DESIGN.md), system contracts in [ARCHITECTURE.md](ARCHITECTURE.md), and content provenance in [ASSETS.md](ASSETS.md). Changes to defaults need a short decision record; preserve the core user requirements.
 
@@ -13,7 +13,8 @@ Read [AGENTS.md](../AGENTS.md) first. Product behavior belongs in [GAME_DESIGN.m
 - Deliver the full build–explore–share loop with a small catalogue. Neither exploration nor films may quietly disappear from release scope.
 - Use Godot 4, GDScript, and Compatibility rendering; one project at `game/project.godot`. Share pure placement rules with a headless Godot server over WSS.
 - Ship prepared meshes and metadata. Nova/LDraw can support authoring and interchange; no player action depends on an AI service.
-- Start with 12–20 representative shapes; expand toward 40–60 reviewed shapes and two themes only after correctness and phone performance hold.
+- Prove a small representative fixture first, then follow [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md): audit the existing entries, expand to 80 then at least 120 verified buildable shapes, with 150 as a stretch goal. This user-requested expansion supersedes the original 40–60-shape target; keep catalogue correctness and measured resource gates.
+- Treat [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md) and [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md) as product requirements: three opening screens, music, tactile click/haptic feedback and finished-build presentation are part of the integrated experience.
 - Keep one integrator responsible for shared schemas, the task ledger, and integration. Parallelize independent work; give every worker owned paths, input contracts, and acceptance criteria.
 - A feature is done only when it works in the integrated game and its applicable gates have evidence. Compilation, a mockup, or a specialist's report alone is insufficient.
 
@@ -91,7 +92,7 @@ Task IDs remain stable. Dependencies below are prerequisite task IDs, not permis
 
 | Task | Depends on | Deliverable and acceptance |
 | --- | --- | --- |
-| LB-025 | LB-008, LB-012, LB-016 | Expand to two coherent themes and approximately 40–60 supported shapes. Validate every added shape, asset licence, scale, and inventory role. |
+| LB-025 | LB-008, LB-012, LB-016 | Expand two coherent themes through the revised catalogue waves in PLACEMENT_AND_CATALOG: audit current entries, reach 80 then at least 120 verified buildable shapes (150 stretch). Validate every shape, licence, scale and inventory role; LB-056 owns the active expansion work. |
 | LB-026 | LB-019, LB-025 | Finish onboarding, menus, save browsing, settings, audio/haptics where supported, readable controls, reduced motion, and timer-free play. Required settings persist. |
 | LB-027 | LB-020, LB-024, LB-026 | Profile sustained native/browser sessions and export on the reference matrix. Tune draw calls, memory, loading, thermal behavior, and the supported build cap. |
 | LB-028 | LB-027 | Run complete solo, pass-and-play, and online journeys with independent verification. Fix prioritized defects and repeat the affected scenarios against the integrated build. |

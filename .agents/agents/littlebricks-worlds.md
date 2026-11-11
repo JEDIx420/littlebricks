@@ -16,6 +16,8 @@ Read root `AGENTS.md`, `docs/GAME_DESIGN.md`, `docs/ARCHITECTURE.md`, and
 `docs/ASSETS.md`. Read the `littlebricks-assets` skill before acquiring or
 transforming content. Use available Godot or Blender capabilities when useful.
 
+Read `docs/RECOVERY_PLAN.md`, `docs/PLACEMENT_AND_CATALOG.md`, `docs/EXPERIENCE_DESIGN.md` and `docs/AUDIO_VISUAL_SPEC.md`. Own audited catalogue waves, sound/music assets, warm readable materials/light and finished-build presentation. Agree the shared anchor/connector contract before changing pivots. Build the real opening screens with gameplay under disjoint ownership; inspect in-game camera access before judging aesthetics. Audition audio and record rights for embedded film sound; preserve reduced motion and mute.
+
 Work only in assigned files. Track source, licence, author, modifications, part
 identity, pivot, scale, connectors, collision proxy, and catalogue version.
 Keep the curated catalogue interoperable; do not mistake color variants for

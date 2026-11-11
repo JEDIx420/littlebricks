@@ -1,5 +1,9 @@
 # LittleBricks Build & Packaging Guide (LB-029)
 
+## Current verification scope
+
+The commands below are existing implementation entry points, not proof of a verified release. The [independent review](evidence/2026-11-11-independent-review.md) found incomplete game integration and video/networking placeholders. Recheck the actual engine/templates in LB-033; LB-049 must provide web-only packaging independent of macOS templates. The user's local browser launch is partial evidence. Follow [STATUS](STATUS.md) and [RECOVERY_PLAN](RECOVERY_PLAN.md) before relying on old artifact/test claims.
+
 This document provides instructions for compiling, packaging, and signing LittleBricks across macOS, Web (HTML5/WASM), Linux/Server, and Android platforms.
 
 ---

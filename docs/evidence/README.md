@@ -1,6 +1,8 @@
 # Verification Evidence Index
 
-This directory contains rigorous runtime evidence reports for all completed tasks in LittleBricks across Milestones M0 through M7.
+This directory retains historical implementation reports for LB-001–LB-032 and current review evidence. **The old all-complete conclusions are superseded.** Report titles and PASS labels below describe the earlier agent's claims, not independent acceptance of complete gameplay, networking, video or physical-device performance.
+
+Read [2026-11-11 independent review and user browser observations](2026-11-11-independent-review.md), [current STATUS](../STATUS.md) and [RECOVERY_PLAN](../RECOVERY_PLAN.md) first. New reports must identify the repaired revision, exact environment, actual UI/output/client interactions, expected and observed result, and artifact locations. Use PASS/FAIL/BLOCKED/NOT RUN per [VALIDATION](../VALIDATION.md). Preserve historical files and correct them by explicit superseding evidence; never treat file count as completion.
 
 ## Evidence Reports Index
 

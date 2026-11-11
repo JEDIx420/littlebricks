@@ -31,9 +31,15 @@ Retain source geometry or reproducible conversion inputs where permitted. Keep l
 
 ## Catalogue and themes
 
-Begin with 12-20 representative shapes for the technical spike. Expand to roughly 40-60 audited shapes for the first release if validation supports it. Shapes and color/quality variants are different counts. Prioritize ordinary bricks, plates, tiles, basic slopes, windows/door openings, arches and a few decorations. Hinges, flexible parts and arbitrary sideways construction are later scope.
+Prove a small representative fixture first. The user's expanded-library requirement in [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md) supersedes the original 40–60-shape target: audit current entries, then reach 80 and at least 120 verified buildable shapes, with 150 as a stretch goal. Shapes, characters and color/quality variants are separate counts. Prioritize bricks, plates, tiles, slopes, windows/door openings, arches, stairs, roofs, round/curved pieces and theme details. Hinges, flexible parts and arbitrary sideways construction remain outside the current mechanical scope unless their rules and metadata are deliberately implemented.
+
+The current 43-entry manifest and six-item demo tray are different measures; neither proves 43 functional building shapes. Share one canonical anchor/connector transform between meshes, colliders, placement and saves. Rendering collision boxes is insufficient for every curved or sloped part. Prove PC-01–PC-09 before catalogue expansion and inspect every new family; load packs efficiently rather than keeping the full library resident.
 
 Define themes through manifests using the same geometry rules, scale and palette system. Start with Harbour and Forest Cabin; a Space Outpost can follow. Weight structural pieces so mixed bags remain usable. Theme differences should include reviewed original details, color and sound, not unrelated imported asset collections with conflicting scales.
+
+## Music, sounds, fonts and presentation
+
+Follow [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md) for actual music loops, ambience, varied brick clicks and credits. Record source, author, exact licence, checksum, edits and rights for both game redistribution and inclusion in exported user films. Do not extend the existing procedural geometry's CC0 label to imported music, fonts, textures or model downloads. Audition loop seams and repeated effects, and inspect fonts/icons at the actual target size. Provide an offline reproducible conversion recipe and the real assets; filenames and silent placeholders do not close the content task.
 
 Original meshes, procedural generic pieces and original toy characters are valid fallbacks when an optional asset tool is unavailable. Keep temporary art clearly identified and do not pass a visual/content gate with unnoticed placeholders. Verify music, sound effects, fonts and UI icons with the same discipline as meshes.
 

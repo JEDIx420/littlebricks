@@ -8,6 +8,8 @@ LittleBricks is a cozy tabletop construction game for touch and desktop. Players
 
 This document specifies proposed defaults for implementation and testing. The user's defining requirements are one-brick turns, mixed bags, optional rotation and snapping, a shared tabletop/baseplate, group agreement to finish, explorer POV, construction films, solo play, open source, and Android release. Changes to numerical defaults are welcome when measured; dropping these requirements needs an explicit product decision.
 
+The 2026-11-11 refinement adds the detailed [opening screens and player journey](EXPERIENCE_DESIGN.md), [music, clicks, haptics and visual presentation](AUDIO_VISUAL_SPEC.md), and [placement/camera repairs plus a larger catalogue](PLACEMENT_AND_CATALOG.md). These specifications supersede earlier minimal presentation/catalogue defaults. They are requirements to implement and verify, not descriptions of finished features. Follow [RECOVERY_PLAN.md](RECOVERY_PLAN.md) for their delivery order.
+
 ## Modes and session flow
 
 | Mode | Behavior |
@@ -46,11 +48,13 @@ Solo offers full undo/redo. Cooperative correction applies only to the latest ac
 | --- | --- | --- |
 | Select and position | Tap a piece then a target, or drag a finger-offset ghost. | Select from tray and position with pointer. |
 | Rotate | Large left/right quarter-turn buttons. | Visible buttons plus configurable keys. |
-| Commit | Explicit Place button. | Click/Enter through the same command path. |
+| Commit | Explicit Place button. | Place/Enter through the same command path; any optional direct-placement click is limited to the owned canvas gesture and never GUI/camera input. |
 | Inspect | Two-finger camera gesture, pinch zoom, top-view shortcut. | Orbit/pan controls and wheel zoom. |
 | Stack / reveal interior | Height/layer selector and hide-upper-layers control. | The same controls with shortcuts. |
 
 Use an outline/icon and short text in addition to color for invalid placement. An obstructed target must not become an accidental commit. Reserve the main finger/pointer interaction for the active placement; make camera gestures distinguishable.
+
+Auto Height follows the intended support surface and returns to layer 0 over uncovered baseplate. Manual Height and Return to Base remain visible alternatives. Remove the current unconditional post-placement layer increase. Use one canonical anchor/connector transform for previews, visible studs, colliders, accepted state and replay; a 1x4 on a 2x4 must visibly lock to an actual stud row. Camera orbit, pan and zoom must work with discoverable mouse/trackpad/touch controls, including an explicit Camera mode.
 
 Placement uses exact grid transforms, upright parts, and four yaw orientations initially. Enforce board/height limits, body collision, and compatible attachment to an anchored structure. Render studs and sockets independently of simplified collision volumes. Digital connection validity is the promise; physical stability or universal real-world buildability is not established.
 

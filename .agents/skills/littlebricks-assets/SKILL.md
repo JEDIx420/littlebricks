@@ -7,6 +7,8 @@ description: Prepare and validate LittleBricks bricks, theme packs, toy explorer
 
 Read [AGENTS.md](../../../AGENTS.md), [ASSETS](../../../docs/ASSETS.md), [ARCHITECTURE](../../../docs/ARCHITECTURE.md), and the assigned task. Confirm the coordinator's file ownership and active catalogue version.
 
+For this campaign, follow [PLACEMENT_AND_CATALOG](../../../docs/PLACEMENT_AND_CATALOG.md) and LB-056 in [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md): audit existing entries, then 80 and at least 120 verified buildable shapes, with 150 as a stretch target. Complete the canonical lattice and PC fixtures before expansion. Color variants, characters and unsupported records do not count. Render meshes must depict actual slopes/curves/openings rather than merely reusing collision boxes. Preserve the six-piece multiplayer hand while enabling a usable full solo catalogue.
+
 ## Choose the smallest useful input
 
 Prefer original art or reviewed creator/project sources. Evaluate Kenney's documented CC0 packs first for prototype needs. Use LDraw/Nova or LDCad metadata only where they help the assigned task and their separate terms are understood. Read the available Godot/Blender/asset tooling instructions; discover actual tools before calling them. Fall back to a reproducible local conversion pipeline when an optional plugin is unavailable.
@@ -24,6 +26,8 @@ Do not install a large pack or tool framework just to obtain one shape. Do not p
 7. Update the versioned catalogue and generated attribution together. Do not silently change a part used by existing saves.
 
 Build themes from compatible core parts, palettes and a few reviewed details. Keep mixed bags structurally useful. Maintain a distinctive LittleBricks identity and original explorer; a mesh download is not trademark or character clearance.
+
+For music, sounds, fonts and visual presentation, read [EXPERIENCE_DESIGN](../../../docs/EXPERIENCE_DESIGN.md) and [AUDIO_VISUAL_SPEC](../../../docs/AUDIO_VISUAL_SPEC.md). Deliver real licensed source/runtime assets, clean loop boundaries and a compact varied click set. Record rights for game redistribution and exported-film inclusion; audition on phone speakers/headphones and inspect the actual integrated visuals. Never infer that a new audio/downloaded asset shares the procedural catalogue's CC0 designation.
 
 ## Handoff
 

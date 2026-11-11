@@ -15,7 +15,7 @@ For every milestone, record commit, pinned engine/templates, platform/device/bro
 
 ## Establish commands in M0
 
-There are no game/build/test commands in this bootstrap. M0 must implement and document actual reproducible entry points for the following capabilities:
+The repository now contains `tools/` commands and `game/tests/`; their existence is not proof of complete verification. LB-033 revalidates actual entry points and the pinned toolchain, and LB-049 provides independent web packaging. The required command capabilities remain:
 
 | Capability | Required command behavior |
 | --- | --- |
@@ -65,7 +65,30 @@ Run paired sessions before four-player sessions. Observe intended-placement succ
 
 Proposed initial target: a versioned 500-piece representative scene maintains at least 30 fps on a named midrange Android phone after 15 minutes. Record frame-time spikes, memory, loading time and thermal degradation; average fps alone can hide stalls. Test both table and interior views. These numbers are planning targets, not supported-capacity claims.
 
-Export a 15-second 720p/30 fps construction film on a physical phone, with correct order/duration, bounded buffers, no corrupted output and successful playback/share in another app. Measure export time rather than assuming real-time encoding. Check storage exhaustion and cancellation. Verify licensed or original audio, or explicitly ship a silent first export.
+Export a 15-second 720p/30 fps construction film on a physical phone, with correct order/duration, bounded buffers, no corrupted output and successful playback/share in another app. Measure export time rather than assuming real-time encoding. Check storage exhaustion and cancellation. Verify licensed or original audio and the explicit silent option under the expanded experience requirements below.
+
+The expanded experience requires tested Silent, Brick Sounds and Music + Brick Sounds choices on declared supported export paths. Silence is a valid explicit user choice, not a way to close an unfinished required audio path. If a platform cannot provide a requested option, state the actual supported alternative and keep the applicable gate open.
+
+## Recovery and experience acceptance
+
+Use [RECOVERY_PLAN.md](RECOVERY_PLAN.md) for LB-033–LB-056 and [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md) for PC-01–PC-10. Run the actual controls in a rendered client/browser, then supplement with independently derived rules fixtures. Do not equate direct component calls with UI integration.
+
+| Area | Required observed result |
+| --- | --- |
+| Baseplate and stack targeting | Place ten separate bricks on the baseplate, alternate ground/top targets and return to base without hidden key combinations; Auto/Manual states are visible and correct. |
+| Exact geometry | 1x4 on both stud rows of 2x4, odd/even dimensions, all quarter turns, plate/brick stacks, boundaries and openings align in numeric fixtures and close-up renders. No rounding manufactures a connector match. |
+| Input and camera | Actual mouse, trackpad and touch orbit/pan/zoom/reset; GUI/gesture inputs never commit a brick; cancel/lost focus does not leave a stuck drag. |
+| Front end and navigation | Welcome → mode → setup → actual session, Continue, saves, pause/back/loading/error paths; no disconnected signals or duplicate listeners after repeated navigation. |
+| Music and sound | Audition first-gesture browser unlock, loop boundaries, transitions, volume/mute persistence, rapid actions and audio-off play. Fifty varied placements remain pleasant and audible without clipping. |
+| Accepted feedback | One accepted event gives one click/settle and supported local pulse; rejected/pending/restore/remote/retry cases follow their distinct policy. |
+| Haptics | Feel enabled/disabled/system-suppressed results on actual supporting hardware. A void API call, emulator or browser capability flag cannot prove a motor vibrated. |
+| Lighting and motion | Inspect warm/readable table and interiors, finished-build presentation, quality profiles and reduced motion; measure sustained costs rather than approving screenshots alone. |
+| Catalogue | Audit actual usable shape counts; expose reviewed entries, then 80 and at least 120 distinct buildable shapes. Search/filter/use representative families; preserve six-slot multiplayer hands and save/pack dependencies. |
+| Real multiplayer | Separate two-/four-client processes connect and play, players three/four receive turns, and restart/retry/rejoin preserves accepted state and feedback deduplication. |
+| Real films | A nonempty output exists, decodes externally, depicts distinct stages of the actual construction, matches final state/duration and contains the selected audio. Cancellation/failure never reports successful output. |
+| Web delivery | Web-only export succeeds without macOS templates; fresh load/refresh/subpath/saves work. Verify the actual hosted URL when published, separately from localhost launch. |
+
+Compare the repaired revision with the reported failure sequence. Keep regression fixtures small and meaningful. Catalogue growth follows corrected transforms and inspected geometry; preserve explicit physical-device/performance gates while continuing independent preparation. [The independent review](evidence/2026-11-11-independent-review.md) records why old green tests alone cannot close these requirements.
 
 ## Completion and handoff
 

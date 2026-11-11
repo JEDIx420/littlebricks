@@ -7,6 +7,8 @@ description: Prepare a LittleBricks release candidate and finish release-readine
 
 Read [AGENTS.md](../../../AGENTS.md), [STATUS](../../../docs/STATUS.md), M7 in [PROJECT_PLAN](../../../docs/PROJECT_PLAN.md), [VALIDATION](../../../docs/VALIDATION.md), and [ASSETS](../../../docs/ASSETS.md). Confirm the actual commit, completed scope, blockers and publication authorization.
 
+The previous rc1 completion claim is superseded. Read [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md) and the [independent review](../../../docs/evidence/2026-11-11-independent-review.md). Reaccept the original gates using integrated evidence, including LB-033–LB-056. A browser preset, exported PCK named server, or a returned video path is not proof of a playable browser game, listening server, or real movie.
+
 ## Build a concrete candidate
 
 1. Reproduce the documented setup from a clean checkout with pinned engine/export templates and dependencies.
@@ -15,6 +17,8 @@ Read [AGENTS.md](../../../AGENTS.md), [STATUS](../../../docs/STATUS.md), M7 in [
 4. Run full solo, local-turn and private-online journeys: build, finish, explore, save/reopen, replay/export and share. Exercise recovery and update/install behavior.
 5. Independently verify the declared support/performance matrix and known limits. Obtain a verifier report; don't convert unrun tests into passes.
 6. Generate notices/credits from the asset/dependency records and confirm that the intended distributed content matches them.
+
+Verify the web bundle independently of macOS templates and test the actual preview URL if published. Open films externally and inspect construction frames, selected audio, duration and share/download results. Audit music/font/part licences and real supported-shape counts. Require real UI journeys, sensory checks and measured target performance rather than approving historical component-test summaries. Keep missing native encoder code distinct from missing phone hardware.
 
 ## Prepare store and operational material
 

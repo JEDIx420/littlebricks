@@ -43,6 +43,10 @@ Tool discovery and actual smoke tests decide what can be used. Documentation abo
 
 ## Authoritative technical references
 
+For the recovery campaign, read [AUDIO_VISUAL_SPEC](AUDIO_VISUAL_SPEC.md) and [PLACEMENT_AND_CATALOG](PLACEMENT_AND_CATALOG.md) before choosing extra tools. Use available audio editing and media inspection tools when they help: [FFmpeg/ffprobe](https://ffmpeg.org/documentation.html) for real file/stream inspection and supported offline conversion, and [Audacity](https://manual.audacityteam.org/) or an equivalent installed editor for original sounds, loop seams and audition. Verify the actual package, licence and platform availability before adopting it. A desktop CLI is not automatically an in-app Android encoder or a browser API.
+
+Browser tooling must inspect the real exported canvas, console, audio unlock and downloads. Android tooling must test actual device haptics and share-sheet behavior. Godot/Blender tooling can inspect connector overlays, mesh pivots and lighting. No plugin is required merely because it is listed; existing editor/CLI capabilities remain valid fallbacks. Read useful installed debugging, UI/accessibility, audio or asset skills and keep one coordinator/backlog rather than starting a competing workflow.
+
 - [Godot stable documentation](https://docs.godotengine.org/en/stable/)
 - [Godot web export](https://docs.godotengine.org/en/stable/tutorials/export/exporting_for_web.html)
 - [Godot WebSockets](https://docs.godotengine.org/en/stable/tutorials/networking/websocket.html)

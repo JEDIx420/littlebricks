@@ -14,10 +14,9 @@ Open the repository root in Antigravity and invoke:
 
 If the command is not listed, ask the agent to read
 [the build skill](../.agents/skills/littlebricks-build/SKILL.md) and execute it.
-The agent must read [AGENTS.md](../AGENTS.md),
-[PROJECT_PLAN.md](PROJECT_PLAN.md), and [STATUS.md](STATUS.md) before choosing
-work. The milestones M0-M7 define the full release scope; a good-looking
-prototype is an intermediate result.
+For the current campaign, use the complete [next-agent launch prompt](NEXT_AGENT_PROMPT.md). The agent reads [AGENTS.md](../AGENTS.md), [STATUS.md](STATUS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md) and [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md) before dispatch. Original M0–M7 requirements remain binding. Begin LB-033, prioritize LB-054 then LB-053/LB-055, and use the dependency graph rather than task-number order. LB-034 application contracts and LB-039 audio preparation can proceed in parallel with clear ownership.
+
+The previous complete-release claim is superseded by the independent review and user browser observations. Continue from the existing code, reproduce defects and integrate useful modules. The full campaign includes LB-033–LB-056: repair placement/camera, connect the player journey, deliver the sensory presentation and larger catalogue, finish real networking/video, and verify actual native/browser outcomes.
 
 At startup, inspect the actual environment: Godot and export templates, Android
 tools/devices, repository state, available skills, custom agents, plugins, and

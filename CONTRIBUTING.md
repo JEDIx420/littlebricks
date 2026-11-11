@@ -1,6 +1,6 @@
 # Contributing to LittleBricks
 
-Read [AGENTS.md](AGENTS.md) and [the project plan](docs/PROJECT_PLAN.md). The repository is initially a planning and agent bootstrap; implementation work starts at M0.
+Read [AGENTS.md](AGENTS.md), [STATUS](docs/STATUS.md) and the active [recovery plan](docs/RECOVERY_PLAN.md). A placement prototype and separate modules exist; work resumes at LB-033 with the specified placement/camera priorities. Original M0–M7 requirements remain binding. Follow the actual task scope and preserve useful existing code.
 
 ## Work on a coherent task
 

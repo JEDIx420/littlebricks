@@ -9,6 +9,8 @@ description: Implement or resume the complete LittleBricks game through its plan
 
 Read [AGENTS.md](../../../AGENTS.md), [STATUS](../../../docs/STATUS.md), [PROJECT_PLAN](../../../docs/PROJECT_PLAN.md), [GAME_DESIGN](../../../docs/GAME_DESIGN.md), and [ARCHITECTURE](../../../docs/ARCHITECTURE.md). Respect the current user request: an initialization/review-only request does not start game implementation. A full-game request covers all M0-M7 deliverables, including exploration and real video sharing.
 
+For the current campaign, load [RECOVERY_PLAN](../../../docs/RECOVERY_PLAN.md) before choosing tasks, then [PLACEMENT_AND_CATALOG](../../../docs/PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN](../../../docs/EXPERIENCE_DESIGN.md) and [AUDIO_VISUAL_SPEC](../../../docs/AUDIO_VISUAL_SPEC.md). The old complete-release claim is superseded. Start LB-033; prioritize LB-054 → LB-053/LB-055 before closing LB-036. Use the explicit dependency graph and dispatch order, not numerical order. Complete LB-033–LB-056 and the original M0–M7 acceptance scope.
+
 Inspect the working tree, current branch, recent commits and executable state. Confirm claims against files and evidence before selecting work. Preserve unrelated changes. Do not rewrite an approved plan merely to avoid implementation.
 
 ## Discover capabilities and choose one coordinator
@@ -21,13 +23,15 @@ Delegate independent work to the shipped gameplay, worlds, platform and verifier
 
 ## Select and dispatch work
 
-1. Find the earliest ready incomplete task in STATUS and the plan's dependency graph.
+1. Find the highest-priority ready incomplete task in STATUS and RECOVERY_PLAN's dependency graph. Some urgent repairs have higher IDs than the tasks that depend on them.
 2. If a dependency is externally blocked, identify work that can safely proceed without pretending the dependency passed. Separate implementation from unmet evidence.
 3. Record the task owner, branch/worktree or exact paths, inputs, interfaces, checks and next action.
 4. Give each worker a self-contained brief with task ID, product outcome, owned files, shared contracts, acceptance tests and required evidence.
 5. Serialize shared schemas, `game/project.godot`, export settings, dependency locks and catalogue changes. Only the coordinator updates the shared task ledger or integrates branches.
 
 Prefer complete playable slices. Keep the asset set small while proving placement, walking and export. Use the asset skill when sourcing or converting content. Create actual run/test/export commands during M0 and document them only after they run.
+
+Prove PC-01–PC-10 with a small fixture before expanding the catalogue, then deliver the staged 120 verified-shape goal. Integrate the actual first screens, session/turns, saves, finish/explore and film actions; detached scenes and in-process model tests do not establish player journeys. Prepare music assets in parallel and integrate sound/haptics/lighting early enough for real playtesting. Preserve a working silent/reduced-motion path.
 
 ## Implement, verify, repair, integrate
 

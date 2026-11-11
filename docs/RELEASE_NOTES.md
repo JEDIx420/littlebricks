@@ -1,59 +1,17 @@
-# LittleBricks v1.0.0 Release Candidate Notes (LB-032)
+# LittleBricks development status
 
-We are thrilled to present **LittleBricks v1.0.0-rc1**, the initial release candidate for the open-source cooperative brick building game.
+Updated 2026-11-11. **The earlier v1.0.0-rc1 completion claim is superseded.** The reviewed implementation at `9eaeda86ed867a002aa034b12e66d211f8c26432` is a placement prototype with separate gameplay modules, not an accepted complete release candidate. Original implementation reports remain in Git history and the evidence directory; their claims require the scope corrections in the [independent review](evidence/2026-11-11-independent-review.md).
 
----
+## Present evidence
 
-## 1. Key Highlights & Features
+- The user opened a locally served browser build and placed bricks, then reported placement height, camera and stud-alignment defects.
+- Eleven included component test scripts and headless startup passed in the review environment on Godot 4.6.3. This does not verify the previously documented 4.7.2 toolchain or complete UI behavior.
+- macOS, Web and Android export presets exist. Earlier reports describe local macOS/Web packages; this review did not reproduce those exact artifacts or verify a public deployment.
 
-### Tactile Tabletop Building
-- **32×32 Modular Baseplate**: Beautiful wooden tabletop environment rendered with single-draw-call `MultiMeshInstance3D` studs for seamless 60+ FPS performance on mobile and web.
-- **One-Brick Turns**: Pure turn-based cooperative pacing. Players take turns drawing from balanced themed bags and placing one piece.
-- **Structural Pacing Guarantee**: Bag draws automatically monitor hand compositions to ensure each player always holds at least 2 structural bricks, eliminating blocked hands.
-- **Placement Engine**: Deterministic rules engine validating quarter-turn orientations, stud-and-socket connector alignments, multi-box collision detection (preserving arch openings), and anti-float gravity rules.
+## Open release requirements
 
-### Two Coherent Themes & 43 Audited Parts
-- **"Cozy Coastal Harbour"**: Nautical maritime palette featuring dock bollards, lantern posts, arches, fences, and cargo crates.
-- **"Rustic Forest Cabin"**: Earthy timber palette featuring sloped roof tiles, fireplace chimneys, and rustic timber posts.
-- **Public Domain**: All 43 parts, connector metadata, and procedural mesh definitions are licensed under **CC0-1.0 Universal**.
+Repair exact stud transforms, intuitive surface height and usable camera controls. Integrate mode selection, session hands/turns, saves, finish agreement, exploration and replay into the launched application. Add actual network transport and durable rooms. Produce genuine rendered/encoded films with honest errors and working download/share paths.
 
-### Toy Explorer Miniature POV
-- **Step Inside**: When your build is finished, transition to miniature scale!
-- **Dual Perspectives**: Seamlessly toggle between First-Person eye-level POV and Third-Person spring-arm camera.
-- **Smooth Surface Navigation**: Top studs are omitted in character colliders, ensuring the toy explorer walks smoothly over surfaces without vibration or tripping.
-- **Rescue & Return**: "Reset Figure" (R) safely rescues trapped figures; "Return to Table" resumes building as a new revision (v2, v3, etc.).
+Deliver the requested welcoming front end, music/ambience, brick clicks, supported haptics, restrained lighting, accessible controls and staged expanded catalogue. Validate native and browser targets, audio/video artifacts, physical-device behavior and performance before publishing support claims.
 
-### Construction Films & Video Export
-- **Stop-Motion Replays**: Reconstruct your build from accepted event journals without human hesitation time.
-- **Dynamic Animations**: Incoming bricks drop with physics-inspired bounce tweens (`Tween.TRANS_BOUNCE`), concluding with a cinematic 3-second 360° reveal.
-- **Bounded Buffer Streaming**: Frame export utilizes fixed memory buffers (`Array[PackedByteArray]`), preventing memory bloat on constrained devices.
-
-### Modes & Connectivity
-- **Solo Creative Mode**: Unconstrained offline building and exploration.
-- **Pass-and-Play Mode**: Local turn-taking on a single shared device with optional turn timer and unanimous finish consensus.
-- **Private Online Rooms**: Authoritative headless WebSocket room server with opaque identity tokens, strict request idempotency deduplication, and snapshot-plus-tail reconnect recovery.
-- **UGC Safety**: 6-character room code privacy and in-game player reporting and blocking.
-
-### Accessibility & Quality of Life
-- **Accessible Indicators**: Visual checkmarks and descriptive status labels accompany color highlights for non-color validation cues.
-- **Touch-Friendly Controls**: 50-pixel touch drag offset so fingers never obscure placement ghosts.
-- **Reduced Motion & High Contrast**: Dedicated user preferences to disable intense bounces or enhance contrast.
-- **Atomic Persistence**: Robust save files with atomic `.tmp` swapping, `.bak` backups, and schema version checking.
-
----
-
-## 2. Release Artifacts & Platforms
-
-| Platform | Artifact | Status |
-| --- | --- | --- |
-| **macOS Universal** | `builds/desktop/LittleBricks-macOS.zip` | Tested & Verified (57 MB) |
-| **WebAssembly** | `builds/web/index.html` (+ `.wasm`, `.pck`) | Tested & Verified (WebGL 2.0) |
-| **Dedicated Server** | `builds/server/LittleBricksServer.pck` | Tested & Verified (172 KB) |
-| **Android APK / AAB** | `builds/android/littlebricks.apk` | Presets configured; toolchain documented in `docs/BUILD.md` |
-
----
-
-## 3. Known Limitations & Honest Gate Status
-
-- **Physical Android Testing**: Recorded as `BLOCKED` in local test evidence due to zero physical test devices attached via ADB on this workstation.
-- **Store Submission**: Google Play Console closed-track submission requires external developer account review and manual authorization; release metadata and compliance assets are staged in `docs/PLAY_STORE.md`.
+[RECOVERY_PLAN.md](RECOVERY_PLAN.md) defines LB-033–LB-056; [STATUS.md](STATUS.md) tracks progress. None of these recovery tasks is implemented by the documentation update. A later candidate must list its exact tested commit, artifacts/checksums, supported devices/browsers and remaining limitations. Store readiness, a prepared build and public release remain separate states.
