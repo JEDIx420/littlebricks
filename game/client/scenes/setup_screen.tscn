@@ -32,7 +32,7 @@ grow_horizontal = 2
 
 [node name="BtnBack" type="Button" parent="TopBar"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(90, 36)
+custom_minimum_size = Vector2(90, 44)
 layout_mode = 2
 text = "← Back"
 

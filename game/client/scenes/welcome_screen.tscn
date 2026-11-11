@@ -36,7 +36,7 @@ size_flags_horizontal = 3
 
 [node name="BtnMute" type="Button" parent="TopBar"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(100, 44)
 layout_mode = 2
 text = "🔊 Sound"
 

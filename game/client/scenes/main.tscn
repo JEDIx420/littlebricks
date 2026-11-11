@@ -68,7 +68,7 @@ mouse_filter = 2
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 54.0
+offset_bottom = 60.0
 grow_horizontal = 2
 
 [node name="HBox" type="HBoxContainer" parent="UI/RootControl/TopPanel"]
@@ -111,19 +111,19 @@ text = "⏱ 20s"
 [node name="BtnPassTurn" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 visible = false
-custom_minimum_size = Vector2(70, 34)
+custom_minimum_size = Vector2(70, 44)
 layout_mode = 2
 text = "⏭ Pass"
 
 [node name="BtnUndo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(75, 34)
+custom_minimum_size = Vector2(75, 44)
 layout_mode = 2
 text = "↩ Undo"
 
 [node name="BtnRedo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(75, 34)
+custom_minimum_size = Vector2(75, 44)
 layout_mode = 2
 text = "↪ Redo"
 
@@ -134,19 +134,19 @@ text = "Stud: (16, 16) | Layer: 0 | Yaw: 0°  "
 
 [node name="BtnFinish" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(120, 36)
+custom_minimum_size = Vector2(120, 44)
 layout_mode = 2
 text = "🚶 Explore"
 
 [node name="BtnLeave" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(100, 36)
+custom_minimum_size = Vector2(100, 44)
 layout_mode = 2
 text = "💾 Save & Leave"
 
 [node name="BtnSettings" type="Button" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(85, 36)
+custom_minimum_size = Vector2(85, 44)
 layout_mode = 2
 text = "⚙ Settings"
 
@@ -166,13 +166,13 @@ theme_override_constants/separation = 6
 
 [node name="BtnRotateLeft" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Rotate ↶ (Q)"
 
 [node name="BtnRotateRight" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Rotate ↷ (E)"
 
@@ -181,7 +181,7 @@ layout_mode = 2
 
 [node name="BtnAutoHeight" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 36)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Auto Height [ON]"
 
@@ -191,21 +191,21 @@ theme_override_constants/separation = 6
 
 [node name="BtnLayerDown" type="Button" parent="UI/RootControl/RightControls/HeightBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "- (Down)"
 
 [node name="BtnLayerUp" type="Button" parent="UI/RootControl/RightControls/HeightBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "+ (Up)"
 
 [node name="BtnReturnBase" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Return to Base (B)"
 
@@ -223,25 +223,25 @@ layout_mode = 2
 
 [node name="BtnCameraMode" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 34)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Camera: Drag (C)"
 
 [node name="BtnTopView" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Top View (T)"
 
 [node name="BtnFrameBuild" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Frame Build (F)"
 
 [node name="BtnResetView" type="Button" parent="UI/RootControl/RightControls"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 text = "Reset View (Space)"
 
@@ -310,7 +310,7 @@ text = "Parts Catalogue (Solo Browser)"
 
 [node name="BtnCloseCatalog" type="Button" parent="UI/RootControl/CatalogModal/VBox/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(32, 32)
+custom_minimum_size = Vector2(32, 44)
 layout_mode = 2
 text = "✕"
 
@@ -320,7 +320,7 @@ theme_override_constants/separation = 8
 
 [node name="OptCatalogCategory" type="OptionButton" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(160, 36)
+custom_minimum_size = Vector2(160, 44)
 layout_mode = 2
 
 [node name="LineCatalogSearch" type="LineEdit" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]

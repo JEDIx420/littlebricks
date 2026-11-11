@@ -15,6 +15,8 @@ const PartCatalog = preload("res://core/part_catalog.gd")
 const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const PlacementRules = preload("res://core/placement_rules.gd")
 const SessionManager = preload("res://core/session_manager.gd")
+const InteractionFeedback = preload("res://client/scripts/interaction_feedback.gd")
+const PresentationController = preload("res://client/scripts/presentation_controller.gd")
 
 @onready var camera_rig: CameraController = $CameraRig
 @onready var table_view: TableView = $TableView
@@ -56,6 +58,9 @@ var rules: PlacementRules
 var session: SessionManager = null
 var audio_director = null
 var haptics_adapter = null
+var settings_manager = null
+var feedback: InteractionFeedback = null
+var presentation: PresentationController = null
 
 # State
 var current_rotation_step: int = 0 # 0, 1, 2, 3 representing 0, 90, 180, 270 degrees
@@ -126,10 +131,20 @@ func _process(delta: float) -> void:
 	if session and session.timer_enabled and session.phase == SessionManager.SessionPhase.BUILDING:
 		session.tick_timer(delta)
 
-func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null) -> void:
+func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null, p_settings = null) -> void:
 	session = p_session
 	audio_director = p_audio
 	haptics_adapter = p_haptics
+	settings_manager = p_settings
+	
+	feedback = InteractionFeedback.new(audio_director, haptics_adapter, settings_manager)
+	
+	if not presentation:
+		presentation = PresentationController.new()
+		add_child(presentation)
+	
+	if session and presentation:
+		presentation.apply_presentation(session.theme_id, get_node_or_null("WorldEnvironment"), get_node_or_null("DirectionalLight3D"), table_view)
 	
 	if not session:
 		return
@@ -154,10 +169,11 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null)
 		btn_pass_turn.visible = (session.mode != SessionManager.GameMode.SOLO_CREATIVE)
 		
 	var cur_player = session.get_current_player()
+	var p_num = session.current_player_idx + 1
 	if color_player_badge and not cur_player.is_empty():
 		color_player_badge.color = cur_player.get("color", Color.WHITE)
 	if label_status and not cur_player.is_empty():
-		label_status.text = "Turn: %s" % cur_player.get("name", "Player")
+		label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")]
 		
 	# Reconstruct existing placements from session
 	placed_pieces_data.clear()
@@ -238,8 +254,9 @@ func _setup_inventory_tray() -> void:
 	if session and session.players.size() > 0:
 		var cur_player = session.get_current_player()
 		pieces_to_show = cur_player.get("hand", [])
+		var p_num = session.current_player_idx + 1
 		if label_status:
-			label_status.text = "Turn: %s" % cur_player.get("name", "Player")
+			label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")]
 		if color_player_badge:
 			color_player_badge.color = cur_player.get("color", Color.WHITE)
 	
@@ -266,10 +283,13 @@ func _setup_inventory_tray() -> void:
 func _select_piece(part_id: String, color: Color) -> void:
 	selected_part_id = part_id
 	selected_color = color
-	if audio_director:
-		audio_director.play_pickup()
-	if haptics_adapter:
-		haptics_adapter.vibrate_light()
+	if feedback:
+		feedback.notify_piece_selected(part_id, color)
+	else:
+		if audio_director:
+			audio_director.play_pickup()
+		if haptics_adapter:
+			haptics_adapter.vibrate_light()
 	_rebuild_ghost()
 	_update_pointer_target()
 	_validate_and_update_ghost()
@@ -570,14 +590,18 @@ func _handle_pointer_position(screen_pos: Vector2) -> void:
 
 func _on_rotate_left() -> void:
 	current_rotation_step = (current_rotation_step - 1 + 4) % 4
-	if audio_director:
+	if feedback:
+		feedback.notify_rotation_changed(current_rotation_step)
+	elif audio_director:
 		audio_director.play_rotate()
 	_update_pointer_target()
 	_validate_and_update_ghost()
 
 func _on_rotate_right() -> void:
 	current_rotation_step = (current_rotation_step + 1) % 4
-	if audio_director:
+	if feedback:
+		feedback.notify_rotation_changed(current_rotation_step)
+	elif audio_director:
 		audio_director.play_rotate()
 	_update_pointer_target()
 	_validate_and_update_ghost()
@@ -594,6 +618,8 @@ func _validate_and_update_ghost() -> void:
 	)
 	
 	is_current_placement_valid = last_validation_result.get("valid", false)
+	if feedback:
+		feedback.notify_preview_validity_changed(is_current_placement_valid)
 	
 	# Update ghost transform using canonical stud lattice
 	var p_def: Dictionary = catalog.get_part(selected_part_id)
@@ -607,12 +633,19 @@ func _validate_and_update_ghost() -> void:
 	
 	# Update UI feedback text
 	var status_text: String
+	var player_prefix = ""
+	if session and session.players.size() > 0:
+		var cur_p = session.get_current_player()
+		var p_num = session.current_player_idx + 1
+		player_prefix = "[P%d %s] " % [p_num, cur_p.get("name", "Player")]
+		
 	if is_current_placement_valid:
 		btn_place.disabled = false
-		status_text = "✓ [VALID] Ready to place (%s)" % last_validation_result.get("reason", "OK")
+		status_text = "%s✓ [VALID] Ready to place (%s)" % [player_prefix, last_validation_result.get("reason", "OK")]
 	else:
 		btn_place.disabled = true
-		status_text = "✕ [INVALID] %s: %s" % [
+		status_text = "%s✕ [INVALID] %s: %s" % [
+			player_prefix,
 			last_validation_result.get("code", "ERROR"),
 			last_validation_result.get("reason", "Cannot place here")
 		]
@@ -649,10 +682,15 @@ func _set_node_material_color(node: Node, color: Color) -> void:
 
 func _on_place_pressed() -> void:
 	if not is_current_placement_valid:
-		if audio_director:
-			audio_director.play_reject()
-		if haptics_adapter:
-			haptics_adapter.vibrate_error()
+		var code = last_validation_result.get("code", "ERROR")
+		var reason = last_validation_result.get("reason", "Invalid placement")
+		if feedback:
+			feedback.notify_placement_rejected("%s: %s" % [code, reason])
+		else:
+			if audio_director:
+				audio_director.play_reject()
+			if haptics_adapter:
+				haptics_adapter.vibrate_error()
 		return
 		
 	# Spawn permanent brick
@@ -683,10 +721,13 @@ func _on_place_pressed() -> void:
 		if btn_finish:
 			btn_finish.text = "🚶 Explore"
 		
-	if audio_director:
-		audio_director.play_click(placement_id)
-	if haptics_adapter:
-		haptics_adapter.vibrate_placement()
+	if feedback:
+		feedback.notify_placement_accepted(placement_id, placed_node, false, false)
+	else:
+		if audio_director:
+			audio_director.play_click(placement_id)
+		if haptics_adapter:
+			haptics_adapter.vibrate_placement()
 	
 	# NOTE: We DO NOT unconditionally add piece height to current_layer_plate!
 	# The surface targeting automatically detects the top surface under the pointer (PC-01).
@@ -711,6 +752,8 @@ func _on_ready_status_changed(_player_id: String, _is_ready: bool, ready_count: 
 	if btn_finish:
 		if ready_count == total_players:
 			btn_finish.text = "🚶 Explore (%d/%d)" % [ready_count, total_players]
+			if feedback:
+				feedback.notify_build_finished()
 		else:
 			btn_finish.text = "🚶 Ready (%d/%d)" % [ready_count, total_players]
 	if label_status:
@@ -724,12 +767,15 @@ func _on_turn_advanced(player_id: String, player_idx: int) -> void:
 	if not session:
 		return
 	var cur_player = session.get_current_player()
+	var p_num = session.current_player_idx + 1
 	if color_player_badge:
 		color_player_badge.color = cur_player.get("color", Color.WHITE)
 	if label_status:
-		label_status.text = "Turn: %s" % cur_player.get("name", "Player")
+		label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")]
 	_setup_inventory_tray()
-	if audio_director:
+	if feedback:
+		feedback.notify_turn_changed(cur_player.get("name", "Player"))
+	elif audio_director:
 		audio_director.play_pickup()
 
 func _on_timer_ticked(seconds_remaining: float) -> void:
@@ -767,7 +813,9 @@ func _on_undo_pressed() -> void:
 		placed_pieces_data.pop_back()
 		if label_status:
 			label_status.text = "Placement undone (%d placed)" % placed_pieces_data.size()
-		if audio_director:
+		if feedback:
+			feedback.notify_undo()
+		elif audio_director:
 			audio_director.play_click()
 		if haptics_adapter:
 			haptics_adapter.vibrate_light()
@@ -778,10 +826,13 @@ func _on_undo_pressed() -> void:
 		if code == "DEPENDENT_MOVE_EXISTS":
 			if label_status:
 				label_status.text = "Cannot undo: a piece above depends on this brick"
-			if audio_director:
-				audio_director.play_reject()
-			if haptics_adapter:
-				haptics_adapter.vibrate_error()
+			if feedback:
+				feedback.notify_placement_rejected("DEPENDENT_MOVE_EXISTS")
+			else:
+				if audio_director:
+					audio_director.play_reject()
+				if haptics_adapter:
+					haptics_adapter.vibrate_error()
 
 func _on_redo_pressed() -> void:
 	if not session:
@@ -794,7 +845,9 @@ func _on_redo_pressed() -> void:
 		_reconstruct_redone_piece(to_redo)
 		if label_status:
 			label_status.text = "Placement redone (%d placed)" % placed_pieces_data.size()
-		if audio_director:
+		if feedback:
+			feedback.notify_redo()
+		elif audio_director:
 			audio_director.play_click()
 		if haptics_adapter:
 			haptics_adapter.vibrate_light()

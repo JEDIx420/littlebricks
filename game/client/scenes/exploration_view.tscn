@@ -45,7 +45,7 @@ script = ExtResource("2_table")
 [node name="TopPanel" type="PanelContainer" parent="CanvasLayer"]
 anchors_preset = 10
 anchor_right = 1.0
-offset_bottom = 54.0
+offset_bottom = 60.0
 grow_horizontal = 2
 
 [node name="HBox" type="HBoxContainer" parent="CanvasLayer/TopPanel"]
@@ -65,18 +65,18 @@ text = "Perspective: 3rd Person [V]"
 
 [node name="BtnTogglePOV" type="Button" parent="CanvasLayer/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(140, 36)
+custom_minimum_size = Vector2(140, 44)
 layout_mode = 2
 text = "Toggle POV (V)"
 
 [node name="BtnResetFig" type="Button" parent="CanvasLayer/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(130, 36)
+custom_minimum_size = Vector2(130, 44)
 layout_mode = 2
 text = "Reset Figure (R)"
 
 [node name="BtnReturnTable" type="Button" parent="CanvasLayer/TopPanel/HBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(150, 36)
+custom_minimum_size = Vector2(150, 44)
 layout_mode = 2
 text = "Return to Table ↩"

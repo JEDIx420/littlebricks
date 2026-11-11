@@ -122,9 +122,9 @@ func start_session(config: Dictionary) -> void:
 	if not table.is_node_ready():
 		table._ready()
 	
-	# Pass active session and audio/haptics to tabletop
+	# Pass active session and audio/haptics/settings to tabletop
 	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics)
+		table.attach_session(active_session, audio, haptics, settings)
 		
 	if table.has_signal("finish_requested"):
 		table.finish_requested.connect(_on_table_finish_requested)
@@ -201,7 +201,7 @@ func continue_latest_save() -> void:
 		table._ready()
 	
 	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics)
+		table.attach_session(active_session, audio, haptics, settings)
 	if table.has_signal("finish_requested"):
 		table.finish_requested.connect(_on_table_finish_requested)
 	if table.has_signal("leave_requested"):
@@ -242,7 +242,7 @@ func _on_return_to_table_requested(save_state: bool) -> void:
 		table._ready()
 	
 	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics)
+		table.attach_session(active_session, audio, haptics, settings)
 	if table.has_signal("finish_requested"):
 		table.finish_requested.connect(_on_table_finish_requested)
 	if table.has_signal("leave_requested"):
