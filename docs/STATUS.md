@@ -6,12 +6,12 @@ Last updated: **2026-11-11**
 
 - Stage: M0 foundation in progress.
 - Product name: LittleBricks.
-- Game implementation: M0 in progress; toolchain discovered and pinned.
+- Game implementation: M0 in progress; project initialized, table scene created, desktop and web export verified.
 - Playable release, game test evidence, physical-device results and store submission: none.
 - Current implementation milestone: **M0 - Foundation and technical spikes**.
-- Active worker assignments: LB-002 (game/project.godot, table scene, export presets).
-- Next task: **LB-002**; initialize game project and base table scene.
-- Next implementation action: create `game/project.godot`, base scene `game/client/scenes/main.tscn`, export presets, and runnable tests.
+- Active worker assignments: LB-003 (12-20 representative shapes, explorer candidate, versioned part metadata).
+- Next task: **LB-003**; curate representative shapes, part definitions, and explorer figure.
+- Next implementation action: define catalog schema, shape manifests, connector/collision metadata, and candidate meshes.
 
 Read [AGENTS.md](../AGENTS.md), [PROJECT_PLAN.md](PROJECT_PLAN.md), and [ANTIGRAVITY.md](ANTIGRAVITY.md). Task definitions/dependencies live in the plan; this file owns current state and work claims.
 
@@ -37,8 +37,8 @@ The coordinator updates this ledger. During parallel work, add owned paths/workt
 | Task | State | Owner | Evidence / commit |
 | --- | --- | --- | --- |
 | LB-001 | done | coordinator | docs/evidence/LB-001-toolchain-discovery.md |
-| LB-002 | in_progress | coordinator | planned |
-| LB-003 | planned | unassigned | none |
+| LB-002 | done | coordinator | docs/evidence/LB-002-project-table-scene.md |
+| LB-003 | in_progress | littlebricks-worlds | planned |
 | LB-004 | planned | unassigned | none |
 | LB-005 | planned | unassigned | none |
 | LB-006 | planned | unassigned | none |
