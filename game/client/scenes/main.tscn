@@ -87,11 +87,45 @@ text = "[Harbour & Cabin]"
 [node name="VSeparator" type="VSeparator" parent="UI/RootControl/TopPanel/HBox"]
 layout_mode = 2
 
+[node name="ColorPlayerBadge" type="ColorRect" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(16, 16)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.85, 0.15, 0.15, 1)
+
 [node name="LabelStatus" type="Label" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Ready to build"
+
+[node name="LabelTimer" type="Label" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_font_sizes/font_size = 15
+text = "⏱ 20s"
+
+[node name="BtnPassTurn" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(70, 34)
+layout_mode = 2
+text = "⏭ Pass"
+
+[node name="BtnUndo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 34)
+layout_mode = 2
+text = "↩ Undo"
+
+[node name="BtnRedo" type="Button" parent="UI/RootControl/TopPanel/HBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(75, 34)
+layout_mode = 2
+text = "↪ Redo"
 
 [node name="LabelCoords" type="Label" parent="UI/RootControl/TopPanel/HBox"]
 unique_name_in_owner = true
@@ -215,12 +249,89 @@ offset_top = -74.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="ScrollContainer" type="ScrollContainer" parent="UI/RootControl/BottomPanel"]
+[node name="BottomHBox" type="HBoxContainer" parent="UI/RootControl/BottomPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="BtnAllParts" type="Button" parent="UI/RootControl/BottomPanel/BottomHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 48)
+layout_mode = 2
+text = "📚 All Parts"
+
+[node name="VSep" type="VSeparator" parent="UI/RootControl/BottomPanel/BottomHBox"]
 layout_mode = 2
 
-[node name="TrayContainer" type="HBoxContainer" parent="UI/RootControl/BottomPanel/ScrollContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="UI/RootControl/BottomPanel/BottomHBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TrayContainer" type="HBoxContainer" parent="UI/RootControl/BottomPanel/BottomHBox/ScrollContainer"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 12
+
+[node name="CatalogModal" type="PanelContainer" parent="UI/RootControl"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -340.0
+offset_top = -240.0
+offset_right = 340.0
+offset_bottom = 240.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBox" type="VBoxContainer" parent="UI/RootControl/CatalogModal"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Header" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
+layout_mode = 2
+
+[node name="ModalTitle" type="Label" parent="UI/RootControl/CatalogModal/VBox/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 18
+text = "Parts Catalogue (Solo Browser)"
+
+[node name="BtnCloseCatalog" type="Button" parent="UI/RootControl/CatalogModal/VBox/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(32, 32)
+layout_mode = 2
+text = "✕"
+
+[node name="FilterBar" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="OptCatalogCategory" type="OptionButton" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(160, 36)
+layout_mode = 2
+
+[node name="LineCatalogSearch" type="LineEdit" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+placeholder_text = "Search parts..."
+
+[node name="CatalogScroll" type="ScrollContainer" parent="UI/RootControl/CatalogModal/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CatalogGrid" type="GridContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+columns = 4
