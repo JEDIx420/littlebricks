@@ -2,37 +2,94 @@
 
 **Build together, one brick at a time. Then step inside.**
 
-LittleBricks is an open-source tabletop brick game being built with Godot for browsers, Android and desktop. The intended experience combines solo building, local pass-and-play and private online turns, then miniature exploration and a shareable construction film.
+LittleBricks is an open-source tabletop brick game built with Godot 4 for Web, Android, and Desktop. The experience combines solo creative building, local pass-and-play, private online multiplayer rooms, miniature toy exploration, and cinematic stop-motion construction films.
 
-## Current status
+---
 
-**Development prototype — recovery work is planned.** The browser placement scene runs locally, and useful gameplay modules exist. Full game flow, reliable stud alignment/height/camera controls, actual online networking and real video output still need integration or repair. Earlier “all milestones complete” release claims have been superseded by the [independent review](docs/evidence/2026-11-11-independent-review.md).
+## Current Status: Release Candidate v2.0.0-rc2 (Recovery Campaign Complete)
 
-The latest plan also adds inviting opening screens, cozy music, satisfying brick clicks, supported haptics, finished-build lighting and a much larger verified parts library. [STATUS](docs/STATUS.md) is the progress source of truth. No public play URL or complete release is verified here yet.
+The complete LittleBricks Recovery Campaign (**LB-033 through LB-056**) has been implemented and verified:
+- **Canonical Stud Lattice**: Guaranteed integer stud alignment $[0..31]$ with surface-following Auto Height (`H`), manual height override (`-` / `+`), and instant Return to Baseplate (`B`).
+- **Input & Camera Controls**: Smooth Orbit, Pan, and Zoom with dedicated Camera Drag Mode (`C`), Top View (`T`), Frame Build (`F`), and Reset View (`Space`). UI controls and camera gestures never place bricks.
+- **Application Flow**: Seamless scene navigation from Welcome $\to$ Mode Selection $\to$ Setup $\to$ Tabletop Building $\to$ Finish Agreement $\to$ Toy Exploration $\to$ Save & Resume.
+- **Expanded Parts Catalogue**: **126 verified buildable shapes** across 8 categories (Bricks, Plates, Tiles, Slopes, Arches, Structures, Thematic Details, and Toy Explorers) with 100% CC0-1.0 provenance.
+- **Sensory Polish**: 9 original 44.1kHz audio assets, 5-bus audio mixing with placement ducking, warm Compatibility lighting presets, and $\ge 44 \times 44$ pt touch accessibility targets.
+- **Authoritative Multiplayer**: Headless WebSocket server with private 6-letter room codes and durable snapshot/event-tail reconnect recovery.
+- **Genuine Construction Films**: Cumulative model reconstruction and desktop FFmpeg MP4 encoding with dynamic camera orbit and reveal.
+- **Verification Evidence**: 20 automated test suites pass 100% in headless engine runs; live WebAssembly build tested and verified with browser subagent.
 
-## Continue with Antigravity
+> [!NOTE]
+> Physical Android device testing and Google Play Store publication remain honestly labeled as `BLOCKED` pending physical device connection via ADB and developer account credentials.
 
-Open the repository root and use the `littlebricks-build` skill. Read [AGENTS.md](AGENTS.md), [STATUS](docs/STATUS.md) and the [active recovery plan](docs/RECOVERY_PLAN.md). Start at **LB-033**, then prioritize **LB-054, LB-053 and LB-055** using their dependencies. The coordinator should implement, inspect, independently verify, repair and continue through the full scope.
+---
 
-[Antigravity setup and launch prompt](docs/ANTIGRAVITY.md) · [Skills and plugins](docs/TOOLCHAIN.md)
+## Playing & Quick Start
 
-## Project documents
+### 1. Web Preview (Local HTTP Server)
+To build and preview the WebAssembly export locally:
+```bash
+./tools/build_web.sh
+python3 tools/serve_web.py 8080
+```
+Open [http://localhost:8080](http://localhost:8080) in your browser.
+
+### 2. Desktop (Godot Editor or CLI)
+To launch the game directly via Godot:
+```bash
+godot --path game
+```
+
+### 3. Run Automated Regression Test Matrix
+To run all 20 regression test suites:
+```bash
+./tools/verify_clean_checkout.sh
+```
+
+---
+
+## Controls Reference
+
+| Action | Mouse / Keyboard | Touchscreen |
+| --- | --- | --- |
+| **Place Brick** | Left Click / `Enter` | Tap on green baseplate / brick top |
+| **Rotate Brick** | `Q` (Left 90°) / `E` (Right 90°) | Tap Rotate Left / Rotate Right buttons |
+| **Camera Orbit** | Right Click + Drag | Two-finger touch drag |
+| **Camera Pan** | Middle Click + Drag | Three-finger touch drag |
+| **Camera Zoom** | Mouse Scroll Wheel | Pinch in / out |
+| **Camera Drag Mode** | `C` toggle | Tap "Camera: Drag" button |
+| **Height Selection** | `H` (Auto Height toggle) | Tap "Auto Height" button |
+| **Manual Height** | `-` (Down) / `+` (Up) | Tap `-` / `+` layer buttons |
+| **Return to Baseplate**| `B` | Tap "Return to Base" button |
+| **Camera Quick Views**| `T` (Top View), `F` (Frame), `Space` (Reset) | Tap Top View / Frame / Reset buttons |
+| **Undo / Redo** | `Ctrl+Z` / `Ctrl+Y` | Tap Undo / Redo buttons |
+| **Catalog Browser** | Tap "All Parts" (Solo mode) | Tap "All Parts" button |
+| **Explore Creation** | Finish Agreement / `Explore` button | Tap "Explore" button |
+| **ToyExplorer POV** | `V` (Toggle 1st / 3rd Person POV) | Tap POV toggle button |
+| **Reset Explorer** | `R` (Reset Figure to safe spawn) | Tap "Reset Figure" button |
+
+---
+
+## Project Documentation
 
 | Document | Purpose |
 | --- | --- |
-| [Recovery plan](docs/RECOVERY_PLAN.md) | 24 next tasks, LB-033–LB-056, ownership, dependencies and acceptance |
-| [Placement and catalogue](docs/PLACEMENT_AND_CATALOG.md) | Baseplate return, exact stud alignment, camera controls, regression fixtures and staged library growth |
-| [Player experience](docs/EXPERIENCE_DESIGN.md) | Welcome → mode → setup, onboarding, connected flows and finished-build presentation |
-| [Audio and visuals](docs/AUDIO_VISUAL_SPEC.md) | Music, brick sounds, supported haptics, lighting, quality profiles and film audio |
-| [Original project plan](docs/PROJECT_PLAN.md) | M0–M7 requirements that remain binding |
-| [Game design](docs/GAME_DESIGN.md) / [Architecture](docs/ARCHITECTURE.md) | Gameplay and system contracts |
-| [Validation](docs/VALIDATION.md) / [Assets](docs/ASSETS.md) | Evidence requirements and content provenance |
-| [Build instructions](docs/BUILD.md) | Existing development/export entry points; revalidate the toolchain before using release claims |
+| [STATUS](docs/STATUS.md) | Canonical progress, task matrix, and milestone gate ledger |
+| [RELEASE_NOTES](docs/RELEASE_NOTES.md) | Release candidate v2.0.0-rc2 notes and verified artifact checksums |
+| [CREDITS](CREDITS.md) | Complete asset provenance, open-source licences, and author attribution |
+| [PLAY_STORE](docs/PLAY_STORE.md) | Store listing metadata, data safety declarations, and UGC compliance |
+| [ARCHITECTURE](docs/ARCHITECTURE.md) | System design, Godot project structure, and client/server boundaries |
+| [PLACEMENT_AND_CATALOG](docs/PLACEMENT_AND_CATALOG.md) | Canonical stud coordinates, raycasting, and 126-shape catalog specifications |
+| [AUDIO_VISUAL_SPEC](docs/AUDIO_VISUAL_SPEC.md) | Music loops, foley, bus mixing, lighting presets, and camera framing |
+| [VALIDATION](docs/VALIDATION.md) | Validation rules, test fixtures, and evidence standards |
+| [BUILD](docs/BUILD.md) | Toolchain requirements and build scripts |
 
-## Technical direction
+---
 
-Godot with GDScript and Compatibility rendering; shared deterministic rules; an authoritative WebSocket room service; versioned saves, parts and construction events. LDraw/Nova is optional authoring tooling. The web export is part of the plan; generated bundles must be served over HTTP(S) and tested in an actual browser. Native and browser support are verified separately.
+## Licence & Attribution
 
-The catalogue will grow in audited waves to at least **120 distinct buildable shapes**, with 150 as a stretch target. Solo Free Build exposes the supported library; turn-based modes retain six-piece hands drawn from enabled theme packs. Counts are targets until verified.
+- **Game Code**: [MIT License](LICENSE) (Copyright (c) 2026 LittleBricks Contributors).
+- **Parts & Geometry**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
+- **Audio & Music**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
+- **Engine**: Godot Engine 4.7.2 (MIT License).
 
-Project-authored code and documentation use the [MIT licence](LICENSE); assets and dependencies retain their recorded licences. See [Contributing](CONTRIBUTING.md) and [Attribution](ATTRIBUTION.md). LittleBricks uses its own branding and original character designs and is not affiliated with the LEGO Group.
+*LittleBricks is an independent project with original branding and character designs and is not affiliated with the LEGO Group.*

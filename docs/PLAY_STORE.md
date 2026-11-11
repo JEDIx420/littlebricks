@@ -86,9 +86,10 @@ Google Play Families and UGC policies require robust protection against offensiv
 
 ## 6. Permissions Declarations
 
-In `game/export_presets.cfg`, only one permission is declared:
+In `game/export_presets.cfg`, two standard permissions are declared:
 
-- `android.permission.INTERNET`: Strictly required for WebSocket connections to user-hosted or dedicated online multiplayer rooms.
+- `android.permission.INTERNET`: Required for WebSocket connections to user-hosted or dedicated online multiplayer rooms.
+- `android.permission.VIBRATE`: Required for optional tactile haptic pulses on accepted brick placement.
 - **Excluded Permissions**:
   - `READ_EXTERNAL_STORAGE` / `WRITE_EXTERNAL_STORAGE`: Not requested; uses standard scoped internal storage (`user://`).
   - `CAMERA`, `RECORD_AUDIO`, `ACCESS_FINE_LOCATION`: Not requested.

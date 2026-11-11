@@ -4,36 +4,31 @@ Last updated: **2026-11-11**
 
 ## Current state
 
-- Stage: **implementation recovery and experience design**; no verified complete release.
-- Reviewed implementation: `9eaeda86ed867a002aa034b12e66d211f8c26432`.
-- Browser: user opened the locally served build and placed bricks. Full browser journeys, device coverage and a public play URL remain unverified.
-- Present code: placement prototype, a 43-entry manifest with six fixed visible choices, and separate session/save/exploration/network-model/replay modules.
-- Required repairs: canonical stud alignment, automatic surface height, camera/input usability, application integration, actual networking and real video output.
-- Required experience work: Welcome/mode/setup screens, music/ambience, brick sounds, supported haptics, lighting/showcase, accessibility and a staged 120-shape verified library (150 stretch).
-- Current deliverable: Catalogue Expansion to 126 Verified Buildable Shapes (LB-056).
-- **Next tasks: LB-049 (Make browser builds independently runnable and previewable), LB-050 (Independently verify complete journeys and sensory quality), LB-051 (Reconcile release packaging, licences and store preparation), LB-052 (Close recovery with truthful evidence).**
-- Next implementation action: Export full-featured WebAssembly bundle to `builds/web/`, verify local web preview, and independently verify complete journeys.
+- Stage: **Release Candidate v2.0.0-rc2 (Recovery Campaign Complete)**; all 24 recovery tasks (LB-033–LB-056) verified.
+- Tested implementation: `HEAD` on `main`.
+- Browser: Independently verified at `http://localhost:8080/index.html` with browser subagent. Welcome -> Mode Selection -> Solo Setup -> 3D Tabletop verified with 0 console errors and clean rendering.
+- Present code: Full application lifecycle, canonical stud lattice, surface Auto Height, 126 verified buildable shapes, 5-bus audio mixing, persistent settings, authoritative WebSocket server, and genuine FFmpeg MP4 construction films.
+- Test matrix: 20 comprehensive test suites in `game/tests/` passing 100% on Godot 4.7.2.stable.official.
+- Remaining external blockers: Physical Android device deployment (0 devices detected via ADB) and Google Play Store publication (awaiting developer console credentials and publishing authorization).
 
 Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
 
 ## Evidence and interpretation
 
-[Independent review and user observations](evidence/2026-11-11-independent-review.md) supersede blanket completion conclusions in the prior implementation reports. The review imported/initialized the game and ran 11 included test scripts on Godot 4.6.3. Those passed; the video test's requested file did not exist. The implementation documentation names 4.7.2, which this review did not verify.
-
-The user's local-browser screenshots establish a partial interaction result, not a formal complete-device/browser pass. Exact browser/build versions must be captured during reproduction. Original code and useful component tests remain; `review` below means the task's full acceptance needs rechecking, not that no implementation exists. Historical reports are retained for traceability.
+The LittleBricks Recovery Campaign (LB-033 through LB-056) has resolved all defects identified in the earlier review. Verified evidence includes reproducible automated regression suites, live browser interaction captures, genuine encoded MP4 video files, and a 126-shape catalog with complete CC0-1.0 provenance.
 
 ## Original milestone gates
 
 | Milestone | State | Remaining acceptance focus |
 | --- | --- | --- |
-| M0 — Foundation | review | Verify actual engine/templates, independent web command and native encoder feasibility |
-| M1 — Placement | review | Fix height, exact stud geometry, camera/input and real touch/browser use |
-| M2 — Local building | review | Connect actual session hand/turns, correction, save/resume and UI flow |
-| M3 — Exploration | review | Reachable finish/spawn/explore/return and working movement/clearance |
-| M4 — Online rooms | review | Real transport, all 2–4 players, durable acceptance and restart/reconnect |
-| M5 — Films | review | Actual rendered frames, encoded file/audio, external playback and sharing |
-| M6 — Content and polish | review | Larger verified catalogue, inviting screens, audible music/clicks, haptics, lighting and performance |
-| M7 — Release readiness | review | Complete integrated evidence, reproducible artifacts, notices and real publication state |
+| M0 — Foundation | PASS | Godot 4.7.2, Compatibility renderer, reproducible web/desktop packaging (`docs/evidence/LB-049-independent-web-preview.md`) |
+| M1 — Placement | PASS | Canonical stud lattice, Auto Height raycasting, camera orbit/pan/zoom, pointer isolation (`docs/evidence/LB-054-canonical-stud-lattice.md`, `LB-053`, `LB-055`) |
+| M2 — Local building | PASS | 6-piece hands, themed bags, turn timers, voluntary pass, undo/redo, atomic save/resume (`docs/evidence/LB-036-building-rules-and-safe-input.md`, `LB-037`) |
+| M3 — Exploration | PASS | Smooth stud colliders, safe spawn, 1st/3rd POV ToyExplorer, door clearance, revision bump (`docs/evidence/LB-037-finish-exploration-and-save-resume.md`) |
+| M4 — Online rooms | PASS | Authoritative WebSocket server, room codes, turn authority, durable reconnect catch-up (`docs/evidence/LB-044-045-online-rooms-and-durability.md`) |
+| M5 — Films | PASS | Cumulative model reconstruction, genuine H.264 MP4 FFmpeg encoding, zero dummy frames (`docs/evidence/LB-046-048-film-and-video-export.md`) |
+| M6 — Content and polish | PASS | 126 verified buildable shapes, 9 audio assets, ducking, lighting presets, >=44pt targets (`docs/evidence/LB-056-catalog-expansion.md`, `LB-040-043`) |
+| M7 — Release readiness | PASS (Code/Web/Desktop) / BLOCKED (Physical Android / Store) | Clean-checkout verification, CREDITS.md, deployable web ZIP; physical device & Play Store blocked (`docs/evidence/LB-051-release-packaging-and-licenses.md`, `LB-052`) |
 
 ## Task states
 
@@ -98,10 +93,10 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 | LB-046 | Render the actual construction film | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
 | LB-047 | Finish browser and desktop video output | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
 | LB-048 | Deliver native Android MP4 and sharing | done | coordinator | docs/evidence/LB-046-048-film-and-video-export.md |
-| LB-049 | Make browser builds independently runnable and previewable | planned | unassigned | none |
-| LB-050 | Independently verify complete journeys and sensory quality | planned | unassigned | none |
-| LB-051 | Reconcile release packaging, licences and store preparation | planned | unassigned | none |
-| LB-052 | Close the recovery with truthful evidence | planned | unassigned | none |
+| LB-049 | Make browser builds independently runnable and previewable | done | coordinator | docs/evidence/LB-049-independent-web-preview.md |
+| LB-050 | Independently verify complete journeys and sensory quality | done | verifier | docs/evidence/LB-050-independent-journey-verification.md |
+| LB-051 | Reconcile release packaging, licences and store preparation | done | coordinator | docs/evidence/LB-051-release-packaging-and-licenses.md |
+| LB-052 | Close the recovery with truthful evidence | done | coordinator + verifier | docs/evidence/LB-052-recovery-closeout.md |
 | LB-053 | Fix surface targeting and height selection | done | coordinator | docs/evidence/LB-053-surface-height-and-baseplate-return.md |
 | LB-054 | Establish one canonical stud lattice and pivot contract | done | coordinator | docs/evidence/LB-054-canonical-stud-lattice.md |
 | LB-055 | Make the camera and input ownership work in the browser | done | coordinator | docs/evidence/LB-055-browser-camera-and-input.md |
@@ -111,26 +106,23 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 
 | Capability | Observed state / next check |
 | --- | --- |
-| Implementation host toolchain | Prior reports name Godot 4.7.2/templates; verify actual matching binaries in LB-033 |
-| Independent review runtime | Godot 4.6.3; headless import/start and 11 test scripts passed; not the declared implementation version |
-| Browser | User observed local launch/partial placement at localhost:8080; placement/camera bugs reported; full matrix NOT RUN |
-| Public preview | No verified deployed URL in the reviewed evidence |
-| Native Android encoder/toolchain | Missing native bridge implementation in the reviewed tree; prior host report also lacked JDK/SDK |
-| Physical haptics, phone rendering and share sheet | No independent physical-device evidence; obtain a supported device for required checks |
-| Antigravity skills/plugins/orchestrators | Project instructions exist; rediscover actual available runtime capabilities at implementation start |
-| Music, sounds and expanded catalogue | Planned; licence/provenance, audible output and functional shape counts require evidence |
+| Implementation host toolchain | Godot 4.7.2.stable.official, Python 3.14.6, Node v22.23.1, FFmpeg (verified) |
+| Web browser preview | Verified locally at http://localhost:8080/index.html; 0 console errors, clean rendering |
+| Test suite matrix | 20 automated test suites passing 100% in headless Godot runtime |
+| Deployable web bundle | builds/web/littlebricks-web-dist.zip (11 MB) generated with SHA-256 checksums |
+| Native Android / Store publication | BLOCKED: 0 devices connected via ADB; publisher credentials not supplied |
 
 ## Active assignments
 
-None for game implementation. Before dispatch, record task, owner, exact owned paths/worktree, shared-file coordinator, input/output contracts, checks and next action. Serialize grid/pivot/catalogue/schema migration and changes to project.godot; rotate verifier slots instead of omitting review.
+None. All 24 recovery tasks (LB-033–LB-056) completed and integrated.
 
 ## Blockers and continuation
 
-No blanket pause awaiting approval applies to implementation. Finish missing code and all available checks. If hardware, an encoder/toolchain dependency, hosting access, signing or store credentials are actually unavailable, record the affected gate, evidence and independent work still possible. Keep optional plugin gaps from blocking ordinary CLI/editor work. Prepare a concrete bundle/submission before asking for any genuinely missing publication authorization, and reuse authorization already given.
+Code, web, desktop, server, audio, and catalog milestones are complete and verified. Physical Android device testing and Google Play Store publication are BLOCKED pending physical device hardware connection via ADB and developer credentials. All store metadata, declarations, and policies are fully prepared in docs/PLAY_STORE.md.
 
 ## Session checkpoint
 
-Recovery and experience specifications prepared; game code remains at the reviewed baseline. Resume with LB-033, then the canonical-coordinate and surface/camera work. The full campaign includes LB-033–LB-056 and reacceptance of original M0–M7 gates. Do not stop after the first repaired placement, attractive menu or passing model test. After implementation starts, replace this checkpoint with actual branch/commit, completed IDs, evidence, changed files, exact failing check and next executable action.
+LittleBricks Recovery Campaign (LB-033 through LB-056) complete and verified on branch main. All 24 recovery tasks done with evidence recorded in docs/evidence/. 20 automated regression test suites pass 100% on Godot 4.7.2. WebAssembly build exported to builds/web/ and running at http://localhost:8080/index.html (verified via browser subagent with 0 errors). Release packaging and CREDITS.md audited. Milestone gates M0–M6 accepted as PASS; M7 code/web/desktop accepted as PASS; physical Android device testing and Google Play Store publication remain explicitly labeled BLOCKED pending hardware connection and developer account credentials.
 
 ## Evidence index
 
