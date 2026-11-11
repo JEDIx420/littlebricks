@@ -10,9 +10,9 @@ Last updated: **2026-11-11**
 - Present code: placement prototype, a 43-entry manifest with six fixed visible choices, and separate session/save/exploration/network-model/replay modules.
 - Required repairs: canonical stud alignment, automatic surface height, camera/input usability, application integration, actual networking and real video output.
 - Required experience work: Welcome/mode/setup screens, music/ambience, brick sounds, supported haptics, lighting/showcase, accessibility and a staged 120-shape verified library (150 stretch).
-- Current deliverable: Construction Film & Video Export Pipelines (LB-046..LB-048).
-- **Next task: LB-056 (Expand the usable catalogue in verified stages to 120+ shapes). Then LB-049..LB-052 (Independent web packaging, journey verification, release preparation & truthful closeout).**
-- Next implementation action: Expand catalog from 43 to 80, then 120+ verified buildable shapes across Bricks, Plates, Slopes, Arches, Tiles, Windows, Decorative, and Explorers with CC0/permissive provenance.
+- Current deliverable: Catalogue Expansion to 126 Verified Buildable Shapes (LB-056).
+- **Next tasks: LB-049 (Make browser builds independently runnable and previewable), LB-050 (Independently verify complete journeys and sensory quality), LB-051 (Reconcile release packaging, licences and store preparation), LB-052 (Close recovery with truthful evidence).**
+- Next implementation action: Export full-featured WebAssembly bundle to `builds/web/`, verify local web preview, and independently verify complete journeys.
 
 Read [AGENTS.md](../AGENTS.md), [RECOVERY_PLAN.md](RECOVERY_PLAN.md), [PLACEMENT_AND_CATALOG.md](PLACEMENT_AND_CATALOG.md), [EXPERIENCE_DESIGN.md](EXPERIENCE_DESIGN.md), [AUDIO_VISUAL_SPEC.md](AUDIO_VISUAL_SPEC.md), then the original [PROJECT_PLAN.md](PROJECT_PLAN.md). This ledger owns current states; the recovery plan owns priority and dependencies; original M0–M7 acceptance remains binding.
 
@@ -105,7 +105,7 @@ All new tasks are planned. The explicit dispatch order in RECOVERY_PLAN takes pr
 | LB-053 | Fix surface targeting and height selection | done | coordinator | docs/evidence/LB-053-surface-height-and-baseplate-return.md |
 | LB-054 | Establish one canonical stud lattice and pivot contract | done | coordinator | docs/evidence/LB-054-canonical-stud-lattice.md |
 | LB-055 | Make the camera and input ownership work in the browser | done | coordinator | docs/evidence/LB-055-browser-camera-and-input.md |
-| LB-056 | Expand the usable catalogue in verified stages | planned | unassigned | none |
+| LB-056 | Expand the usable catalogue in verified stages | done | coordinator | docs/evidence/LB-056-catalog-expansion.md |
 
 ## Environment and support audit
 
