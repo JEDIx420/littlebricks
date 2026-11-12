@@ -68,7 +68,8 @@ chunk_loader = """		<script>
 				if (url.endsWith("index.wasm")) {
 					try {
 						const direct = await _origFetch(resource, init);
-						if (direct.ok) {
+						const ctype = direct.headers.get("content-type") || "";
+						if (direct.ok && ctype.includes("application/wasm")) {
 							return direct;
 						}
 					} catch (e) {}
@@ -90,6 +91,7 @@ chunk_loader = """		<script>
 						statusText: "OK",
 						headers: {
 							"Content-Type": "application/wasm",
+							"Content-Length": String(combined.byteLength),
 							"Cross-Origin-Opener-Policy": "same-origin",
 							"Cross-Origin-Embedder-Policy": "require-corp"
 						}

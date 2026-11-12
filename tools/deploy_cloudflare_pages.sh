@@ -52,7 +52,7 @@ done
 # 5. Deploy via Wrangler to Cloudflare Pages
 echo ""
 echo "Deploying to Cloudflare Pages project '${PROJECT_NAME}'..."
-npx wrangler pages deploy "${STAGING_DIR}" --project-name "${PROJECT_NAME}" --branch main --commit-dirty=true
+npx --yes wrangler pages deploy "${STAGING_DIR}" --project-name "${PROJECT_NAME}" --branch main --commit-dirty=true
 
 # 6. Cleanup
 rm -rf "${STAGING_DIR}"
