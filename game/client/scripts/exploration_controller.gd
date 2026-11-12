@@ -173,6 +173,7 @@ func setup_exploration_scene(placements: Array, theme_id: String = "harbour") ->
 	var spawn_pos = world_gen.find_default_spawn(placements)
 	var exp_scene: PackedScene = load("res://client/scenes/explorer.tscn")
 	explorer_instance = exp_scene.instantiate() as ToyExplorer
+	explorer_instance.collision_mask |= ExplorationWorld.PERIMETER_LAYER
 	explorer_instance.position = spawn_pos
 	explorer_instance.set_figure(selected_figure)
 	

@@ -67,13 +67,13 @@ script = ExtResource("3_table")
 
 [node name="CameraRig" type="Node3D" parent="."]
 script = ExtResource("2_camera")
-distance = 66.0
+distance = 71.0
 max_distance = 72.0
-pitch = -30.0
-yaw = 25.0
-room_distance = 66.0
-room_pitch = -30.0
-room_yaw = 25.0
+pitch = -25.0
+yaw = -23.0
+room_distance = 71.0
+room_pitch = -25.0
+room_yaw = -23.0
 plate_distance = 51.0
 plate_pitch = -58.0
 plate_yaw = 16.0
@@ -81,7 +81,7 @@ room_bounds = AABB(-69, -22, -46, 138, 100, 117)
 
 [node name="Camera3D" type="Camera3D" parent="CameraRig"]
 current = true
-fov = 49.0
+fov = 57.0
 
 [node name="UI" type="CanvasLayer" parent="."]
 

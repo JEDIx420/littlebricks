@@ -1,7 +1,7 @@
 {
   "ledger_version": "1.0.0",
   "last_updated": "2026-11-12",
-  "total_assets": 66,
+  "total_assets": 70,
   "packages": {
     "kenney_brick_kit": {
       "author": "Kenney (Asset Jesus)",
@@ -23,6 +23,54 @@
     }
   },
   "assets": [
+    {
+      "file": "assets/sourced/kenney_furniture/bookcaseClosedDoors.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "source_pack_version": "2.1",
+      "source_mirror_url": "https://raw.githubusercontent.com/eturner58/game-assets/fc2cd355a8e7c1d8e625fd650abf64f50a1fddaa/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format/bookcaseClosedDoors.glb",
+      "sha256": "ff33f535acdb1825c0e958a293642b39665adcae0b1317b650e83d2bb687f4e2",
+      "size_bytes": 22644,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0",
+      "runtime_changes": "Room-scale transform and surface material overrides. Source GLB unmodified."
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/cabinetBedDrawer.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "source_pack_version": "2.1",
+      "source_mirror_url": "https://raw.githubusercontent.com/eturner58/game-assets/fc2cd355a8e7c1d8e625fd650abf64f50a1fddaa/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format/cabinetBedDrawer.glb",
+      "sha256": "e3dfd2e120af3d4d29b66509e317452cd15bd3f57ac8945575462c582adc6de8",
+      "size_bytes": 16088,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0",
+      "runtime_changes": "Room-scale transform and surface material overrides. Source GLB unmodified."
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/loungeDesignSofa.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "source_pack_version": "2.1",
+      "source_mirror_url": "https://raw.githubusercontent.com/eturner58/game-assets/fc2cd355a8e7c1d8e625fd650abf64f50a1fddaa/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format/loungeDesignSofa.glb",
+      "sha256": "0dd73c4f78ae011d5fa72753b33a5ea75e17c7885b9b32ea66f45a82cf329854",
+      "size_bytes": 9128,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0",
+      "runtime_changes": "Room-scale transform and surface material overrides. Source GLB unmodified."
+    },
+    {
+      "file": "assets/sourced/kenney_furniture/pillow.glb",
+      "package": "kenney_furniture_kit",
+      "license": "CC0-1.0",
+      "upstream_url": "https://kenney.nl/assets/furniture-kit",
+      "source_pack_version": "2.1",
+      "source_mirror_url": "https://raw.githubusercontent.com/eturner58/game-assets/fc2cd355a8e7c1d8e625fd650abf64f50a1fddaa/kenney/3D%20assets/Furniture%20Kit/Models/GLTF%20format/pillow.glb",
+      "sha256": "6fae7c190d0b676ef3efd35e5178cef21dffb5c80e1257d8b537ad424da0e5f6",
+      "size_bytes": 5044,
+      "attribution": "Kenney (kenney.nl) - CC0 1.0",
+      "runtime_changes": "Room-scale transform and surface material overrides. Source GLB unmodified."
+    },
     {
       "file": "assets/sourced/kenney_furniture/bookcaseOpen.glb",
       "package": "kenney_furniture_kit",

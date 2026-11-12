@@ -25,5 +25,5 @@ void fragment() {
 	float edges = smoothstep(0.0, 0.12, p.x) * smoothstep(0.0, 0.12, 1.0 - p.x)
 		* smoothstep(0.0, 0.10, p.y) * smoothstep(0.0, 0.10, 1.0 - p.y);
 	ALBEDO = vec3(0.75, 0.86, 0.92);
-	ALPHA = line * streak * step(0.56, seed) * rain * edges * mix(0.68, 0.52, layer_seed);
+	ALPHA = line * streak * step(0.56, seed) * smoothstep(0.0, 1.0, rain) * edges * mix(0.68, 0.52, layer_seed);
 }

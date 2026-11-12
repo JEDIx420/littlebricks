@@ -31,6 +31,9 @@ static func build(root: Node3D, id: String, dims: Array, mat: StandardMaterial3D
 		"ladder_1x2x6":
 			for sign_z in [-1.0, 1.0]:
 				box(root, Vector3(0.52, height, 0.23), Vector3(0, height * 0.5, sign_z * (length * 0.5 - 0.13)), mat)
+			# Both end caps are actual flat connector surfaces.
+			for end_y in [0.09, height - 0.09]:
+				box(root, Vector3(0.74, 0.18, length - 0.04), Vector3(0, end_y, 0), mat)
 			for i in range(9):
 				box(root, Vector3(0.33, 0.16, length - 0.2), Vector3(0, 0.4 + (height - 0.8) * i / 8.0, 0), dark)
 		"bollard_1x1":
@@ -61,6 +64,7 @@ static func build(root: Node3D, id: String, dims: Array, mat: StandardMaterial3D
 				var angle: float = TAU * i / 5.0
 				oval(root, Vector3(0.55, 0.48, 0.55), Vector3(cos(angle) * 0.38, height - 0.49, sin(angle) * 0.38), mat if i % 2 == 0 else dark)
 		"tree_cone_2x2x4":
+			box(root, Vector3(width - 0.07, 0.20, length - 0.07), Vector3.UP * 0.10, tint(mat, Color("#77583d")))
 			cylinder(root, width * 0.14, width * 0.10, height * 0.45, Vector3.UP * height * 0.225, tint(mat, Color("#7b5639")))
 			for i in range(3):
 				var radius: float = width * (0.48 - 0.08 * i)
@@ -75,11 +79,13 @@ static func build(root: Node3D, id: String, dims: Array, mat: StandardMaterial3D
 			for fraction in [0.19, 0.81]:
 				cylinder(root, width * 0.43, width * 0.43, height * 0.09, Vector3.UP * height * fraction, dark, 24)
 		"bench_1x4":
+			box(root, Vector3(width * 0.74, 0.12, length - 0.09), Vector3.UP * 0.06, dark)
 			box(root, Vector3(width * 0.88, 0.16, length - 0.05), Vector3(0, height * 0.51, 0), mat)
 			box(root, Vector3(width * 0.20, 0.35, length - 0.05), Vector3(0.37, height - 0.175, 0), mat)
 			for sign_z in [-1.0, 1.0]:
 				box(root, Vector3(width * 0.75, height * 0.43, 0.22), Vector3(0, height * 0.215, sign_z * length * 0.39), dark)
 		"flag_1x2":
+			box(root, Vector3(width * 0.80, 0.14, length - 0.06), Vector3.UP * 0.07, dark)
 			cylinder(root, 0.24, 0.18, 0.18, Vector3(0, 0.09, -length * 0.30), dark)
 			cylinder(root, 0.06, 0.05, height, Vector3(0, height * 0.5, -length * 0.30), dark)
 			var profile := PackedVector2Array([Vector2(-length * 0.29, height * 0.46), Vector2(length * 0.48, height * 0.72), Vector2(-length * 0.29, height * 0.98)])
@@ -160,10 +166,13 @@ static func build(root: Node3D, id: String, dims: Array, mat: StandardMaterial3D
 		"bird_seagull_1x1":
 			oval(root, Vector3(width * 0.26, height * 0.24, length * 0.32), Vector3(0, height * 0.43, 0), mat)
 			oval(root, Vector3(width * 0.19, height * 0.22, length * 0.20), Vector3(0, height * 0.73, -length * 0.23), light)
+			var bill: StandardMaterial3D = tint(mat, Color("#d7a553"))
 			for side in [-1.0, 1.0]:
 				var wing := oval(root, Vector3(width * 0.27, height * 0.12, length * 0.26), Vector3(side * width * 0.20, height * 0.57, length * 0.06), dark)
 				wing.rotation.z = side * 0.23
-			oval(root, Vector3(width * 0.08, height * 0.085, length * 0.14), Vector3(0, height * 0.69, -length * 0.38), tint(mat, Color("#d7a553")))
+				cylinder(root, 0.038, 0.034, 0.21, Vector3(side * 0.10, 0.12, 0.02), bill, 10)
+				box(root, Vector3(0.105, 0.035, 0.17), Vector3(side * 0.10, 0.0175, -0.025), bill)
+			oval(root, Vector3(width * 0.08, height * 0.085, length * 0.14), Vector3(0, height * 0.69, -length * 0.34), bill)
 		_:
 			return false
 	return true
@@ -254,7 +263,7 @@ static func hollow_cup(root: Node3D, radius: float, height: float, mat: Material
 	var body := Node3D.new()
 	root.add_child(body)
 	if flipped:
-		body.position.y = height + 0.11
+		body.position.y = height
 		body.rotation.z = PI
 	cylinder(body, radius * 0.67, radius * 0.69, 0.12, Vector3.UP * 0.06, dark)
 	var surface := SurfaceTool.new()

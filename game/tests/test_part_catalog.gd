@@ -62,8 +62,10 @@ func _init() -> void:
 	arch_node.free()
 	
 	var explorer_node: Node3D = PartMeshBuilder.build_part_node(catalog.get_part("explorer_candidate_01"), Color.WHITE)
-	if not explorer_node or explorer_node.get_child_count() != 1 or not explorer_node.get_child(0).has_node("LeftLeg"):
-		print("FAILED: PartMeshBuilder failed on explorer figure")
+	if not explorer_node or explorer_node.get_child_count() != 2 or not explorer_node.get_child(0).has_node("LeftLeg") or not explorer_node.get_child(1) is MeshInstance3D:
+		print("FAILED: PartMeshBuilder failed to provide an explorer rig and its stand")
+		if explorer_node:
+			explorer_node.free()
 		quit(1)
 		return
 	explorer_node.free()

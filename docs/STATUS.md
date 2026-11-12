@@ -2,6 +2,16 @@
 
 Last updated: **2026-11-12**
 
+## Playroom, figure finish, brick fit and replay
+
+- Explore uses four invisible collision walls just beyond the baseplate, on a player-only layer. A small supported margin closes the gap at the plate edge. The third-person spring arm keeps its existing world mask and can orbit outside the plate.
+- The four themed figures use deeper molded detail and more responsive toy-plastic materials. Darth Vader has no lightsaber. Display figures retain their saved grid footprints and are proportionally scaled.
+- Daylight, shadows, window sky, rain and room lamps transition continuously. Manual presets fade through twilight over 5.5 seconds. The current fade can carry through Explore or a save. Reduced Motion applies manual presets immediately and holds the automatic cycle.
+- The furnished playroom includes a sofa, cupboards, artwork, and wall displays with completed brick models. The furniture is credited in the sourced asset folder.
+- The catalogue fit check covers 145 rendered parts, 580 rotated placements and 5,584 individual stud or socket connections. Corrected floating decorative pieces and aligned contact geometry without changing existing part IDs or saved anchors.
+- Showcase replay uses a bounded indoor camera sized to the recorded build. Native regression fixtures covered a 38-brick final reveal, where the old camera could cross a wall.
+- Godot 4.6.3 native checks cover all perimeter edges, diagonal movement, maximum build height, fully covered boards, normal camera orbit and return to the build.
+
 ## Workshop packs and atmosphere
 
 - Added Galactic Hangar, Heroes HQ and Castle Keep. The new packs have 15 construction and display parts converted from attributed LDraw models. Darth Vader, Stormtrooper, Iron Man and Captain America are available as both catalogue figures and playable Explorer looks. See [asset attribution](../ATTRIBUTION.md) for the source licenses, transformations, and the distinction between CAD and franchise rights.

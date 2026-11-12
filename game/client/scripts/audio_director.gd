@@ -19,6 +19,7 @@ const SOUNDS = {
 	"music_night": preload("res://assets/audio/music_night.ogg"),
 }
 const WORKSHOP_PLAYLIST: Array[String] = ["music_building", "music_brick_box", "music_tinker"]
+const WEATHER_CROSSFADE_SECONDS := 3.5
 
 var _music_player_a: AudioStreamPlayer
 var _music_player_b: AudioStreamPlayer
@@ -135,7 +136,7 @@ func set_workshop_atmosphere(is_raining: bool, is_night: bool) -> void:
 	_raining = is_raining
 	_night = is_night
 	if _workshop_active:
-		_play_music(_workshop_track())
+		_play_music(_workshop_track(), false, WEATHER_CROSSFADE_SECONDS)
 
 func _workshop_track() -> String:
 	if _raining:
@@ -180,7 +181,7 @@ func _play_sfx(sound_name: String, vol_offset_db: float = 0.0, pitch_var: float 
 		player.pitch_scale = 1.0
 	player.play()
 
-func _play_music(track_name: String, force_restart: bool = false) -> void:
+func _play_music(track_name: String, force_restart: bool = false, crossfade_seconds: float = 0.75) -> void:
 	if not SOUNDS.has(track_name):
 		return
 	if _current_music_track == track_name and not force_restart:
@@ -193,23 +194,39 @@ func _play_music(track_name: String, force_restart: bool = false) -> void:
 		_music_transition.kill()
 	if _music_duck:
 		_music_duck.kill()
-	var incoming = _music_player_b if _active_music_is_a else _music_player_a
-	var outgoing = _music_player_a if _active_music_is_a else _music_player_b
-	_active_music_is_a = not _active_music_is_a
-
 	var stream: AudioStreamOggVorbis = SOUNDS[track_name]
+	var incoming := _music_player_b if _active_music_is_a else _music_player_a
+	var outgoing := _music_player_a if _active_music_is_a else _music_player_b
+	# Keep the louder cue when a third cue interrupts a crossfade.
+	if incoming.playing and outgoing.playing and incoming.stream != stream and incoming.volume_db > outgoing.volume_db:
+		var louder := incoming
+		incoming = outgoing
+		outgoing = louder
+	_active_music_is_a = incoming == _music_player_a
 	stream.loop = track_name not in WORKSHOP_PLAYLIST
-	incoming.stop()
-	incoming.stream = stream
-	incoming.volume_db = -24.0
-	incoming.play()
+	var incoming_gain := 0.0
+	if incoming.playing and incoming.stream == stream and not force_restart:
+		# Reversing weather can bring the same cue back without restarting it.
+		incoming_gain = db_to_linear(incoming.volume_db)
+	else:
+		incoming.stop()
+		incoming.stream = stream
+		incoming.volume_db = -80.0
+		incoming.play()
 
-	var fade_seconds := 0.75 if outgoing.playing else 0.16
-	_music_transition = create_tween().set_parallel(true)
-	_music_transition.tween_property(incoming, "volume_db", 0.0, fade_seconds).set_trans(Tween.TRANS_SINE)
-	if outgoing.playing:
-		_music_transition.tween_property(outgoing, "volume_db", -35.0, fade_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
-		_music_transition.chain().tween_callback(outgoing.stop)
+	var was_playing: bool = outgoing.playing
+	var previous_gain := db_to_linear(outgoing.volume_db)
+	var fade_seconds := crossfade_seconds if was_playing else 0.16
+	_music_transition = create_tween()
+	_music_transition.tween_method(func(progress: float):
+		var angle := progress * PI * 0.5
+		var incoming_power := lerpf(incoming_gain * incoming_gain, 1.0, sin(angle) * sin(angle))
+		incoming.volume_db = _calc_db(sqrt(incoming_power))
+		if was_playing:
+			outgoing.volume_db = _calc_db(previous_gain * cos(angle))
+	, 0.0, 1.0, fade_seconds)
+	if was_playing:
+		_music_transition.tween_callback(outgoing.stop)
 
 func set_mute(muted: bool) -> void:
 	_is_muted = muted

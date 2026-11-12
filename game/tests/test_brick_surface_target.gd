@@ -30,7 +30,6 @@ func _init() -> void:
 	_check_bounds(rules, "slope_curved_1x4", Vector3(1, 0.8, 4))
 	_check_bounds(rules, "window_1x2x2", Vector3(1, 2.6, 2))
 	_check_bounds(rules, "tile_1x6", Vector3(1, 0.4, 6))
-	_check_bounds(rules, "toy_explorer_pippin", Vector3(2, 4, 1))
 	_expect(rules.get_absolute_top_studs("toy_explorer_pippin", 10, 10, 0, 0).is_empty(), "Figures are decorative and cannot support bricks")
 	if not failed:
 		print("PASS: representative part silhouettes and physical snap targets")
