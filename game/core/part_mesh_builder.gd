@@ -10,6 +10,8 @@ const STUD_HEIGHT: float = 0.18
 const STUD_SPACING: float = 1.0
 const PLATE_HEIGHT: float = 0.4
 const KENNEY_STUD_PITCH := Vector3(0.0795, 0.0800, 0.0790)
+const FIGURE_STAND_HEIGHT: float = 0.16
+const FIGURE_DISPLAY_SCALE: float = 0.53
 
 const KENNEY_PART_MAP: Dictionary = {
 	"brick_1x1": {"file": "bevel-hq-brick-1x1.glb", "swap_xz": false},
@@ -60,16 +62,19 @@ static func build_part_node(part_def: Dictionary, color: Color) -> Node3D:
 	if cat == "character":
 		var figure = MinifigureModel.new()
 		figure.configure(pid)
-		# Fit the figure to its existing stud footprint. The walking explorer
-		# instantiates the same model directly at its natural scale.
+		# Display figures fit the original save footprint with a uniform scale.
+		# The standing model and its walking counterpart keep the same proportions.
 		var figure_bounds: AABB = figure.get_render_bounds()
-		var slot := Vector3(float(dims[0]) - 0.035, body_top_y - 0.020, float(dims[2]) - 0.035)
-		figure.scale = slot / figure_bounds.size
-		if pid == "explorer_candidate_01":
-			figure.scale = Vector3.ONE * minf(figure.scale.x, figure.scale.y)
+		var stand_size := Vector3(float(dims[0]) - 0.035, FIGURE_STAND_HEIGHT, float(dims[2]) - 0.035)
+		var fit := Vector3(stand_size.x, body_top_y - FIGURE_STAND_HEIGHT, stand_size.z) / figure_bounds.size
+		var uniform_scale := minf(FIGURE_DISPLAY_SCALE, minf(fit.x, minf(fit.y, fit.z)))
+		figure.scale = Vector3.ONE * uniform_scale
 		var center := figure_bounds.get_center()
-		figure.position = Vector3(-center.x, -figure_bounds.position.y, -center.z) * figure.scale
+		figure.position = Vector3(-center.x, -figure_bounds.position.y, -center.z) * uniform_scale
+		figure.position.y += FIGURE_STAND_HEIGHT
 		root.add_child(figure)
+		var stand_material := SpecialtyMeshes.tint(mat, Color("#34383d"))
+		SpecialtyMeshes.box(root, stand_size, Vector3.UP * FIGURE_STAND_HEIGHT * 0.5, stand_material)
 		return root
 	if _build_catalogue_mesh(root, part_def, mat) or _try_build_sourced_mesh(root, pid, mat):
 		return root

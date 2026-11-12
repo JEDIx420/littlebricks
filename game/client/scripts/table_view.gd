@@ -389,11 +389,13 @@ func apply_atmosphere(daylight: float, sunset: float, rain: float, rain_time: fl
 	var garden_night := Color("#263e4a")
 	_garden_green.albedo_color = garden_night.lerp(garden_day, daylight)
 	for layer in _rain_layers:
-		layer.visible = rain > 0.01
+		layer.visible = rain > 0.0
 		if layer.visible:
 			(layer.material_override as ShaderMaterial).set_shader_parameter("rain", rain)
 	set_rain_time(rain_time)
-	var lamplight := clampf((1.0 - daylight) * 1.05 + rain * 0.46, 0.0, 1.2)
+	# The practical lights gradually take over as daylight softens.
+	var lamplight := (1.0 - smoothstep(0.13, 0.90, daylight)) * 1.05
+	lamplight += smoothstep(0.10, 0.92, rain) * 0.40
 	_workshop_lamp.light_energy = lamplight * 1.32
 	_desk_lamp.light_energy = lamplight * 1.4
 	_desk_diffuser.emission_energy_multiplier = lamplight * 1.08
@@ -406,35 +408,17 @@ func set_rain_time(rain_time: float) -> void:
 			(layer.material_override as ShaderMaterial).set_shader_parameter("animation_time", rain_time)
 
 func _setup_furniture() -> void:
-	var shelf_scale := 47.0
-	_furniture("bookcaseOpen", Vector3(27, FLOOR_Y, -34), shelf_scale)
-	_furniture("books", Vector3(31.0, FLOOR_Y + 0.13 * shelf_scale, -35.8), 38.0)
-	_furniture("books", Vector3(37.8, FLOOR_Y + 0.37 * shelf_scale, -35.7), 34.0)
-	_furniture("plantSmall1", Vector3(33.3, FLOOR_Y + 0.61 * shelf_scale, -39), 32.0, 20.0)
-	_furniture("lampRoundFloor", Vector3(49, FLOOR_Y, -31), 43.0)
-	_furniture("chair", Vector3(-30, FLOOR_Y, -24), 35.0, 65.0)
-	_furniture("chairCushion", Vector3(-30, FLOOR_Y, -24), 35.0, 65.0)
+	var furnishings := preload("res://client/scripts/workshop_furnishings.gd").new()
+	furnishings.name = "WorkshopFurnishings"
+	room_node.add_child(furnishings)
+	furnishings.furnish(FLOOR_Y, BACK_WALL, ROOM_FRONT, ROOM_WIDTH * 0.5)
+	_furniture("books", Vector3(39, FLOOR_Y + 34.0, -42), 34.0)
+	_furniture("plantSmall1", Vector3(25.2, FLOOR_Y + 11.4, -39), 29.0, 20.0)
+	_furniture("lampRoundFloor", Vector3(54.0, FLOOR_Y, -29), 43.0)
+	_furniture("chair", Vector3(-51, FLOOR_Y, -29), 35.0, 65.0)
+	_furniture("chairCushion", Vector3(-51, FLOOR_Y, -29), 35.0, 65.0)
 	_furniture("pottedPlant", Vector3(-48, FLOOR_Y, -41), 29.0, 15.0)
 	_furniture("plantSmall1", Vector3(-22, TABLE_TOP_Y, -17.5), 18.0, 20.0)
-	_picture(Vector3(6.0, 12.0, BACK_WALL + 1.5), Vector2(11, 14), Color("#d99d66"))
-	_picture(Vector3(18.2, 17.0, BACK_WALL + 1.5), Vector2(10, 10), Color("#719a89"))
-
-func _picture(at: Vector3, size: Vector2, accent: Color) -> void:
-	_box(room_node, "PrintFrame", Vector3(size.x, size.y, 0.42), at, _material(Color("#825b41"), 0.65))
-	_box(room_node, "PrintPaper", Vector3(size.x - 0.8, size.y - 0.8, 0.12), at + Vector3(0, 0, 0.22), _material(Color("#efe1c9"), 0.9))
-	var sun := MeshInstance3D.new()
-	var disc := CylinderMesh.new()
-	disc.top_radius = size.x * 0.23
-	disc.bottom_radius = disc.top_radius
-	disc.height = 0.07
-	disc.radial_segments = 32
-	disc.rings = 1
-	sun.mesh = disc
-	sun.rotation_degrees.x = 90.0
-	sun.position = at + Vector3(size.x * 0.11, size.y * 0.18, 0.30)
-	sun.material_override = _material(accent, 0.9)
-	room_node.add_child(sun)
-	_box(room_node, "PrintStripe", Vector3(size.x * 0.58, 0.45, 0.08), at + Vector3(0, -size.y * 0.16, 0.30), _material(accent.darkened(0.28), 0.92))
 
 func _furniture(asset: String, at: Vector3, scale_factor: float, turn: float = 0.0) -> void:
 	var packed := load("res://assets/sourced/kenney_furniture/%s.glb" % asset) as PackedScene

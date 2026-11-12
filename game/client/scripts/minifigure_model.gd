@@ -52,26 +52,26 @@ func configure(variant: String) -> void:
 			trousers_color = Color("#625569")
 			strap_color = Color("#343f40")
 		"toy_explorer_darth_vader":
-			jacket_color = Color("#282a31")
-			trousers_color = Color("#272931")
+			jacket_color = Color("#202127")
+			trousers_color = Color("#292b32")
 			hand_color = Color("#202126")
 		"toy_explorer_stormtrooper":
-			jacket_color = Color("#e8e6df")
-			trousers_color = Color("#dcdcd5")
+			jacket_color = Color("#cdd2d5")
+			trousers_color = Color("#c2c7ca")
 			hand_color = Color("#252a2d")
 		"toy_explorer_iron_man":
-			jacket_color = Color("#ab202a")
-			trousers_color = Color("#8b212e")
+			jacket_color = Color("#8f2631")
+			trousers_color = Color("#722733")
 			hand_color = Color("#c62d32")
 		"toy_explorer_captain_america":
-			jacket_color = Color("#28568b")
-			trousers_color = Color("#21456c")
+			jacket_color = Color("#31547b")
+			trousers_color = Color("#263f5b")
 			hand_color = Color("#a12b36")
 
 	var plastic := _material(hand_color, 0.34)
-	var coat := _material(jacket_color, 0.32)
+	var coat := _material(jacket_color, 0.30)
 	var pants := _material(trousers_color, 0.34)
-	var boots := _material(trousers_color.darkened(0.22), 0.36)
+	var boots := _material(trousers_color.darkened(0.24), 0.29)
 	var leather := _material(strap_color, 0.57)
 	var pack := _material(Color("#c59352"), 0.55)
 	var pack_trim := _material(Color("#9b6b3c"), 0.58)
@@ -83,10 +83,10 @@ func configure(variant: String) -> void:
 	_left_leg = _pivot("LeftLeg", Vector3(-0.395, 1.42, 0))
 	_right_leg = _pivot("RightLeg", Vector3(0.395, 1.42, 0))
 	for leg in [_left_leg, _right_leg]:
-		_mold(leg, Vector3(0, -0.58, 0.015), Vector3(0.73, 1.16, 0.83), 0.08, pants)
-		_mold(leg, Vector3(0, -1.24, -0.105), Vector3(0.75, 0.36, 1.07), 0.07, boots)
+		_mold(leg, Vector3(0, -0.56, 0.025), Vector3(0.72, 1.12, 0.84), 0.10, pants, 0.74)
+		_mold(leg, Vector3(0, -1.24, -0.105), Vector3(0.75, 0.36, 1.07), 0.095, boots, 0.72)
 	_mold(self, Vector3(0, 1.49, 0.0), Vector3(1.57, 0.31, 0.90), 0.075, pants)
-	_mold(self, Vector3(0, 2.24, 0.0), Vector3(1.62, 1.19, 0.95), 0.10, coat, 1.22)
+	_mold(self, Vector3(0, 2.24, 0.0), Vector3(1.62, 1.19, 0.95), 0.14, coat, 1.23)
 	_lathe(self, Vector3(0, 2.90, 0), [Vector2(0.25, -0.11), Vector2(0.29, -0.08),
 		Vector2(0.29, 0.07), Vector2(0.25, 0.11)], plastic)
 
@@ -157,96 +157,212 @@ func _render_bounds(node: Node3D, model_space: Transform3D) -> AABB:
 	return bounds
 
 func _dress_vader() -> void:
-	_accessory(self, VADER_HELMET, Vector3(0, 3.62, 0), 0.72)
-	var graphite := _material(Color("#42434c"), 0.48)
-	var black := _material(Color("#1e2027"), 0.72)
-	var buckle := _material(Color("#8c909b"), 0.44)
-	var red := _material(Color("#cb3646"), 0.36)
-	var blue := _material(Color("#5b9cc7"), 0.32)
-	_mold(self, Vector3(0, 2.19, -0.50), Vector3(0.60, 0.47, 0.08), 0.026, black)
-	for x in [-0.39, 0.39]:
-		_mold(self, Vector3(x, 2.60, -0.49), Vector3(0.30, 0.19, 0.08), 0.03, graphite).rotation.z = x * 0.38
-		_mold(self, Vector3(x, 1.48, -0.47), Vector3(0.22, 0.17, 0.08), 0.02, black)
-		_mold(self, Vector3(x, 1.49, -0.52), Vector3(0.10, 0.06, 0.025), 0.01, buckle)
-	for i in 3:
-		_mold(self, Vector3(-0.17 + i * 0.17, 2.24, -0.549), Vector3(0.10, 0.095, 0.025), 0.01, red if i == 0 else blue)
-	_mold(self, Vector3(0, 2.09, -0.547), Vector3(0.36, 0.06, 0.020), 0.008, buckle)
+	var helmet := _accessory(self, VADER_HELMET, Vector3(0, 3.62, 0), 0.72)
+	_finish_accessory(helmet, 0.26)
+	var alloy := _material(Color("#555b67"), 0.28)
+	var armor := _material(Color("#343942"), 0.27)
+	var black := _material(Color("#171b22"), 0.40)
+	var fabric := _material(Color("#23262d"), 0.86)
+	var silver := _material(Color("#a0a6ae"), 0.29)
+	var red := _material(Color("#9e3444"), 0.31)
+	var blue := _material(Color("#578baa"), 0.31)
+
+	# A single sculpted yoke sits over the suit and wraps over both shoulders.
+	_panel(self, Vector3(0, 2.64, -0.46), [
+		Vector2(-0.70, -0.10), Vector2(-0.44, -0.18), Vector2(0.44, -0.18),
+		Vector2(0.70, -0.10), Vector2(0.59, 0.10), Vector2(0.30, 0.16),
+		Vector2(-0.30, 0.16), Vector2(-0.59, 0.10)], 0.15, armor)
+	for side in [-1.0, 1.0]:
+		var shoulder := _mold(self, Vector3(side * 0.50, 2.65, -0.54),
+			Vector3(0.30, 0.13, 0.07), 0.024, alloy, 0.22)
+		shoulder.rotation.z = side * -0.24
+		_mold(self, Vector3(side * 0.35, 2.15, -0.465), Vector3(0.13, 0.52, 0.058), 0.019, fabric)
+		_mold(self, Vector3(side * 0.49, 1.48, -0.49), Vector3(0.24, 0.19, 0.11), 0.027, black)
+		for dot_index in 2:
+			_mold(self, Vector3(side * 0.49 - 0.039 + dot_index * 0.078, 1.50, -0.553),
+				Vector3(0.034, 0.063, 0.021), 0.006, silver)
+
+	_mold(self, Vector3(0, 2.15, -0.51), Vector3(0.63, 0.49, 0.11), 0.047, armor)
+	_mold(self, Vector3(0, 2.16, -0.57), Vector3(0.50, 0.38, 0.037), 0.025, black)
+	for index in 3:
+		_mold(self, Vector3(-0.15 + index * 0.15, 2.23, -0.594),
+			Vector3(0.077, 0.083, 0.025), 0.008, red if index == 0 else blue)
+	for y in [2.04, 2.10]:
+		_mold(self, Vector3(0, y, -0.594), Vector3(0.30, 0.025, 0.019), 0.005, silver)
+	_mold(self, Vector3(0, 1.48, -0.525), Vector3(0.23, 0.16, 0.11), 0.026, alloy)
+
+	for leg in [_left_leg, _right_leg]:
+		_panel(leg, Vector3(0, -0.77, -0.38), [
+			Vector2(-0.21, -0.37), Vector2(0.21, -0.37), Vector2(0.22, 0.25),
+			Vector2(0.14, 0.33), Vector2(-0.14, 0.33), Vector2(-0.22, 0.25)], 0.11, black)
+	for arm in [_left_arm, _right_arm]:
+		var side := signf(arm.position.x)
+		_mold(arm, Vector3(side * 0.225, -0.65, -0.102), Vector3(0.405, 0.25, 0.46), 0.069, armor)
+
+	# The cape has depth at the shoulders and broad cloth folds from neck to hem.
 	var cape := SurfaceTool.new()
 	cape.begin(Mesh.PRIMITIVE_TRIANGLES)
-	for i in 20:
-		var a := -1.0 + i * 0.10
-		var b := a + 0.10
-		_quad(cape, _cape_corner(a, false), _cape_corner(b, false),
-			_cape_corner(b, true), _cape_corner(a, true))
-	black.cull_mode = BaseMaterial3D.CULL_DISABLED
-	_instance(self, Vector3.ZERO, cape, black)
-	var hilt := _material(Color("#6b717c"), 0.34)
-	_lathe(_right_arm, Vector3(0.23, -0.94, -0.28), [
-		Vector2(0.08, -0.19), Vector2(0.11, -0.15), Vector2(0.11, 0.21), Vector2(0.08, 0.24)], hilt)
-	red.emission_enabled = true
-	red.emission = Color("#ff183c")
-	red.emission_energy_multiplier = 0.7
-	_lathe(_right_arm, Vector3(0.23, -0.71, -0.28), [
-		Vector2(0.066, 0), Vector2(0.065, 1.35), Vector2(0.035, 1.39)], red)
+	for row in 7:
+		var top := float(row) / 7.0
+		var bottom := float(row + 1) / 7.0
+		for column in 28:
+			var left := float(column) / 14.0 - 1.0
+			var right := float(column + 1) / 14.0 - 1.0
+			_quad(cape, _cape_point(left, top), _cape_point(right, top),
+				_cape_point(right, bottom), _cape_point(left, bottom))
+	fabric.cull_mode = BaseMaterial3D.CULL_DISABLED
+	_instance(self, Vector3.ZERO, cape, fabric)
 
-func _cape_corner(x: float, hem: bool) -> Vector3:
-	if hem:
-		return Vector3(x * 1.01, 0.24 + absf(x) * 0.13, 0.68 + cos(x * 15.0) * 0.09 + (1.0 - absf(x)) * 0.19)
-	return Vector3(x * 0.60, 2.76 - absf(x) * 0.06, 0.39 + cos(x * 15.0) * 0.032)
+func _cape_point(x: float, drop: float) -> Vector3:
+	var edge := absf(x)
+	var pleat := cos(x * TAU * 1.8) * lerpf(0.022, 0.088, drop)
+	var shoulder := lerpf(0.60, 1.04, pow(drop, 0.78))
+	var hem := 0.23 + edge * edge * 0.17 + cos(x * TAU * 1.15) * 0.029
+	var back := 0.42 + sin(drop * PI * 0.61) * 0.27 + (1.0 - edge) * drop * 0.11
+	return Vector3(x * shoulder, lerpf(2.78 - edge * 0.11, hem, drop), back + pleat)
 
 func _dress_stormtrooper() -> void:
-	_accessory(self, TROOPER_HELMET, Vector3(0, 3.54, 0), 0.62)
-	var carbon := _material(Color("#252b30"), 0.48)
-	var white := _material(Color("#f0eee6"), 0.41)
-	_mold(self, Vector3(0, 2.42, -0.484), Vector3(1.08, 0.39, 0.08), 0.036, white)
-	_mold(self, Vector3(0, 1.57, -0.466), Vector3(1.58, 0.17, 0.06), 0.021, carbon)
-	for i in 5:
-		_mold(self, Vector3(-0.53 + i * 0.263, 1.57, -0.502), Vector3(0.18, 0.14, 0.052), 0.017, white)
+	var helmet := _accessory(self, TROOPER_HELMET, Vector3(0, 3.54, 0), 0.62)
+	_finish_accessory(helmet, 0.30)
+	var carbon := _material(Color("#252b30"), 0.54)
+	var seam := _material(Color("#69777f"), 0.46)
+	var white := _material(Color("#e8e7e0"), 0.31)
+	_panel(self, Vector3(0, 2.43, -0.46), [
+		Vector2(-0.54, -0.12), Vector2(-0.36, -0.22), Vector2(0.36, -0.22),
+		Vector2(0.54, -0.12), Vector2(0.51, 0.16), Vector2(0.31, 0.23),
+		Vector2(-0.31, 0.23), Vector2(-0.51, 0.16)], 0.18, white)
+	_mold(self, Vector3(0, 2.04, -0.486), Vector3(0.75, 0.29, 0.095), 0.035, seam)
+	_mold(self, Vector3(0, 2.04, -0.536), Vector3(0.64, 0.21, 0.066), 0.028, white)
 	for i in 3:
-		_mold(self, Vector3(0, 1.89 + i * 0.072, -0.478), Vector3(0.59 - i * 0.05, 0.038, 0.035), 0.01, carbon)
+		_mold(self, Vector3(0, 1.99 + i * 0.048, -0.572),
+			Vector3(0.29 - i * 0.025, 0.025, 0.015), 0.004, carbon)
+	_mold(self, Vector3(0, 1.57, -0.47), Vector3(1.56, 0.20, 0.095), 0.032, carbon)
+	for i in 5:
+		_mold(self, Vector3(-0.54 + i * 0.27, 1.58, -0.532),
+			Vector3(0.21, 0.16, 0.075), 0.024, white)
 	for leg in [_left_leg, _right_leg]:
-		_mold(leg, Vector3(0, -0.76, -0.41), Vector3(0.45, 0.16, 0.07), 0.026, carbon)
+		_mold(leg, Vector3(0, -0.53, -0.397), Vector3(0.51, 0.11, 0.07), 0.021, carbon)
+		_panel(leg, Vector3(0, -0.89, -0.39), [
+			Vector2(-0.24, -0.24), Vector2(0.24, -0.24), Vector2(0.23, 0.24),
+			Vector2(0.12, 0.30), Vector2(-0.12, 0.30), Vector2(-0.23, 0.24)], 0.11, white)
+	for arm in [_left_arm, _right_arm]:
+		var side := signf(arm.position.x)
+		_mold(arm, Vector3(side * 0.224, -0.60, -0.08), Vector3(0.41, 0.28, 0.47), 0.070, white)
+	_mold(self, Vector3(0, 2.36, 0.489), Vector3(0.76, 0.48, 0.14), 0.065, white)
+	_medallion(self, Vector3(0, 2.36, 0.57), 0.15, 0.055, seam)
 
 func _dress_iron_man() -> void:
-	_accessory(self, IRON_HELMET, Vector3(0, 3.53, 0), 0.68)
-	var gold := _material(Color("#c99839"), 0.35)
-	var slate := _material(Color("#492b30"), 0.44)
-	var reactor := _material(Color("#b9f5ff"), 0.35)
+	var helmet := _accessory(self, IRON_HELMET, Vector3(0, 3.53, 0), 0.68)
+	_finish_accessory(helmet, 0.24)
+	var gold := _material(Color("#c29746"), 0.29)
+	var red := _material(Color("#b23943"), 0.24)
+	var slate := _material(Color("#502c38"), 0.45)
+	var reactor := _material(Color("#b9f5ff"), 0.33)
 	reactor.emission_enabled = true
 	reactor.emission = Color("#7bd1ff")
-	reactor.emission_energy_multiplier = 0.46
-	_medallion(self, Vector3(0, 2.37, -0.51), 0.205, 0.09, slate)
-	_medallion(self, Vector3(0, 2.37, -0.565), 0.133, 0.030, gold)
-	_medallion(self, Vector3(0, 2.37, -0.588), 0.095, 0.019, reactor)
-	for x in [-0.46, 0.46]:
-		_mold(self, Vector3(x, 2.54, -0.492), Vector3(0.33, 0.18, 0.062), 0.03, gold).rotation.z = x * 0.4
+	reactor.emission_energy_multiplier = 0.42
+	_panel(self, Vector3(0, 2.40, -0.46), [
+		Vector2(-0.54, -0.05), Vector2(-0.29, -0.22), Vector2(0.29, -0.22),
+		Vector2(0.54, -0.05), Vector2(0.49, 0.18), Vector2(0.30, 0.24),
+		Vector2(-0.30, 0.24), Vector2(-0.49, 0.18)], 0.17, red)
+	_medallion(self, Vector3(0, 2.40, -0.55), 0.196, 0.096, slate)
+	_medallion(self, Vector3(0, 2.40, -0.604), 0.145, 0.038, gold)
+	_medallion(self, Vector3(0, 2.40, -0.631), 0.105, 0.022, reactor)
+	for side in [-1.0, 1.0]:
+		var collar := _mold(self, Vector3(side * 0.41, 2.57, -0.548),
+			Vector3(0.26, 0.12, 0.055), 0.020, gold)
+		collar.rotation.z = side * 0.22
+		_mold(self, Vector3(side * 0.21, 1.98, -0.495),
+			Vector3(0.24, 0.19, 0.075), 0.025, red, 0.29)
 	for leg in [_left_leg, _right_leg]:
-		_mold(leg, Vector3(0, -0.52, -0.418), Vector3(0.35, 0.42, 0.06), 0.028, gold, 0.42)
-	_mold(self, Vector3(0, 2.38, 0.515), Vector3(0.69, 0.50, 0.13), 0.05, slate)
-	for x in [-0.20, 0.20]:
-		_medallion(self, Vector3(x, 2.40, 0.589), 0.068, 0.018, reactor)
+		_panel(leg, Vector3(0, -0.81, -0.39), [
+			Vector2(-0.21, -0.32), Vector2(0.21, -0.32), Vector2(0.17, 0.14),
+			Vector2(0.09, 0.28), Vector2(-0.09, 0.28), Vector2(-0.17, 0.14)], 0.10, red)
+		_mold(leg, Vector3(0, -0.54, -0.458), Vector3(0.21, 0.15, 0.046), 0.019, gold, 0.15)
+	for arm in [_left_arm, _right_arm]:
+		var side := signf(arm.position.x)
+		_mold(arm, Vector3(side * 0.222, -0.66, -0.10), Vector3(0.40, 0.27, 0.48), 0.075, red)
+		_mold(arm, Vector3(side * 0.226, -0.65, -0.337), Vector3(0.19, 0.093, 0.045), 0.019, gold)
+	_mold(self, Vector3(0, 2.40, 0.51), Vector3(0.68, 0.50, 0.14), 0.068, slate)
+	for x in [-0.18, 0.18]:
+		_medallion(self, Vector3(x, 2.42, 0.59), 0.065, 0.022, reactor)
 
 func _dress_captain_america(blue: Material, ink: Material, white: Material) -> void:
-	var red := _material(Color("#ae2936"), 0.43)
-	var skin := _material(Color("#f1bd92"), 0.52)
+	var red := _material(Color("#a43b42"), 0.35)
+	var skin := _material(Color("#e7b291"), 0.50)
+	var shell := _material(Color("#244566"), 0.30)
+	var panel_blue := _material(Color("#40668c"), 0.33)
 	_lathe(self, Vector3(0, 3.11, 0), [
-		Vector2(0.44, -0.24), Vector2(0.572, -0.16), Vector2(0.572, 0.25)], skin)
+		Vector2(0.41, -0.22), Vector2(0.52, -0.18), Vector2(0.572, -0.13),
+		Vector2(0.572, 0.25)], skin)
 	_lathe(self, Vector3(0, 3.33, 0), [
-		Vector2(0.574, -0.10), Vector2(0.576, 0.30), Vector2(0.54, 0.40),
-		Vector2(0.42, 0.47), Vector2(0.25, 0.49)], blue)
+		Vector2(0.548, -0.13), Vector2(0.578, -0.105), Vector2(0.581, 0.26),
+		Vector2(0.563, 0.34), Vector2(0.518, 0.41), Vector2(0.42, 0.47),
+		Vector2(0.25, 0.49)], shell)
 	for side in [-1.0, 1.0]:
-		_face_dot(Vector2(side * 0.198, 0.044), Vector2(0.093, 0.047), skin, 0.004)
-		_face_dot(Vector2(side * 0.198, 0.044), Vector2(0.041, 0.040), ink, 0.008)
-	_face_line([Vector2(-0.08, -0.16), Vector2(0.04, -0.174), Vector2(0.11, -0.15)], 0.023, ink)
-	_face_line([Vector2(-0.071, 0.176), Vector2(0, 0.298), Vector2(0.071, 0.176)], 0.025, white)
-	_face_line([Vector2(-0.040, 0.220), Vector2(0.040, 0.220)], 0.020, white)
-	_star(Vector3(0, 2.43, -0.49), 0.214, white)
-	for i in 5:
-		_mold(self, Vector3(-0.34 + i * 0.17, 1.89, -0.487), Vector3(0.132, 0.36, 0.035), 0.012,
-			red if i % 2 == 0 else white)
-	var shield := _accessory(_left_arm, CAPTAIN_SHIELD, Vector3(-0.29, -0.71, -0.49), 0.63)
-	shield.rotation_degrees.y = -18.0
-	shield.rotation_degrees.x = -5.0
+		_face_dot(Vector2(side * 0.197, 0.037), Vector2(0.082, 0.035), skin, 0.006)
+		_face_dot(Vector2(side * 0.184, 0.037), Vector2(0.037, 0.028), ink, 0.010)
+		_face_dot(Vector2(side * 0.184 - 0.010, 0.045), Vector2(0.010, 0.008), white, 0.013)
+	_face_line([Vector2(-0.099, -0.163), Vector2(-0.024, -0.182),
+		Vector2(0.057, -0.171), Vector2(0.116, -0.145)], 0.024, ink)
+	_face_line([Vector2(-0.087, 0.161), Vector2(0, 0.320), Vector2(0.087, 0.161)], 0.032, white, 0.014)
+	_face_line([Vector2(-0.052, 0.217), Vector2(0.052, 0.217)], 0.023, white, 0.014)
+	_panel(self, Vector3(0, 2.45, -0.46), [
+		Vector2(-0.48, -0.09), Vector2(-0.29, -0.21), Vector2(0.29, -0.21),
+		Vector2(0.48, -0.09), Vector2(0.46, 0.17), Vector2(-0.46, 0.17)], 0.12, panel_blue)
+	_star(Vector3(0, 2.45, -0.535), 0.215, white)
+	_mold(self, Vector3(0, 1.92, -0.49), Vector3(0.85, 0.33, 0.076), 0.022, white)
+	for x in [-0.31, 0.0, 0.31]:
+		_mold(self, Vector3(x, 1.92, -0.533), Vector3(0.128, 0.32, 0.025), 0.012, red)
+	_mold(self, Vector3(0, 1.60, -0.466), Vector3(1.26, 0.16, 0.079), 0.028, shell)
+	_mold(self, Vector3(0, 1.60, -0.519), Vector3(0.24, 0.137, 0.06), 0.026, panel_blue)
+	for leg in [_left_leg, _right_leg]:
+		_mold(leg, Vector3(0, -0.72, -0.382), Vector3(0.48, 0.32, 0.095), 0.057, blue, 0.42)
+		_mold(leg, Vector3(0, -1.16, -0.29), Vector3(0.70, 0.37, 0.69), 0.073, red)
+	var shield := _accessory(_left_arm, CAPTAIN_SHIELD, Vector3(-0.26, -0.70, -0.42), 0.60)
+	shield.rotation_degrees.y = -25.0
+	shield.rotation_degrees.x = -8.0
+	_finish_accessory(shield, 0.26)
+
+## A convex armor panel, beveled around its silhouette to catch real light.
+func _panel(parent: Node3D, center: Vector3, outline: Array[Vector2], depth: float, material: Material) -> void:
+	var surface := SurfaceTool.new()
+	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var front := -depth * 0.5
+	var back := depth * 0.5
+	for i in outline.size():
+		var j := (i + 1) % outline.size()
+		var a := Vector3(outline[i].x, outline[i].y, 0)
+		var b := Vector3(outline[j].x, outline[j].y, 0)
+		var af := a * 0.82 + Vector3(0, 0, front)
+		var bf := b * 0.82 + Vector3(0, 0, front)
+		var am := a + Vector3(0, 0, front * 0.44)
+		var bm := b + Vector3(0, 0, front * 0.44)
+		var ab := a * 0.92 + Vector3(0, 0, back)
+		var bb := b * 0.92 + Vector3(0, 0, back)
+		_triangle(surface, Vector3(0, 0, front), af, bf)
+		_quad(surface, bf, af, am, bm)
+		_quad(surface, bm, am, ab, bb)
+		_triangle(surface, Vector3(0, 0, back), bb, ab)
+	_instance(parent, center, surface, material)
+
+func _finish_accessory(node: Node3D, roughness: float) -> void:
+	# Keep the imported CAD shapes and prints, then give the molded parts
+	# the same lighting response as the articulated figure underneath.
+	if node is MeshInstance3D and node.mesh:
+		for i in node.mesh.get_surface_count():
+			var original := node.mesh.surface_get_material(i) as StandardMaterial3D
+			if original:
+				var plastic := original.duplicate() as StandardMaterial3D
+				plastic.roughness = roughness
+				plastic.metallic_specular = 0.55
+				plastic.rim_enabled = true
+				plastic.rim = 0.21
+				plastic.rim_tint = 0.05
+				node.set_surface_override_material(i, plastic)
+	for child in node.get_children():
+		if child is Node3D:
+			_finish_accessory(child, roughness)
 
 func _star(center: Vector3, radius: float, material: Material) -> void:
 	var surface := SurfaceTool.new()
@@ -306,7 +422,10 @@ func _material(tint: Color, roughness: float) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = tint
 	material.roughness = roughness
-	material.metallic_specular = 0.32
+	material.metallic_specular = 0.50
+	material.rim_enabled = true
+	material.rim = 0.16
+	material.rim_tint = 0.18
 	return material
 
 func _mold(parent: Node3D, center: Vector3, size: Vector3, radius: float,
@@ -405,15 +524,15 @@ func _face_dot(center: Vector2, radii: Vector2, material: Material, offset: floa
 	var dot := _instance(self, Vector3.ZERO, surface, material)
 	dot.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
-func _face_line(points: Array, thickness: float, material: Material) -> void:
+func _face_line(points: Array, thickness: float, material: Material, offset: float = 0.0) -> void:
 	var surface := SurfaceTool.new()
 	surface.begin(Mesh.PRIMITIVE_TRIANGLES)
 	for i in range(points.size() - 1):
 		var a: Vector2 = points[i]
 		var b: Vector2 = points[i + 1]
 		var edge := Vector2(0, thickness * 0.5)
-		_quad(surface, _face_position(a - edge), _face_position(b - edge),
-			_face_position(b + edge), _face_position(a + edge))
+		_quad(surface, _face_position(a - edge, offset), _face_position(b - edge, offset),
+			_face_position(b + edge, offset), _face_position(a + edge, offset))
 	var line := _instance(self, Vector3.ZERO, surface, material)
 	line.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 

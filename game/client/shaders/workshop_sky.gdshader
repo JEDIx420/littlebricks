@@ -23,7 +23,8 @@ void fragment() {
 	vec3 day = mix(vec3(0.78, 0.84, 0.77), vec3(0.39, 0.60, 0.76), height);
 	vec3 sky = mix(night, day, daylight);
 	vec3 twilight = mix(vec3(0.86, 0.53, 0.41), vec3(0.24, 0.28, 0.45), height);
-	sky = mix(sky, twilight, sunset * 0.86);
+	float horizon_glow = mix(1.0, 0.38, smoothstep(0.16, 0.86, height));
+	sky = mix(sky, twilight, sunset * horizon_glow * 0.88);
 	vec3 overcast = mix(vec3(0.46, 0.55, 0.57), vec3(0.26, 0.34, 0.41), height);
 	sky = mix(sky, overcast, rain * mix(0.44, 0.89, daylight));
 
@@ -37,10 +38,11 @@ void fragment() {
 	vec2 cell = floor(star_grid);
 	float star_size = hash(cell + 27.3);
 	float star = (1.0 - smoothstep(0.01, 0.15, length(fract(star_grid) - 0.5))) * step(0.89, star_size);
-	sky += vec3(0.58, 0.68, 0.85) * star * (1.0 - daylight) * (1.0 - rain) * (1.0 - sunset);
+	float night_visibility = (1.0 - smoothstep(0.07, 0.45, daylight)) * (1.0 - rain);
+	sky += vec3(0.58, 0.68, 0.85) * star * night_visibility * (1.0 - sunset);
 	vec2 moon_uv = (UV - vec2(0.420, 0.535)) * vec2(1.78, 1.0);
 	float moon = 1.0 - smoothstep(0.016, 0.018, length(moon_uv));
 	float shadow = 1.0 - smoothstep(0.015, 0.017, length(moon_uv - vec2(0.009, -0.005)));
-	sky += vec3(0.71, 0.78, 0.84) * moon * (1.0 - shadow) * (1.0 - daylight) * (1.0 - rain) * (1.0 - sunset);
+	sky += vec3(0.71, 0.78, 0.84) * moon * (1.0 - shadow) * night_visibility * (1.0 - sunset);
 	ALBEDO = sky;
 }

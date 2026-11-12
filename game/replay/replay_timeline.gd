@@ -9,6 +9,12 @@ const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 const VideoExporter = preload("res://platform/video_exporter.gd")
 
+const DROP_HEIGHT: float = 3.0
+const REPLAY_PITCH: float = deg_to_rad(51.0)
+const REPLAY_YAW_START: float = deg_to_rad(-18.0)
+const REPLAY_YAW_END: float = deg_to_rad(18.0)
+const REPLAY_CAMERA_DISTANCE: float = 42.0
+
 signal step_played(step_idx: int, total_steps: int)
 signal replay_completed()
 
@@ -23,6 +29,9 @@ var playback_timer: float = 0.0
 var in_final_reveal: bool = false
 var _reduced_motion: bool = false
 var _orbit_speed: float = 12.0
+var _elapsed: float = 0.0
+var _replay_room_bounds := AABB()
+var _film_bounds := AABB()
 
 # Internal nodes
 var pieces_root: Node3D
@@ -55,11 +64,65 @@ func _ready() -> void:
 	if is_inside_tree() and camera:
 		camera.look_at(Vector3(0, 2, 0), Vector3.UP)
 
-func configure_camera(source_camera: Camera3D, focus: Vector3, reduced_motion: bool) -> void:
+func configure_camera(source_camera: Camera3D, focus: Vector3, reduced_motion: bool,
+		room_bounds: AABB = AABB()) -> void:
 	_reduced_motion = reduced_motion
+	_replay_room_bounds = room_bounds
 	camera_rig.global_position = focus
 	camera.global_transform = source_camera.global_transform
 	camera.fov = source_camera.fov
+	camera.cull_mask = source_camera.cull_mask
+	if _replay_room_bounds.has_volume():
+		_film_bounds = _construction_bounds()
+		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
+		camera.keep_aspect = Camera3D.KEEP_HEIGHT
+		_update_room_camera()
+		var viewport := get_viewport()
+		if not viewport.size_changed.is_connected(_update_room_camera):
+			viewport.size_changed.connect(_update_room_camera)
+
+func _construction_bounds() -> AABB:
+	var bounds := AABB()
+	for placement in placements_data:
+		var part := catalog.get_part(placement.get("part_id", ""))
+		var dimensions: Array = part.get("dimensions_studs", [1, 3, 1])
+		var rotation: int = placement.get("rotation_step", 0)
+		var footprint := PlacementRules.get_part_footprint(dimensions, rotation)
+		var base := TableView.grid_to_world(
+			placement.get("grid_x", 0), placement.get("grid_z", 0),
+			placement.get("layer_plate", 0), dimensions, rotation)
+		var extent := Vector3(footprint.x, float(dimensions[1]) * TableView.PLATE_HEIGHT + 0.23, footprint.y)
+		var piece_bounds := AABB(base - Vector3(extent.x, 0.0, extent.z) * 0.5, extent)
+		bounds = bounds.merge(piece_bounds) if bounds.has_volume() else piece_bounds
+	# Reserve room for the placement animation without zooming or shifting later.
+	if bounds.has_volume() and not _reduced_motion:
+		bounds.size.y += DROP_HEIGHT
+	return bounds
+
+func _update_room_camera() -> void:
+	if not _replay_room_bounds.has_volume() or not camera.is_inside_tree():
+		return
+	var duration := maxf(1.0, float(placements_data.size()) * seconds_per_placement + reveal_duration_sec)
+	var progress := smoothstep(0.0, 1.0, clampf(_elapsed / duration, 0.0, 1.0))
+	var yaw := 0.0 if _reduced_motion else lerpf(REPLAY_YAW_START, REPLAY_YAW_END, progress)
+	var direction := Vector3(sin(yaw) * cos(REPLAY_PITCH), sin(REPLAY_PITCH), cos(yaw) * cos(REPLAY_PITCH))
+	var camera_basis := Basis.looking_at(-direction)
+	var size := get_viewport().get_visible_rect().size
+	var aspect := size.x / maxf(size.y, 1.0)
+	var footprint_diagonal := Vector2(_film_bounds.size.x, _film_bounds.size.z).length()
+	var projected_height := _film_bounds.size.y * cos(REPLAY_PITCH) + footprint_diagonal * sin(REPLAY_PITCH)
+	camera.size = maxf(14.0, maxf(projected_height / 0.74 + 2.0, (footprint_diagonal + 4.0) / maxf(aspect, 0.1)))
+
+	# Work from the open aisle in front of the board. The orbit cannot cross a
+	# wall even if a tall or off-center build pulls its focus toward an edge.
+	var focus := _film_bounds.get_center() - camera_basis.y * camera.size * 0.085
+	var inset := _replay_room_bounds.grow(-0.6)
+	var camera_distance := REPLAY_CAMERA_DISTANCE
+	for axis in 3:
+		if absf(direction[axis]) > 0.001:
+			var wall := inset.end[axis] if direction[axis] > 0.0 else inset.position[axis]
+			camera_distance = minf(camera_distance, (wall - focus[axis]) / direction[axis])
+	camera.global_transform = Transform3D(camera_basis, focus + direction * camera_distance)
 
 ## Initialize timeline with recorded placements
 func load_build_history(placements: Array) -> void:
@@ -77,8 +140,13 @@ func load_build_history(placements: Array) -> void:
 func play_replay() -> void:
 	active_step = 0
 	playback_timer = 0.0
+	_elapsed = 0.0
 	in_final_reveal = false
 	is_playing = true
+	if _replay_room_bounds.has_volume():
+		_update_room_camera()
+	else:
+		camera_rig.rotation_degrees.y = 0.0
 	_orbit_speed = minf(12.0, 75.0 / maxf(1.0, placements_data.size() * seconds_per_placement + reveal_duration_sec))
 	for c in pieces_root.get_children():
 		c.queue_free()
@@ -90,8 +158,10 @@ func advance_replay(delta: float) -> void:
 	if not is_playing:
 		return
 		
-	# Gentle camera rotation throughout replay
-	if not _reduced_motion:
+	_elapsed += delta
+	if _replay_room_bounds.has_volume():
+		_update_room_camera()
+	elif not _reduced_motion:
 		camera_rig.rotation_degrees.y += delta * _orbit_speed
 	
 	playback_timer += delta
@@ -135,7 +205,7 @@ func _instantiate_piece(p: Dictionary, animate_bounce: bool = true) -> Node3D:
 	if animate_bounce:
 		# Drop in bounce animation
 		var tw = node.create_tween()
-		var start_y = target_wpos.y + 3.0
+		var start_y = target_wpos.y + DROP_HEIGHT
 		node.position.y = start_y
 		tw.tween_property(node, "position:y", target_wpos.y, 0.18).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 		

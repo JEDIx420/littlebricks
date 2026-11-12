@@ -191,6 +191,7 @@ func _on_table_finish_requested() -> void:
 		_open_exploration_view()
 		return
 
+	table.camera_rig.frame_plate()
 	table._on_frame_build()
 	table.set_external_modal_open(true)
 	var hud_visibility := {}
@@ -258,7 +259,8 @@ func _play_showcase_replay(showcase: ShowcaseOverlay) -> ReplayTimeline:
 	showcase.timeline = timeline
 	timeline.load_build_history(active_session.placements)
 	timeline.seconds_per_placement = minf(timeline.seconds_per_placement, 24.0 / active_session.placements.size())
-	timeline.configure_camera(table.camera_rig.camera, table.camera_rig.target, settings.reduced_motion)
+	timeline.configure_camera(
+		table.camera_rig.camera, table.camera_rig.target, settings.reduced_motion, table.camera_rig.room_bounds)
 	timeline.step_played.connect(showcase.update_replay_progress)
 	timeline.replay_completed.connect(showcase.notify_replay_finished)
 	table.placed_bricks_container.hide()

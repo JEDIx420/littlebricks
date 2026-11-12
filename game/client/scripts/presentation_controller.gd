@@ -45,7 +45,7 @@ signal atmosphere_changed(mode: String, label: String)
 
 const MODES := ["cycle", "day", "dusk", "night", "rain"]
 const CYCLE_SECONDS := 210.0
-const MORPH_SECONDS := 1.5
+const MORPH_SECONDS := 5.5
 const PRESETS := {
 	"day": Vector3(1.0, 0.0, 0.0),
 	"dusk": Vector3(0.51, 0.95, 0.0),
@@ -85,12 +85,16 @@ var _table_view: Node
 var _light_scale := 1.0
 var _base_bounce := 0.42
 var _base_fill := 0.23
+var _base_shadow_opacity := 0.72
 
 func apply_presentation(theme_id: String, world_env: WorldEnvironment, sun: DirectionalLight3D, table_view = null, light_scale: float = 1.0) -> void:
 	current_theme_id = theme_id if THEMES.has(theme_id) else "harbour"
 	var theme: Dictionary = THEMES[current_theme_id]
 	_light_scale = light_scale
-	_sun = sun
+	if _sun != sun:
+		_sun = sun
+		if _sun:
+			_base_shadow_opacity = _sun.shadow_opacity
 	if _world_env != world_env and world_env and world_env.environment:
 		world_env.environment = world_env.environment.duplicate()
 		var room := world_env.get_parent()
@@ -112,7 +116,7 @@ func apply_presentation(theme_id: String, world_env: WorldEnvironment, sun: Dire
 func apply_quality(profile: String, sun: DirectionalLight3D) -> void:
 	current_quality = profile
 	if sun:
-		sun.shadow_enabled = profile != "economy" and _blend.x > 0.22
+		_apply_sun_shadow(sun, _blend.x, _blend.z)
 
 func set_atmosphere_mode(mode: String) -> void:
 	if not mode in MODES or _mode == mode:
@@ -139,13 +143,17 @@ func get_atmosphere_label() -> String:
 	return "Day"
 
 func get_atmosphere_state() -> Dictionary:
-	return {
+	var state := {
 		"mode": _mode,
 		"phase": _phase,
 		"is_raining": _blend.z >= 0.44,
 		"is_night": _blend.x < 0.22,
 		"rain_time": _rain_time,
 	}
+	if _transition_time < MORPH_SECONDS:
+		state["transition_from"] = [_transition_start.x, _transition_start.y, _transition_start.z]
+		state["transition_elapsed"] = _transition_time
+	return state
 
 func restore_atmosphere_state(state: Dictionary) -> void:
 	var mode: String = state.get("mode", "cycle")
@@ -154,8 +162,22 @@ func restore_atmosphere_state(state: Dictionary) -> void:
 	_rain_time = maxf(0.0, float(state.get("rain_time", _rain_time)))
 	_blend = _sample()
 	_transition_time = MORPH_SECONDS
+	var transition_from = state.get("transition_from")
+	var elapsed = state.get("transition_elapsed", MORPH_SECONDS)
+	if not is_reduced_motion and transition_from is Array and transition_from.size() == 3 \
+			and transition_from.all(_is_finite_number) and _is_finite_number(elapsed):
+		_transition_start = Vector3(
+			clampf(float(transition_from[0]), 0.0, 1.0),
+			clampf(float(transition_from[1]), 0.0, 1.0),
+			clampf(float(transition_from[2]), 0.0, 1.0)
+		)
+		_transition_time = clampf(float(elapsed), 0.0, MORPH_SECONDS)
+		_blend = _transition_blend(_blend)
 	_apply_light_and_weather()
 	_publish_atmosphere()
+
+func _is_finite_number(value: Variant) -> bool:
+	return (value is float or value is int) and is_finite(float(value))
 
 func _process(delta: float) -> void:
 	if not _table_view or not _table_view.is_node_ready():
@@ -165,8 +187,7 @@ func _process(delta: float) -> void:
 	var next := _sample()
 	if _transition_time < MORPH_SECONDS:
 		_transition_time = MORPH_SECONDS if is_reduced_motion else minf(_transition_time + delta, MORPH_SECONDS)
-		var progress := smoothstep(0.0, MORPH_SECONDS, _transition_time)
-		next = _transition_start.lerp(next, progress)
+		next = _transition_blend(next)
 	var animated_rain := next.z > 0.01 and not is_reduced_motion
 	if animated_rain:
 		_rain_time += delta
@@ -176,6 +197,16 @@ func _process(delta: float) -> void:
 	elif animated_rain and _table_view.has_method("set_rain_time"):
 		_table_view.set_rain_time(_rain_time)
 	_publish_atmosphere()
+
+func _transition_blend(target: Vector3) -> Vector3:
+	var t := _transition_time / MORPH_SECONDS
+	var progress := t * t * t * (t * (t * 6.0 - 15.0) + 10.0)
+	var blended := _transition_start.lerp(target, progress)
+	# A daylight preset crossing still travels through twilight.
+	var sunlight_change := smoothstep(0.40, 0.85, absf(target.x - _transition_start.x))
+	var twilight := 4.0 * progress * (1.0 - progress) * sunlight_change * (1.0 - blended.z)
+	blended.y = lerpf(blended.y, 0.82, twilight)
+	return blended
 
 func _sample() -> Vector3:
 	if _mode != "cycle":
@@ -196,24 +227,36 @@ func _apply_light_and_weather() -> void:
 	if _sun:
 		var sun_color: Color = theme["sun_color"]
 		_sun.light_color = sun_color.lerp(Color("#ffd097"), sunset * 0.8).lerp(Color("#b7cef8"), (1.0 - daylight) * 0.66)
-		_sun.light_energy = float(theme["sun_energy"]) * daylight * lerpf(1.0, 0.12, rain) * _light_scale
-		_sun.rotation_degrees = Vector3(-27.0 + sunset * 10.0, 211.0 - sunset * 4.0, 0.0)
-		_sun.shadow_enabled = current_quality != "economy" and daylight > 0.22 and rain < 0.88
+		# Lose the directional contribution before turning off its shadow map.
+		# This also keeps the handoff smooth on Compatibility renderers.
+		var daylight_above_horizon := maxf(0.0, inverse_lerp(0.22, 1.0, daylight))
+		var direct_light := pow(daylight_above_horizon, 1.17)
+		direct_light *= 1.0 - smoothstep(0.08, 0.84, rain)
+		_sun.light_energy = float(theme["sun_energy"]) * direct_light * _light_scale
+		_sun.rotation_degrees = Vector3(lerpf(-12.0, -27.0, daylight), 211.0 - sunset * 4.0, 0.0)
+		_apply_sun_shadow(_sun, daylight, rain)
 		_sun.shadow_bias = 0.04
 	if _world_env and _world_env.environment:
 		var env := _world_env.environment
 		var ambient_color: Color = theme["ambient_color"]
 		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 		env.ambient_light_color = ambient_color.lerp(Color("#acbff0"), (1.0 - daylight) * 0.72 + rain * 0.17)
-		env.ambient_light_energy = lerpf(0.38, 0.61, daylight) * _light_scale
+		env.ambient_light_energy = lerpf(0.33, 0.61, daylight) * lerpf(1.0, 0.94, rain) * _light_scale
 		env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
 	if _bounce:
-		_bounce.light_energy = _base_bounce * lerpf(1.16, 1.0, daylight) * _light_scale
+		_bounce.light_energy = _base_bounce * lerpf(0.83, 1.0, daylight) * _light_scale
 		_bounce.light_color = Color("#ffead4").lerp(Color("#ffc689"), (1.0 - daylight) * 0.76)
 	if _window_fill:
 		_window_fill.light_energy = _base_fill * lerpf(0.45, 1.0, daylight) * _light_scale
 	if _table_view and _table_view.has_method("apply_atmosphere"):
 		_table_view.apply_atmosphere(daylight, sunset, rain, _rain_time)
+
+func _apply_sun_shadow(sun: DirectionalLight3D, daylight: float, rain: float) -> void:
+	var shadow_weight := smoothstep(0.16, 0.82, daylight) * (1.0 - smoothstep(0.08, 0.90, rain))
+	sun.shadow_opacity = _base_shadow_opacity * shadow_weight
+	var enabled := current_quality != "economy" and shadow_weight > 0.0
+	if sun.shadow_enabled != enabled:
+		sun.shadow_enabled = enabled
 
 func _publish_atmosphere() -> void:
 	var label := get_atmosphere_label()

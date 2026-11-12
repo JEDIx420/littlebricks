@@ -1,5 +1,5 @@
 {
-  "catalog_version": "1.3.0",
+  "catalog_version": "1.3.1",
   "catalog_name": "LittleBricks Workshop Catalogue",
   "license_default": "CC0-1.0",
   "stud_spacing": 1.0,
@@ -10250,7 +10250,7 @@
     },
     {
       "id": "toy_explorer_pippin",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "name": "Explorer Pippin",
       "category": "character",
       "author": "LittleBricks",
@@ -10288,21 +10288,33 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            2.0,
-            0.0
+            0,
+            0.08,
+            0
           ],
           "size": [
-            2.0,
-            4.0,
-            1.0
+            2,
+            0.16,
+            1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
     },
     {
       "id": "toy_explorer_marina",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "name": "Explorer Marina",
       "category": "character",
       "author": "LittleBricks",
@@ -10340,21 +10352,33 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            2.0,
-            0.0
+            0,
+            0.08,
+            0
           ],
           "size": [
-            2.0,
-            4.0,
-            1.0
+            2,
+            0.16,
+            1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
     },
     {
       "id": "toy_explorer_rowan",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "name": "Explorer Rowan",
       "category": "character",
       "author": "LittleBricks",
@@ -10392,14 +10416,26 @@
       "collision_boxes": [
         {
           "center": [
-            0.0,
-            2.0,
-            0.0
+            0,
+            0.08,
+            0
           ],
           "size": [
-            2.0,
-            4.0,
-            1.0
+            2,
+            0.16,
+            1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
@@ -12692,7 +12728,7 @@
     },
     {
       "id": "toy_explorer_darth_vader",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "name": "Darth Vader",
       "category": "character",
       "author": "LittleBricks",
@@ -12729,20 +12765,32 @@
         {
           "center": [
             0,
-            2.0,
+            0.08,
             0
           ],
           "size": [
             2,
-            4,
+            0.16,
             1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
     },
     {
       "id": "toy_explorer_stormtrooper",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "name": "Stormtrooper",
       "category": "character",
       "author": "LittleBricks",
@@ -12779,20 +12827,32 @@
         {
           "center": [
             0,
-            2.0,
+            0.08,
             0
           ],
           "size": [
             2,
-            4,
+            0.16,
             1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
     },
     {
       "id": "toy_explorer_iron_man",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "name": "Iron Man",
       "category": "character",
       "author": "LittleBricks",
@@ -12829,20 +12889,32 @@
         {
           "center": [
             0,
-            2.0,
+            0.08,
             0
           ],
           "size": [
             2,
-            4,
+            0.16,
             1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
     },
     {
       "id": "toy_explorer_captain_america",
-      "version": "1.0.0",
+      "version": "1.2.0",
       "name": "Captain America",
       "category": "character",
       "author": "LittleBricks",
@@ -12879,13 +12951,25 @@
         {
           "center": [
             0,
-            2.0,
+            0.08,
             0
           ],
           "size": [
             2,
-            4,
+            0.16,
             1
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.21,
+            0
+          ],
+          "size": [
+            1.55,
+            2.1,
+            0.97
           ]
         }
       ]
