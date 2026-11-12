@@ -15,10 +15,9 @@ Copyright (c) 2026 LittleBricks Contributors.
 
 ## 2. 3D Catalog & Part Geometry
 
-All 126 buildable part shapes and connector definitions across Bricks, Plates, Tiles, Slopes, Openings/Arches, Structures, Thematic Decorations, and Explorers in `game/assets/catalog/parts_manifest.json` are authored parametrically:
-- **Licence**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
-- **Provenance**: Original procedural coordinate mathematics adhering to open orthogonal stud pitch standards (8.0mm stud pitch, 9.6mm brick height, 3.2mm plate height).
-- **Compatibility**: Designed with original generic geometry and clearances, free from proprietary trademarks, minifigure silhouettes, or branded logos.
+- **Generic original pieces and connector metadata**: LittleBricks Contributors, CC0-1.0.
+- **Room props and common bricks**: [Kenney](https://kenney.nl/), CC0-1.0.
+- **Specialty construction, display pieces, and select figure accessories**: [LDraw.org contributors](https://library.ldraw.org/). See [asset attributions](ATTRIBUTION.md) for per-pack authors, part numbers, licences and conversion notes.
 
 ---
 
@@ -32,9 +31,10 @@ All 126 buildable part shapes and connector definitions across Bricks, Plates, T
 All audio assets located in `game/assets/audio/` were synthesized and mastered specifically for LittleBricks:
 - **Licence**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
 - **Music Compositions**:
-  - `music_menu.ogg` — *Open the Brick Box*, an original 51-second felt-key and plucked-string theme.
-  - `music_building.ogg` — *Afternoon at the Table*, an original 82-second stereo loop with a lighter melodic part.
-  - Both tracks are rendered from the original LittleBricks score by `tools/generate_audio_assets.py` and are available under these CC0 terms, including use in game-generated films.
+  - `music_menu.ogg` — *Open the Brick Box*, an original 138 BPM handheld-style theme.
+  - `music_building.ogg`, `music_brick_box.ogg`, and `music_tinker.ogg` — *Across the Table*, *Bright Bricks*, and *Tinker Time*, an original daytime playlist with three rhythms and melodies.
+  - `music_rain.ogg` and `music_night.ogg` — *Rain on the Glass* and *After the Lights*, two quiet bell-and-pad cues.
+  - The complete original score, synthesized instruments, and stereo mix are reproducible with `tools/generate_audio_assets.py`. The CC0 dedication includes game-generated films.
 - **Sound Effects (SFX)**:
   - `click_place.wav`: Crisp tactile ABS mechanical connection click.
   - `pickup.wav`: Subtle acoustic part lift transient.
@@ -48,7 +48,7 @@ All audio assets located in `game/assets/audio/` were synthesized and mastered s
 ## 4. Visual Identity & Characters
 
 - **Branding**: Original *LittleBricks* logo and icon assets (`icon.svg`, `index.icon.png`, `index.apple-touch-icon.png`).
-- **Explorer Figures**: Original generic toy explorer miniature (`explorer_candidate_01`, `explorer_figure_01..04`) designed as modular geometric toy figures, avoiding any third-party character copyright or trademark conflicts.
+- **Explorer Figures**: LittleBricks-authored generic explorers and fan interpretations of Darth Vader, Stormtrooper, Iron Man, and Captain America. Selected helmets and Captain America’s shield use attributed LDraw CAD meshes. Character rights belong to their respective owners.
 
 ---
 

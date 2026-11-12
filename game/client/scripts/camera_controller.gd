@@ -297,8 +297,8 @@ func _update_transform() -> void:
 	)
 	var visible_distance := distance
 	if room_bounds.has_volume():
-		# Keep an orbiting camera inside the walls even after panning.
-		for axis in [Vector3.AXIS_X, Vector3.AXIS_Z]:
+		# Keep the camera inside the walls and ceiling when framing tall builds.
+		for axis in [Vector3.AXIS_X, Vector3.AXIS_Y, Vector3.AXIS_Z]:
 			if absf(offset[axis]) > 0.001:
 				var wall := room_bounds.end[axis] if offset[axis] > 0.0 else room_bounds.position[axis]
 				visible_distance = minf(visible_distance, (wall - target[axis]) / offset[axis])

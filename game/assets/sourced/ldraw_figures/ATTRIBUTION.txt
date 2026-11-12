@@ -1,0 +1,17 @@
+LittleBricks LDraw figure accessories
+
+Source: LDraw.org Parts Library (https://library.ldraw.org/).
+Darth Vader helmet (30368.dat) by Paul Easter.
+Stormtrooper patterned helmet (30408p01.dat) by Alex Taylor.
+Iron Man helmet with gold visor (10907c01.dat) by Magnus Forsberg.
+Captain America patterned shield (75902p02.dat) by Philippe Hurbain.
+
+The source CAD data is available under CC BY 4.0, with additional
+contributors and per-dependency license declarations in sources.json.
+LittleBricks flattened the assembly surfaces, triangulated quads, preserved
+printed colors, adjusted black ABS shading, and converted the coordinates,
+scale, and normals for glTF. See CC-BY-4.0.txt for the full license.
+
+The CAD data licenses are separate from franchise character and brand rights.
+LittleBricks is independent and is not endorsed by the LEGO Group, Lucasfilm,
+or Marvel.

@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://307ls6ep4n04"
+path="res://.godot/imported/castle_triangular_shield_3846.obj-58c6e443e87bdbc9e3b0d8fbf82d006c.mesh"
+
+[deps]
+
+files=["res://.godot/imported/castle_triangular_shield_3846.obj-58c6e443e87bdbc9e3b0d8fbf82d006c.mesh"]
+
+source_file="res://assets/sourced/ldraw/castle_triangular_shield_3846.obj"
+dest_files=["res://.godot/imported/castle_triangular_shield_3846.obj-58c6e443e87bdbc9e3b0d8fbf82d006c.mesh", "res://.godot/imported/castle_triangular_shield_3846.obj-58c6e443e87bdbc9e3b0d8fbf82d006c.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

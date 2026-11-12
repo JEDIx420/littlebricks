@@ -97,13 +97,13 @@ mouse_filter = 2
 [node name="TopPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 0
-offset_left = 18
+offset_left = 14
 anchor_top = 0
-offset_top = 16
+offset_top = 14
 anchor_right = 0
-offset_right = 384
+offset_right = 324
 anchor_bottom = 0
-offset_bottom = 98
+offset_bottom = 73
 
 [node name="Identity" type="VBoxContainer" parent="UI/RootControl/TopPanel"]
 layout_mode = 2
@@ -111,7 +111,7 @@ theme_override_constants/separation = 3
 
 [node name="Title" type="Label" parent="UI/RootControl/TopPanel/Identity"]
 layout_mode = 2
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "LittleBricks"
 
 [node name="StatusRow" type="HBoxContainer" parent="UI/RootControl/TopPanel/Identity"]
@@ -151,13 +151,13 @@ text = "Stud: (16, 16) | Layer: 0 | Yaw: 0°  "
 [node name="Commands" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 1
-offset_left = -468
+offset_left = -417
 anchor_top = 0
-offset_top = 16
+offset_top = 14
 anchor_right = 1
-offset_right = -18
+offset_right = -14
 anchor_bottom = 0
-offset_bottom = 72
+offset_bottom = 66
 
 [node name="Actions" type="HBoxContainer" parent="UI/RootControl/Commands"]
 layout_mode = 2
@@ -204,13 +204,14 @@ text = "Settings"
 [node name="CameraPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 0
-offset_left = 18
+offset_left = 14
 anchor_top = 1
-offset_top = -299
+offset_top = -318
 anchor_right = 0
-offset_right = 248
+offset_right = 245
 anchor_bottom = 1
-offset_bottom = -18
+offset_bottom = -65
+visible = false
 
 [node name="ViewControls" type="VBoxContainer" parent="UI/RootControl/CameraPanel"]
 layout_mode = 2
@@ -321,100 +322,93 @@ text = "Right-drag to orbit"
 
 [node name="RightControls" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchor_left = 1
-offset_left = -225
+anchor_left = 0.5
+offset_left = -280
 anchor_top = 1
-offset_top = -290
-anchor_right = 1
-offset_right = -18
+offset_top = -144
+anchor_right = 0.5
+offset_right = 280
 anchor_bottom = 1
-offset_bottom = -18
+offset_bottom = -95
 
-[node name="BuildTools" type="VBoxContainer" parent="UI/RootControl/RightControls"]
+[node name="BuildTools" type="HBoxContainer" parent="UI/RootControl/RightControls"]
 layout_mode = 2
 theme_override_constants/separation = 7
 
-[node name="ToolTitle" type="Label" parent="UI/RootControl/RightControls/BuildTools"]
-layout_mode = 2
-text = "HELD BRICK"
-
-[node name="ActionRow" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="BtnPlace" type="Button" parent="UI/RootControl/RightControls/BuildTools/ActionRow"]
+[node name="BtnPlace" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 42)
+custom_minimum_size = Vector2(65, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Place"
+tooltip_text = "Place the previewed brick (Enter)"
 
-[node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls/BuildTools/ActionRow"]
+[node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 42)
+custom_minimum_size = Vector2(55, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Drop"
+tooltip_text = "Release the held brick (Esc)"
 
-[node name="RotateRow" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="BtnRotateLeft" type="Button" parent="UI/RootControl/RightControls/BuildTools/RotateRow"]
+[node name="BtnRotateLeft" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 42)
+custom_minimum_size = Vector2(58, 42)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "↶  Q"
+text = "Turn L"
+tooltip_text = "Rotate the held brick left (Q)"
 
-[node name="BtnRotateRight" type="Button" parent="UI/RootControl/RightControls/BuildTools/RotateRow"]
+[node name="BtnRotateRight" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 42)
+custom_minimum_size = Vector2(58, 42)
 layout_mode = 2
 size_flags_horizontal = 3
-text = "↷  E"
+text = "Turn R"
+tooltip_text = "Rotate the held brick right (E)"
 
 [node name="BtnAutoHeight" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(48, 42)
+custom_minimum_size = Vector2(94, 42)
 layout_mode = 2
 text = "Auto height"
+size_flags_horizontal = 3
+tooltip_text = "Switch automatic or manual height"
 
-[node name="HeightBox" type="HBoxContainer" parent="UI/RootControl/RightControls/BuildTools"]
-layout_mode = 2
-theme_override_constants/separation = 6
-
-[node name="BtnLayerDown" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+[node name="BtnLayerDown" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "−"
+tooltip_text = "Lower by one plate"
 
-[node name="BtnLayerUp" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+[node name="BtnLayerUp" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(42, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "+"
+tooltip_text = "Raise by one plate"
 
-[node name="BtnReturnBase" type="Button" parent="UI/RootControl/RightControls/BuildTools/HeightBox"]
+[node name="BtnReturnBase" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(54, 42)
+custom_minimum_size = Vector2(49, 42)
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Base"
+tooltip_text = "Return to the baseplate (B)"
 
 [node name="BottomPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 0.5
-offset_left = -369
+offset_left = -338
 anchor_top = 1
-offset_top = -125
+offset_top = -91
 anchor_right = 0.5
-offset_right = 369
+offset_right = 338
 anchor_bottom = 1
-offset_bottom = -18
+offset_bottom = -12
 
 [node name="BottomHBox" type="HBoxContainer" parent="UI/RootControl/BottomPanel"]
 layout_mode = 2
@@ -424,12 +418,13 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 custom_minimum_size = Vector2(65, 42)
 layout_mode = 2
-text = "Parts"
+text = "Packs"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="UI/RootControl/BottomPanel/BottomHBox"]
 layout_mode = 2
 size_flags_horizontal = 3
 vertical_scroll_mode = 0
+horizontal_scroll_mode = 3
 
 [node name="TrayContainer" type="HBoxContainer" parent="UI/RootControl/BottomPanel/BottomHBox/ScrollContainer"]
 unique_name_in_owner = true
@@ -437,6 +432,40 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 6
+
+[node name="LeftDock" type="PanelContainer" parent="UI/RootControl"]
+layout_mode = 1
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 14.0
+offset_top = -61.0
+offset_right = 272.0
+offset_bottom = -12.0
+
+[node name="DockActions" type="HBoxContainer" parent="UI/RootControl/LeftDock"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="BtnCameraDock" type="Button" parent="UI/RootControl/LeftDock/DockActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(63, 42)
+tooltip_text = "Camera modes, orbit controls and views"
+text = "View"
+
+[node name="BtnPlans" type="Button" parent="UI/RootControl/LeftDock/DockActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(63, 42)
+tooltip_text = "Read a finished-build sheet"
+text = "Plans"
+
+[node name="OptRoom" type="OptionButton" parent="UI/RootControl/LeftDock/DockActions"]
+layout_mode = 2
+size_flags_horizontal = 3
+custom_minimum_size = Vector2(63, 42)
+tooltip_text = "Set the workshop's time or weather"
+fit_to_longest_item = false
 
 [node name="CatalogScrim" type="ColorRect" parent="UI/RootControl"]
 visible = false
@@ -487,6 +516,12 @@ text = "✕"
 layout_mode = 2
 theme_override_constants/separation = 8
 
+[node name="OptCatalogPack" type="OptionButton" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(176, 44)
+tooltip_text = "Choose a brick pack"
+
 [node name="OptCatalogCategory" type="OptionButton" parent="UI/RootControl/CatalogModal/VBox/FilterBar"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 44)
@@ -497,6 +532,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 placeholder_text = "Search parts..."
+clear_button_enabled = true
 
 [node name="CatalogBody" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
 layout_mode = 2

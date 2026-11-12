@@ -1,6 +1,6 @@
 {
-  "catalog_version": "1.2.0",
-  "catalog_name": "LittleBricks Complete Expanded Catalog (Harbour & Cabin)",
+  "catalog_version": "1.3.0",
+  "catalog_name": "LittleBricks Workshop Catalogue",
   "license_default": "CC0-1.0",
   "stud_spacing": 1.0,
   "plate_height": 0.4,
@@ -28,6 +28,51 @@
         "#5d4037",
         "#f57c00",
         "#37474f"
+      ]
+    },
+    {
+      "id": "galaxy",
+      "name": "Star Wars",
+      "include_core": true,
+      "palette": [
+        "#CCD4DC",
+        "#E9EEF3",
+        "#3A465D",
+        "#788296",
+        "#1C2D4D",
+        "#AF4543",
+        "#72AACC",
+        "#E4B36C"
+      ]
+    },
+    {
+      "id": "heroes",
+      "name": "Super Heroes",
+      "include_core": true,
+      "palette": [
+        "#BC3D42",
+        "#DCAC53",
+        "#253B6B",
+        "#386D9F",
+        "#D2DEE5",
+        "#633F7A",
+        "#437771",
+        "#3F424C"
+      ]
+    },
+    {
+      "id": "castle",
+      "name": "Castle",
+      "include_core": true,
+      "palette": [
+        "#AAA392",
+        "#857C74",
+        "#5D626A",
+        "#513C35",
+        "#87916F",
+        "#8E4650",
+        "#35567B",
+        "#CCB182"
       ]
     }
   ],
@@ -11167,6 +11212,1680 @@
             2.0,
             0.8,
             2.0
+          ]
+        }
+      ]
+    },
+    {
+      "id": "galaxy_canopy_4x10",
+      "version": "1.0.0",
+      "name": "Starfighter Canopy 4x10",
+      "category": "opening",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        4,
+        8,
+        10
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 18,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -1.5,
+            -4.5
+          ],
+          [
+            -1.5,
+            -3.5
+          ],
+          [
+            -1.5,
+            -2.5
+          ],
+          [
+            -1.5,
+            -1.5
+          ],
+          [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ],
+          [
+            -1.5,
+            1.5
+          ],
+          [
+            -1.5,
+            2.5
+          ],
+          [
+            -1.5,
+            3.5
+          ],
+          [
+            -1.5,
+            4.5
+          ],
+          [
+            -0.5,
+            -4.5
+          ],
+          [
+            -0.5,
+            -3.5
+          ],
+          [
+            -0.5,
+            -2.5
+          ],
+          [
+            -0.5,
+            -1.5
+          ],
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            -0.5,
+            1.5
+          ],
+          [
+            -0.5,
+            2.5
+          ],
+          [
+            -0.5,
+            3.5
+          ],
+          [
+            -0.5,
+            4.5
+          ],
+          [
+            0.5,
+            -4.5
+          ],
+          [
+            0.5,
+            -3.5
+          ],
+          [
+            0.5,
+            -2.5
+          ],
+          [
+            0.5,
+            -1.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            1.5
+          ],
+          [
+            0.5,
+            2.5
+          ],
+          [
+            0.5,
+            3.5
+          ],
+          [
+            0.5,
+            4.5
+          ],
+          [
+            1.5,
+            -4.5
+          ],
+          [
+            1.5,
+            -3.5
+          ],
+          [
+            1.5,
+            -2.5
+          ],
+          [
+            1.5,
+            -1.5
+          ],
+          [
+            1.5,
+            -0.5
+          ],
+          [
+            1.5,
+            0.5
+          ],
+          [
+            1.5,
+            1.5
+          ],
+          [
+            1.5,
+            2.5
+          ],
+          [
+            1.5,
+            3.5
+          ],
+          [
+            1.5,
+            4.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            1.6,
+            0
+          ],
+          "size": [
+            4,
+            3.2,
+            10
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/galaxy_canopy_4x10_2507.obj",
+      "mesh_mount": [
+        4,
+        10
+      ],
+      "mesh_glazing": true
+    },
+    {
+      "id": "galaxy_wing_left_2x3",
+      "version": "1.0.0",
+      "name": "Wing Plate 2x3 (Left)",
+      "category": "plate",
+      "author": "Donald Sutter [technog]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        1,
+        3
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 9,
+      "connectors": {
+        "studs_top": [
+          [
+            -0.5,
+            -1
+          ],
+          [
+            -0.5,
+            0
+          ],
+          [
+            -0.5,
+            1
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            -0.5,
+            -1
+          ],
+          [
+            -0.5,
+            0
+          ],
+          [
+            -0.5,
+            1
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            -0.5,
+            0.2,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            3
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.2,
+            -0.5
+          ],
+          "size": [
+            1,
+            0.4,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/galaxy_wing_left_2x3_43723a.obj"
+    },
+    {
+      "id": "galaxy_wing_right_2x3",
+      "version": "1.0.0",
+      "name": "Wing Plate 2x3 (Right)",
+      "category": "plate",
+      "author": "Donald Sutter [technog]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        1,
+        3
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 9,
+      "connectors": {
+        "studs_top": [
+          [
+            0.5,
+            -1
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            0.5,
+            1
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            0.5,
+            -1
+          ],
+          [
+            0.5,
+            0
+          ],
+          [
+            0.5,
+            1
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0.5,
+            0.2,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            3
+          ]
+        },
+        {
+          "center": [
+            -0.5,
+            0.2,
+            -0.5
+          ],
+          "size": [
+            1,
+            0.4,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/galaxy_wing_right_2x3_43722a.obj"
+    },
+    {
+      "id": "galaxy_engine_cone_4x4",
+      "version": "1.0.0",
+      "name": "Rocket Engine Cone 4x4",
+      "category": "decoration",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        4,
+        6,
+        4
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 17,
+      "connectors": {
+        "studs_top": [
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ],
+          [
+            -0.5,
+            -1.5
+          ],
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            -0.5,
+            1.5
+          ],
+          [
+            0.5,
+            -1.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ],
+          [
+            0.5,
+            1.5
+          ],
+          [
+            1.5,
+            -0.5
+          ],
+          [
+            1.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.6,
+            0
+          ],
+          "size": [
+            4,
+            1.2,
+            4
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.8,
+            0
+          ],
+          "size": [
+            2.8,
+            1.2,
+            2.8
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/galaxy_engine_cone_4x4_3943b.obj"
+    },
+    {
+      "id": "galaxy_sensor_dish_4x4",
+      "version": "1.0.0",
+      "name": "Sensor Dish 4x4",
+      "category": "decoration",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        4,
+        4,
+        4
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 15,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.2,
+            0
+          ],
+          "size": [
+            2,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            0,
+            0.9,
+            0
+          ],
+          "size": [
+            4,
+            1.0,
+            4
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/galaxy_sensor_dish_4x4_3960.obj",
+      "mesh_mount": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "heroes_round_shield",
+      "version": "1.0.0",
+      "name": "Round Hero Shield",
+      "category": "decoration",
+      "author": "Howard Lande [HowardLande]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        3,
+        7,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "heroes"
+      ],
+      "bag_weight": 22,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0
+          ],
+          [
+            1.0,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            1.4,
+            0
+          ],
+          "size": [
+            3,
+            2.8,
+            1
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/heroes_round_shield_75902.obj",
+      "mesh_mount": [
+        3,
+        1
+      ]
+    },
+    {
+      "id": "heroes_recon_binoculars",
+      "version": "1.0.0",
+      "name": "Recon Binoculars",
+      "category": "decoration",
+      "author": "Paul Easter [pneaster]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        3,
+        2
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "heroes"
+      ],
+      "bag_weight": 20,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.6,
+            0
+          ],
+          "size": [
+            2,
+            1.2,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/heroes_recon_binoculars_30162.obj",
+      "mesh_mount": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "heroes_reactor_dish_2x2",
+      "version": "1.0.0",
+      "name": "Reactor Dish 2x2",
+      "category": "decoration",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        3,
+        2
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "heroes"
+      ],
+      "bag_weight": 22,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.6,
+            0
+          ],
+          "size": [
+            2,
+            1.2,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/heroes_reactor_dish_2x2_4740.obj",
+      "mesh_mount": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "castle_turret_4x8",
+      "version": "1.0.0",
+      "name": "Turret Crown 4x8",
+      "category": "structure",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        4,
+        7,
+        8
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle"
+      ],
+      "bag_weight": 22,
+      "connectors": {
+        "studs_top": [
+          [
+            1.5,
+            -3.5
+          ],
+          [
+            1.5,
+            3.5
+          ],
+          [
+            -0.5,
+            -2.5
+          ],
+          [
+            -0.5,
+            2.5
+          ],
+          [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ],
+          [
+            0.5,
+            -3.5,
+            4
+          ],
+          [
+            0.5,
+            3.5,
+            4
+          ],
+          [
+            -1.5,
+            -1.5,
+            4
+          ],
+          [
+            -1.5,
+            1.5,
+            4
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            1.5,
+            -3.5
+          ],
+          [
+            1.5,
+            3.5
+          ],
+          [
+            -0.5,
+            -2.5
+          ],
+          [
+            -0.5,
+            2.5
+          ],
+          [
+            -1.5,
+            -0.5
+          ],
+          [
+            -1.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            1.5,
+            1.4,
+            -3.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            1.5,
+            1.4,
+            3.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            -0.5,
+            1.4,
+            -2.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            -0.5,
+            1.4,
+            2.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            -1.5,
+            1.4,
+            -0.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            -1.5,
+            1.4,
+            0.5
+          ],
+          "size": [
+            1,
+            2.8,
+            1
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.8,
+            -3.5
+          ],
+          "size": [
+            1,
+            1.6,
+            1
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.8,
+            3.5
+          ],
+          "size": [
+            1,
+            1.6,
+            1
+          ]
+        },
+        {
+          "center": [
+            -1.5,
+            0.8,
+            -1.5
+          ],
+          "size": [
+            1,
+            1.6,
+            1
+          ]
+        },
+        {
+          "center": [
+            -1.5,
+            0.8,
+            1.5
+          ],
+          "size": [
+            1,
+            1.6,
+            1
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.2,
+            -3
+          ],
+          "size": [
+            3,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            0.5,
+            0.2,
+            3
+          ],
+          "size": [
+            3,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            -1.5,
+            0.2,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            6
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_turret_4x8_6066.obj"
+    },
+    {
+      "id": "castle_log_brick_1x2",
+      "version": "1.0.0",
+      "name": "Round Log Brick 1x2",
+      "category": "brick",
+      "author": "Steve Bliss [sbliss]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        1,
+        3,
+        2
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle",
+        "cabin"
+      ],
+      "bag_weight": 10,
+      "connectors": {
+        "studs_top": [
+          [
+            0.0,
+            -0.5
+          ],
+          [
+            0.0,
+            0.5
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            0.0,
+            -0.5
+          ],
+          [
+            0.0,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.6,
+            0
+          ],
+          "size": [
+            1,
+            1.2,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_log_brick_1x2_30136.obj"
+    },
+    {
+      "id": "castle_window_1x2",
+      "version": "1.0.0",
+      "name": "Rounded Castle Window 1x2",
+      "category": "opening",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        1,
+        8,
+        2
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle"
+      ],
+      "bag_weight": 18,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            0.0,
+            -0.5
+          ],
+          [
+            0.0,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.2,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            2
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.5,
+            -0.9
+          ],
+          "size": [
+            1,
+            2.2,
+            0.2
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.5,
+            0.9
+          ],
+          "size": [
+            1,
+            2.2,
+            0.2
+          ]
+        },
+        {
+          "center": [
+            0,
+            2.9,
+            0
+          ],
+          "size": [
+            1,
+            0.6,
+            1.5
+          ]
+        },
+        {
+          "center": [
+            0,
+            2.475,
+            0
+          ],
+          "size": [
+            1,
+            0.25,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_window_1x2_30044.obj"
+    },
+    {
+      "id": "castle_spindled_fence_1x4",
+      "version": "1.0.0",
+      "name": "Spindled Railing 1x4",
+      "category": "structure",
+      "author": "Steve Bliss [sbliss]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        1,
+        6,
+        4
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle",
+        "cabin"
+      ],
+      "bag_weight": 16,
+      "connectors": {
+        "studs_top": [
+          [
+            0,
+            -1.5
+          ],
+          [
+            0,
+            1.5
+          ]
+        ],
+        "sockets_bottom": [
+          [
+            0.0,
+            -1.5
+          ],
+          [
+            0.0,
+            -0.5
+          ],
+          [
+            0.0,
+            0.5
+          ],
+          [
+            0.0,
+            1.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            0.2,
+            0
+          ],
+          "size": [
+            1,
+            0.4,
+            4
+          ]
+        },
+        {
+          "center": [
+            0,
+            2.3,
+            0
+          ],
+          "size": [
+            1,
+            0.2,
+            4
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.3,
+            -1.5
+          ],
+          "size": [
+            0.35,
+            1.8,
+            0.25
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.3,
+            -0.5
+          ],
+          "size": [
+            0.35,
+            1.8,
+            0.25
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.3,
+            0.5
+          ],
+          "size": [
+            0.35,
+            1.8,
+            0.25
+          ]
+        },
+        {
+          "center": [
+            0,
+            1.3,
+            1.5
+          ],
+          "size": [
+            0.35,
+            1.8,
+            0.25
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_spindled_fence_1x4_30055.obj"
+    },
+    {
+      "id": "castle_triangular_shield",
+      "version": "1.0.0",
+      "name": "Triangular Shield",
+      "category": "decoration",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        7,
+        2
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle"
+      ],
+      "bag_weight": 15,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            -0.5
+          ],
+          [
+            -0.5,
+            0.5
+          ],
+          [
+            0.5,
+            -0.5
+          ],
+          [
+            0.5,
+            0.5
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            1.4,
+            0
+          ],
+          "size": [
+            2,
+            2.8,
+            2
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_triangular_shield_3846.obj",
+      "mesh_mount": [
+        2,
+        2
+      ]
+    },
+    {
+      "id": "castle_shortsword",
+      "version": "1.0.0",
+      "name": "Shortsword",
+      "category": "decoration",
+      "author": "James Jessiman",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        2,
+        11,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle"
+      ],
+      "bag_weight": 15,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.2,
+            0
+          ],
+          "size": [
+            2,
+            4.4,
+            1
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_shortsword_3847.obj",
+      "mesh_mount": [
+        2,
+        1
+      ]
+    },
+    {
+      "id": "castle_longbow",
+      "version": "1.0.0",
+      "name": "Longbow",
+      "category": "decoration",
+      "author": "John Van Zwieten [jvan]",
+      "license": "CC-BY-4.0",
+      "dimensions_studs": [
+        4,
+        13,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "castle"
+      ],
+      "bag_weight": 15,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -1.5,
+            0.0
+          ],
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ],
+          [
+            1.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.6,
+            0
+          ],
+          "size": [
+            4,
+            5.2,
+            1
+          ]
+        }
+      ],
+      "sourced_mesh": "assets/sourced/ldraw/castle_longbow_4499.obj",
+      "mesh_mount": [
+        4,
+        1
+      ]
+    },
+    {
+      "id": "toy_explorer_darth_vader",
+      "version": "1.0.0",
+      "name": "Darth Vader",
+      "category": "character",
+      "author": "LittleBricks",
+      "license": "Original fan-made character geometry",
+      "dimensions_studs": [
+        2,
+        10,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 20,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.0,
+            0
+          ],
+          "size": [
+            2,
+            4,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toy_explorer_stormtrooper",
+      "version": "1.0.0",
+      "name": "Stormtrooper",
+      "category": "character",
+      "author": "LittleBricks",
+      "license": "Original fan-made character geometry",
+      "dimensions_studs": [
+        2,
+        10,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "galaxy"
+      ],
+      "bag_weight": 20,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.0,
+            0
+          ],
+          "size": [
+            2,
+            4,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toy_explorer_iron_man",
+      "version": "1.0.0",
+      "name": "Iron Man",
+      "category": "character",
+      "author": "LittleBricks",
+      "license": "Original fan-made character geometry",
+      "dimensions_studs": [
+        2,
+        10,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "heroes"
+      ],
+      "bag_weight": 20,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.0,
+            0
+          ],
+          "size": [
+            2,
+            4,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "id": "toy_explorer_captain_america",
+      "version": "1.0.0",
+      "name": "Captain America",
+      "category": "character",
+      "author": "LittleBricks",
+      "license": "Original fan-made character geometry",
+      "dimensions_studs": [
+        2,
+        10,
+        1
+      ],
+      "allowed_rotations": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "theme_tags": [
+        "heroes"
+      ],
+      "bag_weight": 20,
+      "connectors": {
+        "studs_top": [],
+        "sockets_bottom": [
+          [
+            -0.5,
+            0.0
+          ],
+          [
+            0.5,
+            0.0
+          ]
+        ]
+      },
+      "collision_boxes": [
+        {
+          "center": [
+            0,
+            2.0,
+            0
+          ],
+          "size": [
+            2,
+            4,
+            1
           ]
         }
       ]

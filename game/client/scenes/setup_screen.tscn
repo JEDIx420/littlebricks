@@ -60,7 +60,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 
-[node name="Body" type="HBoxContainer" parent="ContentScroll/CenterWrapper"]
+[node name="Body" type="BoxContainer" parent="ContentScroll/CenterWrapper"]
 layout_mode = 2
 theme_override_constants/separation = 22
 
@@ -124,12 +124,6 @@ text = "Brick pack"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-selected = 0
-item_count = 2
-popup/item_0/text = "Coastal Harbour"
-popup/item_0/id = 0
-popup/item_1/text = "Forest Cabin"
-popup/item_1/id = 1
 
 [node name="LabelMode" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
 layout_mode = 2
@@ -213,12 +207,6 @@ text = "Brick pack"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-selected = 0
-item_count = 2
-popup/item_0/text = "Coastal Harbour"
-popup/item_0/id = 0
-popup/item_1/text = "Forest Cabin"
-popup/item_1/id = 1
 
 [node name="LabelPassTimer" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
 layout_mode = 2

@@ -36,16 +36,29 @@ SOFTWARE.
 
 ## 2. 3D Parts & Catalog Assets
 
-All 43 modular construction pieces, themes, and metadata in `game/assets/catalog/parts_manifest.json` are original works created specifically for LittleBricks and released under the **Creative Commons CC0 1.0 Universal Public Domain Dedication**:
+Original LittleBricks parts and explorer body geometry are documented in the [asset provenance ledger](game/assets/provenance.json). Imported assets retain their source licenses.
 
-- **License**: CC0 1.0 Universal (CC0 1.0) Public Domain Dedication
-- **Author**: LittleBricks Contributors
-- **Summary**: No Copyright. You can copy, modify, distribute, and perform the work, even for commercial purposes, all without asking permission.
+### LDraw construction and display pieces
 
----
+| Pack | Part numbers | Primary LDraw authors |
+| --- | --- | --- |
+| Galactic Hangar | 2507, 43722a, 43723a, 3943b, 3960 | James Jessiman, Donald Sutter |
+| Heroes HQ | 75902, 30162, 4740 | Howard Lande, Paul Easter, James Jessiman |
+| Castle Keep | 6066, 30136, 30044, 30055, 3846, 3847, 4499 | James Jessiman, Steve Bliss, John Van Zwieten |
 
-## 3. Trademarks & Brand Disclaimer
+The pack meshes use [LDraw.org](https://library.ldraw.org/) files under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). LittleBricks flattened the source dependency trees to triangulated OBJ meshes and normalized axes, pivots, and stud scale. LittleBricks adds mounts and connection metadata. The [asset ledger](game/assets/provenance.json) records each model's exact source, authors, licences, and hashes, including the contributing primitive and subpart files. Rebuild with `python tools/import_ldraw_packs.py --cache /path/to/ldraw-cache`.
 
-- LittleBricks is an independent, original open-source project.
-- **LEGO®** and the **Minifigure** are registered trademarks of the LEGO Group of companies, which does not sponsor, authorize, or endorse this software.
-- LittleBricks contains no proprietary digital models, trademarked figurines, or proprietary branding. All brick dimensions follow public domain modular grid standards, and character models are original stylized low-poly toy explorers.
+Kenney's [Brick Kit](https://kenney.nl/assets/brick-kit) and [Furniture Kit](https://kenney.nl/assets/furniture-kit) retain CC0-1.0 terms.
+
+### LDraw figure accessories
+
+| Accessory | LDraw part | Principal author |
+| --- | --- | --- |
+| Darth Vader helmet | 30368 | Paul Easter |
+| Stormtrooper patterned helmet | 30408p01 | Alex Taylor |
+| Iron Man helmet and gold visor | 10907c01 | Magnus Forsberg |
+| Captain America patterned shield | 75902p02 | Philippe Hurbain |
+
+These accessories use [LDraw Parts Library](https://library.ldraw.org/) data distributed under [CC BY 4.0](game/assets/sourced/ldraw_figures/CC-BY-4.0.txt), with original file contributors, additional credits, licenses, pinned source, and checksums listed in [the accessory source ledger](game/assets/sourced/ldraw_figures/sources.json). LittleBricks converted the CAD surfaces to glTF, retained source patterns and colors, and adapted normals, black plastic shading, coordinates, and scale for the game.
+
+The LDraw data licenses cover the contributed CAD files. Franchise names and character designs remain associated with their respective rights holders. LittleBricks is an independent project and is not endorsed by the LEGO Group, Lucasfilm, or Marvel.

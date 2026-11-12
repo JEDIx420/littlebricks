@@ -12,8 +12,13 @@ const SOUNDS = {
 	"reject": preload("res://assets/audio/reject.wav"),
 	"chime": preload("res://assets/audio/chime.wav"),
 	"music_menu": preload("res://assets/audio/music_menu.ogg"),
-	"music_building": preload("res://assets/audio/music_building.ogg")
+	"music_building": preload("res://assets/audio/music_building.ogg"),
+	"music_brick_box": preload("res://assets/audio/music_brick_box.ogg"),
+	"music_tinker": preload("res://assets/audio/music_tinker.ogg"),
+	"music_rain": preload("res://assets/audio/music_rain.ogg"),
+	"music_night": preload("res://assets/audio/music_night.ogg"),
 }
+const WORKSHOP_PLAYLIST: Array[String] = ["music_building", "music_brick_box", "music_tinker"]
 
 var _music_player_a: AudioStreamPlayer
 var _music_player_b: AudioStreamPlayer
@@ -23,6 +28,10 @@ const POOL_SIZE: int = 8
 
 var _active_music_is_a: bool = true
 var _current_music_track: String = ""
+var _workshop_active := false
+var _raining := false
+var _night := false
+var _playlist_index := 0
 var _is_muted: bool = false
 var _master_vol_linear: float = 1.0
 var _music_vol_linear: float = 0.7
@@ -50,11 +59,13 @@ func _setup_audio_players() -> void:
 	_music_player_a.name = "MusicPlayerA"
 	_music_player_a.bus = "Music" if _bus_exists("Music") else "Master"
 	add_child(_music_player_a)
+	_music_player_a.finished.connect(_on_music_finished.bind(_music_player_a))
 	
 	_music_player_b = AudioStreamPlayer.new()
 	_music_player_b.name = "MusicPlayerB"
 	_music_player_b.bus = "Music" if _bus_exists("Music") else "Master"
 	add_child(_music_player_b)
+	_music_player_b.finished.connect(_on_music_finished.bind(_music_player_b))
 	
 	for i in range(POOL_SIZE):
 		var p = AudioStreamPlayer.new()
@@ -112,10 +123,33 @@ func play_turn_cue() -> void:
 	_play_sfx("chime", -3.0, 0.02)
 
 func play_menu_music() -> void:
+	_workshop_active = false
 	_play_music("music_menu")
 
 func play_building_music() -> void:
-	_play_music("music_building")
+	_workshop_active = true
+	_play_music(_workshop_track())
+
+## Weather changes only select cues while the player is in the workshop.
+func set_workshop_atmosphere(is_raining: bool, is_night: bool) -> void:
+	_raining = is_raining
+	_night = is_night
+	if _workshop_active:
+		_play_music(_workshop_track())
+
+func _workshop_track() -> String:
+	if _raining:
+		return "music_rain"
+	if _night:
+		return "music_night"
+	return WORKSHOP_PLAYLIST[_playlist_index]
+
+func _on_music_finished(player: AudioStreamPlayer) -> void:
+	var active := _music_player_a if _active_music_is_a else _music_player_b
+	if player != active or not _workshop_active or _current_music_track not in WORKSHOP_PLAYLIST:
+		return
+	_playlist_index = (_playlist_index + 1) % WORKSHOP_PLAYLIST.size()
+	_play_music(_workshop_track())
 
 ## Subtle music ducking during rapid placement to maintain clarity and headroom
 func duck_music_for_placement(amount_db: float = -2.5, duration: float = 0.35) -> void:
@@ -164,16 +198,17 @@ func _play_music(track_name: String, force_restart: bool = false) -> void:
 	_active_music_is_a = not _active_music_is_a
 
 	var stream: AudioStreamOggVorbis = SOUNDS[track_name]
-	stream.loop = true
+	stream.loop = track_name not in WORKSHOP_PLAYLIST
 	incoming.stop()
 	incoming.stream = stream
 	incoming.volume_db = -24.0
 	incoming.play()
 
+	var fade_seconds := 0.75 if outgoing.playing else 0.16
 	_music_transition = create_tween().set_parallel(true)
-	_music_transition.tween_property(incoming, "volume_db", 0.0, 0.8).set_trans(Tween.TRANS_SINE)
+	_music_transition.tween_property(incoming, "volume_db", 0.0, fade_seconds).set_trans(Tween.TRANS_SINE)
 	if outgoing.playing:
-		_music_transition.tween_property(outgoing, "volume_db", -35.0, 0.8).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+		_music_transition.tween_property(outgoing, "volume_db", -35.0, fade_seconds).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 		_music_transition.chain().tween_callback(outgoing.stop)
 
 func set_mute(muted: bool) -> void:

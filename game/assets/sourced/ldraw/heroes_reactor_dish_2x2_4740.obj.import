@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dop4676fnle8i"
+path="res://.godot/imported/heroes_reactor_dish_2x2_4740.obj-cc42cdd540312af59a5fe27d5150115c.mesh"
+
+[deps]
+
+files=["res://.godot/imported/heroes_reactor_dish_2x2_4740.obj-cc42cdd540312af59a5fe27d5150115c.mesh"]
+
+source_file="res://assets/sourced/ldraw/heroes_reactor_dish_2x2_4740.obj"
+dest_files=["res://.godot/imported/heroes_reactor_dish_2x2_4740.obj-cc42cdd540312af59a5fe27d5150115c.mesh", "res://.godot/imported/heroes_reactor_dish_2x2_4740.obj-cc42cdd540312af59a5fe27d5150115c.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

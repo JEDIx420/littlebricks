@@ -84,6 +84,7 @@ func _run() -> void:
 	print("\n[PT-02: Camera / UI Ownership]")
 	var placements_before_camera: int = session.placements.size()
 	assert(table.is_current_placement_valid, "Camera test begins with a valid target")
+	await _click_control(table.find_child("BtnCameraDock", true, false))
 	await _click_control(table.find_child("BtnOrbitMode", true, false))
 	assert(table.camera_rig.is_camera_mode, "Orbit mode selected through the HUD")
 	var yaw_before: float = table.camera_rig.yaw

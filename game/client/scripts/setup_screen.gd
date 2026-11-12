@@ -4,6 +4,7 @@ class_name SetupScreen
 ## Mode-specific table setup screen (LB-035).
 ## Configures themes, players, timers, and bag rules before entering the table.
 
+const Packs = preload("res://core/brick_packs.gd")
 const Studio = preload("res://client/scripts/menu_studio.gd")
 
 signal start_session_requested(config: Dictionary)
@@ -75,6 +76,12 @@ func _ready() -> void:
 	%Preview.add_theme_stylebox_override("panel", frame)
 	for button in [btn_start, btn_create_room, btn_join_room]:
 		Studio.button(button, true)
+	for pack_option in [opt_solo_theme, opt_pass_theme]:
+		var selected := maxi(pack_option.selected, 0)
+		pack_option.clear()
+		for label in Packs.LABELS:
+			pack_option.add_item(label)
+		pack_option.select(selected)
 	for option in [opt_solo_theme, opt_solo_mode, opt_player_count, opt_pass_theme, opt_pass_timer]:
 		Studio.button(option)
 		option.alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -104,9 +111,10 @@ func _ready() -> void:
 func _layout_setup() -> void:
 	var available := maxf(260.0, minf(size.x - 58.0, 1060.0))
 	var split := available > 780.0 and size.x / maxf(size.y, 1.0) > 1.0
-	%Preview.visible = split
-	%Stage.custom_minimum_size.y = 465.0 if split else 0.0
-	var body := $ContentScroll/CenterWrapper/Body as HBoxContainer
+	var body := $ContentScroll/CenterWrapper/Body as BoxContainer
+	body.vertical = not split
+	%Preview.visible = split or size.y >= 660.0
+	%Stage.custom_minimum_size.y = 465.0 if split else 145.0
 	body.custom_minimum_size.x = available if split else minf(available, 540.0)
 	%MainPanel.custom_minimum_size.x = 385.0 if split else minf(available, 540.0)
 
@@ -115,13 +123,18 @@ func _refresh_preview(_selection: int = -1) -> void:
 	match current_mode:
 		"solo":
 			mode_description.text = "Pick any piece from the collection." if opt_solo_mode.selected == 1 else "Draw from a themed bag and place one piece each turn."
-			%Stage.show_cabin_palette(opt_solo_theme.selected == 1)
+			var pack_id := _selected_pack(opt_solo_theme)
+			line_edit_solo_name.placeholder_text = Packs.DISPLAY_NAMES[pack_id]
+			%Stage.show_pack_palette(pack_id)
 		"pass_and_play":
 			mode_description.text = "Pass the device to the next builder after each turn."
-			%Stage.show_cabin_palette(opt_pass_theme.selected == 1)
+			%Stage.show_pack_palette(_selected_pack(opt_pass_theme))
 		"online":
 			mode_description.text = "Host a table for friends or enter the code they sent."
-			%Stage.show_cabin_palette(false)
+			%Stage.show_pack_palette("harbour")
+
+func _selected_pack(option: OptionButton) -> String:
+	return Packs.IDS[clampi(option.selected, 0, Packs.IDS.size() - 1)]
 
 func _on_back_pressed() -> void:
 	back_pressed.emit()
@@ -160,10 +173,10 @@ func _on_start_pressed() -> void:
 	var config: Dictionary = {}
 	
 	if current_mode == "solo":
-		var theme_id = "harbour" if opt_solo_theme.selected == 0 else "cabin"
+		var theme_id := _selected_pack(opt_solo_theme)
 		var creation_name = line_edit_solo_name.text.strip_edges()
 		if creation_name.is_empty():
-			creation_name = "Sunny Harbour" if theme_id == "harbour" else "Forest Cabin"
+			creation_name = Packs.DISPLAY_NAMES[theme_id]
 		config = {
 			"mode": "solo",
 			"theme_id": theme_id,
@@ -182,7 +195,7 @@ func _on_start_pressed() -> void:
 		if count >= 4:
 			p_names.append(line_player_4.text if not line_player_4.text.is_empty() else "Player 4")
 			
-		var theme_id = "harbour" if opt_pass_theme.selected == 0 else "cabin"
+		var theme_id := _selected_pack(opt_pass_theme)
 		var timer_enabled = (opt_pass_timer.selected != 3)
 		var timer_sec = 20.0
 		if opt_pass_timer.selected == 1: timer_sec = 30.0

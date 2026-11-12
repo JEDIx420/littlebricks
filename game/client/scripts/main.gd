@@ -9,6 +9,9 @@ signal finish_requested()
 signal leave_requested()
 signal settings_requested()
 
+const WorkshopBlueprint = preload("res://client/scripts/workshop_blueprint.gd")
+const BrickPacks = preload("res://core/brick_packs.gd")
+const ROOM_MODES: Array[String] = ["cycle", "day", "dusk", "night", "rain"]
 const WorkbenchHUD = preload("res://client/scripts/workbench_hud.gd")
 const HUD_FONT := preload("res://assets/ui/fonts/DM-Sans.ttf")
 const HUD_DISPLAY_FONT := preload("res://assets/ui/fonts/DM-Serif-Text.ttf")
@@ -39,6 +42,7 @@ const PresentationController = preload("res://client/scripts/presentation_contro
 @onready var catalog_modal: PanelContainer = %CatalogModal
 @onready var btn_close_catalog: Button = %BtnCloseCatalog
 @onready var opt_catalog_category: OptionButton = %OptCatalogCategory
+@onready var opt_catalog_pack: OptionButton = %OptCatalogPack
 @onready var line_catalog_search: LineEdit = %LineCatalogSearch
 @onready var catalog_grid: GridContainer = %CatalogGrid
 @onready var btn_rotate_left: Button = %BtnRotateLeft
@@ -96,6 +100,9 @@ var _camera_buttons: Array[Button] = []
 var _catalog_part_id: String = ""
 var _external_modal_open: bool = false
 var _local_placement_sequence: int = 0
+var _blueprint: WorkshopBlueprint
+var _blueprint_touch_index: int = -1
+var _room_picker: OptionButton
 
 func _ready() -> void:
 	if _is_initialized:
@@ -117,6 +124,7 @@ func _ready() -> void:
 	if not catalog_modal: catalog_modal = find_child("CatalogModal", true, false)
 	if not btn_close_catalog: btn_close_catalog = find_child("BtnCloseCatalog", true, false)
 	if not opt_catalog_category: opt_catalog_category = find_child("OptCatalogCategory", true, false)
+	if not opt_catalog_pack: opt_catalog_pack = find_child("OptCatalogPack", true, false)
 	if not line_catalog_search: line_catalog_search = find_child("LineCatalogSearch", true, false)
 	if not catalog_grid: catalog_grid = find_child("CatalogGrid", true, false)
 	if not btn_rotate_left: btn_rotate_left = find_child("BtnRotateLeft", true, false)
@@ -144,16 +152,20 @@ func _ready() -> void:
 	WorkbenchHUD.apply($UI/RootControl, HUD_FONT, HUD_DISPLAY_FONT)
 	_connect_ui()
 	_connect_camera_hud()
+	_setup_catalog_packs()
+	_connect_workshop_dock()
 	_setup_inventory_tray()
 	_update_height_mode_ui()
 	_rebuild_ghost()
 	_validate_and_update_ghost()
 
 func _process(delta: float) -> void:
+	if presentation and settings_manager and presentation.is_reduced_motion != settings_manager.reduced_motion:
+		presentation.is_reduced_motion = settings_manager.reduced_motion
 	if session and session.timer_enabled and session.phase == SessionManager.SessionPhase.BUILDING:
 		session.tick_timer(delta)
 
-func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null, p_settings = null) -> void:
+func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null, p_settings = null, room_state: Dictionary = {}) -> void:
 	session = p_session
 	audio_director = p_audio
 	haptics_adapter = p_haptics
@@ -166,7 +178,15 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null,
 		add_child(presentation)
 	
 	if session and presentation:
+		presentation.is_reduced_motion = settings_manager != null and settings_manager.reduced_motion
 		presentation.apply_presentation(session.theme_id, get_node_or_null("WorldEnvironment"), get_node_or_null("DirectionalLight3D"), table_view)
+		if not presentation.atmosphere_changed.is_connected(_on_atmosphere_changed):
+			presentation.atmosphere_changed.connect(_on_atmosphere_changed)
+		if not room_state.is_empty():
+			presentation.restore_atmosphere_state(room_state)
+		_room_picker.disabled = false
+		_on_atmosphere_changed(presentation.get_atmosphere_mode(), presentation.get_atmosphere_label())
+		_blueprint.configure(session.theme_id, catalog)
 	
 	if not session:
 		return
@@ -319,12 +339,12 @@ func _setup_inventory_tray() -> void:
 		btn.text = pname
 		btn.tooltip_text = "%s  ·  %d" % [pname, i + 1]
 		btn.focus_mode = Control.FOCUS_CLICK
-		btn.custom_minimum_size = Vector2(100, 81)
+		btn.custom_minimum_size = Vector2(88, 68)
 		btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		btn.add_theme_font_size_override("font_size", 12)
 		var pocket := WorkbenchHUD.surface(WorkbenchHUD.BUTTON, WorkbenchHUD.EDGE)
-		pocket.content_margin_top = 59
+		pocket.content_margin_top = 45
 		pocket.content_margin_bottom = 4
 		btn.add_theme_stylebox_override("normal", pocket)
 		var pocket_hover := pocket.duplicate() as StyleBoxFlat
@@ -391,9 +411,7 @@ func _rebuild_ghost() -> void:
 	_ghost_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	_ghost_material.roughness = 0.42
 	_set_ghost_material(_ghost_node)
-	var held_label := $UI/RootControl.find_child("ToolTitle") as Label
-	held_label.text = p_def.get("name", "Held brick")
-	held_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	btn_place.tooltip_text = "Place %s (Enter)" % p_def.get("name", "brick")
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _external_modal_open:
@@ -440,6 +458,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		elif k == KEY_B or k == KEY_0:
 			_return_to_base()
+			_consume_input()
+			return
+		elif k == KEY_J:
+			_open_blueprint()
 			_consume_input()
 			return
 		elif k == KEY_M:
@@ -490,15 +512,20 @@ func _unhandled_input(event: InputEvent) -> void:
 	var is_cam_busy := camera_rig.is_camera_mode or camera_rig.is_gesture_active
 	if is_cam_busy:
 		_mouse_placement_armed = false
+		_blueprint_touch_index = -1
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.device == InputEvent.DEVICE_ID_EMULATION:
 			return
 		if event.pressed:
 			_mouse_press_position = event.position
-			_mouse_placement_armed = current_input_state == InputState.HOLDING
+			_mouse_placement_armed = current_input_state == InputState.HOLDING or _blueprint.is_under_pointer(camera_rig.camera, event.position)
 		elif _mouse_placement_armed and event.position.distance_to(_mouse_press_position) <= 7.0:
 			_mouse_placement_armed = false
+			if _blueprint.is_under_pointer(camera_rig.camera, _mouse_press_position) and _blueprint.is_under_pointer(camera_rig.camera, event.position):
+				_open_blueprint()
+				_consume_input()
+				return
 			_last_pointer_screen_pos = event.position
 			_handle_pointer_position(event.position)
 			if is_current_placement_valid:
@@ -512,8 +539,23 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _mouse_placement_armed and event.position.distance_to(_mouse_press_position) > 7.0:
 			_mouse_placement_armed = false
 		_last_pointer_screen_pos = event.position
-		_handle_pointer_position(event.position)
-	elif event is InputEventScreenDrag or (event is InputEventScreenTouch and event.pressed):
+		if _blueprint.is_under_pointer(camera_rig.camera, event.position):
+			_invalidate_candidate()
+			label_status.text = "Click to read the build plan"
+		else:
+			_handle_pointer_position(event.position)
+	elif event is InputEventScreenTouch:
+		if event.pressed:
+			_blueprint_touch_index = event.index if _blueprint.is_under_pointer(camera_rig.camera, event.position) else -1
+			_last_pointer_screen_pos = event.position
+			_handle_pointer_position(event.position)
+		elif event.index == _blueprint_touch_index:
+			_blueprint_touch_index = -1
+			if not event.canceled and _blueprint.is_under_pointer(camera_rig.camera, event.position):
+				_open_blueprint()
+				_consume_input()
+	elif event is InputEventScreenDrag:
+		_blueprint_touch_index = -1
 		_last_pointer_screen_pos = event.position
 		_handle_pointer_position(event.position)
 
@@ -559,8 +601,51 @@ func _toggle_camera_mode() -> void:
 	if camera_rig:
 		camera_rig.cycle_camera_mode()
 
+func _connect_workshop_dock() -> void:
+	var ui := $UI/RootControl
+	_room_picker = ui.find_child("OptRoom") as OptionButton
+	for label in ["Auto cycle", "Daylight", "Dusk", "Night", "Rain"]:
+		_room_picker.add_item(label)
+	_room_picker.select(0)
+	_room_picker.text = "Room"
+	_room_picker.disabled = true
+	_room_picker.item_selected.connect(func(index: int):
+		if presentation:
+			presentation.set_atmosphere_mode(ROOM_MODES[index])
+	)
+
+	_blueprint = WorkshopBlueprint.new()
+	table_view.add_child(_blueprint)
+	_blueprint.reader_closed.connect(set_external_modal_open.bind(false))
+	ui.find_child("BtnPlans").pressed.connect(_open_blueprint)
+
+func _open_blueprint() -> void:
+	if _external_modal_open or catalog_modal.visible or not session:
+		return
+	set_external_modal_open(true)
+	_blueprint.show_reader($UI/RootControl)
+
+func get_workshop_state() -> Dictionary:
+	return presentation.get_atmosphere_state() if presentation else {}
+
+func _on_atmosphere_changed(mode: String, label: String) -> void:
+	var index := ROOM_MODES.find(mode)
+	if index >= 0:
+		_room_picker.select(index)
+	_room_picker.text = label
+	var state := presentation.get_atmosphere_state()
+	if audio_director:
+		audio_director.set_workshop_atmosphere(state.get("is_raining", false), state.get("is_night", false))
+
 func _connect_camera_hud() -> void:
 	var ui := $UI/RootControl
+	var camera_panel := ui.get_node("CameraPanel") as PanelContainer
+	var view_button := ui.find_child("BtnCameraDock") as Button
+	view_button.pressed.connect(func():
+		camera_panel.visible = not camera_panel.visible
+		WorkbenchHUD.select(view_button, camera_panel.visible)
+	)
+
 	_camera_buttons = [
 		btn_camera_mode, ui.find_child("BtnOrbitMode"), ui.find_child("BtnPanMode"),
 	]
@@ -579,9 +664,11 @@ func _set_camera_mode(mode: CameraController.InteractionMode) -> void:
 		camera_rig.reset_gesture_state()
 		camera_rig.interaction_mode = mode
 
-func _on_camera_mode_changed(mode: int, _mode_name: String) -> void:
+func _on_camera_mode_changed(mode: int, mode_name: String) -> void:
 	for i in range(_camera_buttons.size()):
 		WorkbenchHUD.select(_camera_buttons[i], i == mode)
+	var view_button := $UI/RootControl.find_child("BtnCameraDock") as Button
+	view_button.text = "View" if mode == CameraController.InteractionMode.BUILD else mode_name
 	var hint := $UI/RootControl.find_child("CameraHint") as Label
 	match mode:
 		CameraController.InteractionMode.BUILD:
@@ -685,7 +772,7 @@ func _on_cancel_held_piece() -> void:
 	current_input_state = InputState.IDLE
 	_invalidate_candidate()
 	if label_status:
-		label_status.text = "Placement canceled. Select a piece from the tray to build."
+		label_status.text = "Choose a brick from the tray"
 
 func _on_rotate_left() -> void:
 	current_rotation_step = (current_rotation_step - 1 + 4) % 4
@@ -1072,6 +1159,18 @@ func _update_modal_input() -> void:
 	camera_rig.is_input_enabled = not (_external_modal_open or catalog_modal.visible)
 	camera_rig.reset_gesture_state()
 	_mouse_placement_armed = false
+	_blueprint_touch_index = -1
+
+func _setup_catalog_packs() -> void:
+	opt_catalog_pack.add_item("All packs")
+	opt_catalog_pack.set_item_metadata(0, "")
+	opt_catalog_pack.add_item("Core bricks")
+	opt_catalog_pack.set_item_metadata(1, "core")
+	for i in range(BrickPacks.IDS.size()):
+		opt_catalog_pack.add_item(BrickPacks.LABELS[i])
+		opt_catalog_pack.set_item_metadata(i + 2, BrickPacks.IDS[i])
+	opt_catalog_pack.select(0)
+	opt_catalog_pack.item_selected.connect(func(_index: int): _populate_catalog_grid())
 
 func _setup_catalog_categories() -> void:
 	if not opt_catalog_category or opt_catalog_category.item_count > 0:
@@ -1109,8 +1208,21 @@ func _populate_catalog_grid() -> void:
 	var cat_map = ["", "brick", "plate", "slope", "opening", "tile", "decoration", "character", "structure"]
 	var target_cat = cat_map[selected_cat_idx] if selected_cat_idx < cat_map.size() else ""
 	
-	var all_ids = catalog.get_all_part_ids()
-	all_ids.sort()
+	var selected_pack := String(opt_catalog_pack.get_selected_metadata())
+	var all_ids: Array[String] = []
+	if selected_pack.is_empty():
+		all_ids = catalog.get_all_part_ids()
+		all_ids.sort()
+	else:
+		var shared_ids: Array[String] = []
+		for part in catalog.get_theme_parts(selected_pack):
+			if selected_pack != "core" and "core" in part.get("theme_tags", []):
+				shared_ids.append(part["id"])
+			else:
+				all_ids.append(part["id"])
+		all_ids.sort()
+		shared_ids.sort()
+		all_ids.append_array(shared_ids)
 	var matched_count: int = 0
 	_catalog_part_id = ""
 	_clear_catalog_preview()
@@ -1140,7 +1252,7 @@ func _populate_catalog_grid() -> void:
 		
 	if matched_count == 0:
 		var empty_lbl = Label.new()
-		empty_lbl.text = "No parts match '%s'" % filter_text if not filter_text.is_empty() else "No parts in this category"
+		empty_lbl.text = "No parts match '%s'" % filter_text if not filter_text.is_empty() else "No parts in this pack or category"
 		empty_lbl.add_theme_color_override("font_color", WorkbenchHUD.MUTED)
 		catalog_grid.add_child(empty_lbl)
 

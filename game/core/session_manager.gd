@@ -392,6 +392,8 @@ func _record_event(type: String, data: Dictionary) -> void:
 	event_journal.append(event)
 
 func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionary:
+	var pack: Dictionary = catalog.get_theme(theme_id)
+	var is_expansion: bool = pack.get("include_core", false)
 	var theme_parts = catalog.get_theme_parts(theme_id)
 	if theme_parts.is_empty():
 		theme_parts = catalog.get_theme_parts("core")
@@ -401,12 +403,15 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 	# Guarantees at least 2 foundational bricks and at least 4 total structural pieces in every 6-slot hand.
 	var brick_count: int = 0
 	var plate_count: int = 0
+	var has_pack_part: bool = false
 	for idx in range(player_hand.size()):
 		if idx == slot_idx:
 			continue # Skip the slot being replaced
 		var item = player_hand[idx]
 		var p_id: String = item.get("part_id", "")
-		var p_cat: String = catalog.get_part(p_id).get("category", "")
+		var hand_part := catalog.get_part(p_id)
+		var p_cat: String = hand_part.get("category", "")
+		has_pack_part = has_pack_part or theme_id in hand_part.get("theme_tags", [])
 		if p_cat == "brick":
 			brick_count += 1
 		elif p_cat == "plate":
@@ -425,12 +430,17 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 			if c == "brick" or c == "plate":
 				candidate_parts.append(p)
 	else:
-		# Remaining slots can draw specialty accents and themed parts
 		candidate_parts = theme_parts
 		
 	if candidate_parts.is_empty():
 		candidate_parts = theme_parts
-		
+	if is_expansion and not has_pack_part:
+		var themed_choices := candidate_parts.filter(func(part: Dictionary) -> bool:
+			return theme_id in part.get("theme_tags", [])
+		)
+		if not themed_choices.is_empty():
+			candidate_parts = themed_choices
+
 	# Select weighted piece
 	var total_weight: int = 0
 	for p in candidate_parts:
@@ -450,7 +460,11 @@ func _draw_piece_from_theme(slot_idx: int, player_hand: Array = []) -> Dictionar
 		Color(0.9, 0.75, 0.1), Color(0.92, 0.92, 0.92),
 		Color(0.2, 0.55, 0.25), Color(0.4, 0.25, 0.15)
 	]
-	
+	if is_expansion and not pack.get("palette", []).is_empty():
+		palette.clear()
+		for swatch in pack["palette"]:
+			palette.append(Color.from_string(String(swatch), Color.WHITE))
+
 	return {
 		"instance_id": "item_%d_%d" % [Time.get_ticks_msec(), slot_idx],
 		"part_id": chosen_part.get("id", "brick_2x4"),

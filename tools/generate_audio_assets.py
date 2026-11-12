@@ -100,124 +100,235 @@ def make_chime():
         samples.append(s * 0.28)
     write_wav("chime.wav", samples)
 
-# Original score: a slow, loosely timed duet for felt keys and plucked strings.
-# MIDI voicings retain common tones through chord changes.
-VOICINGS = {
-    "Dadd9": (38, (57, 62, 64, 66)),
-    "Bm7": (35, (57, 59, 62, 66)),
-    "Gmaj7": (43, (55, 59, 62, 66)),
-    "G6": (43, (55, 59, 62, 64)),
-    "A6": (45, (57, 61, 64, 66)),
-    "A7sus": (45, (55, 57, 62, 64)),
-    "Em7": (40, (55, 59, 62, 64)),
-    "F#m7": (42, (57, 59, 61, 64)),
-    "D/F#": (42, (57, 62, 64, 66)),
+# Original LittleBricks score in MIDI note numbers. The major-key opening and
+# build cues have different hooks, bass movement and rhythms. The quieter
+# workshop cues are written as sustained notes and isolated bell answers.
+HARMONY = {
+    "D": (38, (62, 66, 69, 74)), "G": (43, (59, 62, 67, 74)),
+    "A": (45, (61, 64, 69, 76)), "Bm": (47, (59, 62, 66, 74)),
+    "Em": (40, (59, 64, 67, 74)), "F#m": (42, (57, 61, 66, 73)),
+    "D/F#": (42, (62, 66, 69, 76)), "Gm": (43, (58, 62, 67, 74)),
+    "C": (36, (60, 64, 67, 72)), "F": (41, (60, 65, 69, 72)),
+    "Am": (45, (60, 64, 69, 76)), "Dm": (38, (62, 65, 69, 77)),
+    "Bb": (46, (58, 62, 65, 74)), "E": (40, (59, 64, 68, 74)),
 }
-MENU = (
-    "Dadd9", "Bm7", "Gmaj7", "A6", "D/F#", "G6", "Em7", "A7sus",
-    "Bm7", "F#m7", "Gmaj7", "Dadd9", "Em7", "G6", "D/F#", "A7sus",
+
+# Each cell is an eighth note. Zero is a rest; -1 sustains the preceding note.
+OPENING = (
+    ("D", (74, 78, 81, -1, 76, 78, 74, 0)),
+    ("A", (73, 76, 81, 85, 81, -1, 78, 76)),
+    ("Bm", (78, 81, 83, -1, 86, 85, 81, 78)),
+    ("G", (79, -1, 74, 71, 74, -1, 76, 0)),
+    ("D/F#", (78, 81, 86, -1, 88, 86, 81, 78)),
+    ("Em", (79, 83, 81, 79, 76, -1, 74, 76)),
+    ("G", (79, -1, 81, 83, 81, 79, 78, 74)),
+    ("A", (76, 73, 76, 81, 85, -1, 81, 0)),
+    ("Bm", (86, -1, 83, 81, 78, 81, 74, -1)),
+    ("F#m", (73, 78, 81, 85, 81, 76, 73, 0)),
+    ("G", (74, -1, 79, 83, 86, -1, 83, 81)),
+    ("Gm", (82, 79, 77, 74, 70, -1, 74, 0)),
+    ("D", (74, 78, 81, -1, 86, 85, 81, 78)),
+    ("G", (79, 83, 86, -1, 83, 81, 79, 0)),
+    ("A", (81, 76, 78, 81, 85, 83, 81, 76)),
+    ("D", (74, -1, -1, 78, 76, 74, 0, 0)),
 )
-BUILDING = (
-    "Dadd9", "Gmaj7", "Bm7", "A6", "D/F#", "G6", "Em7", "A7sus",
-    "Bm7", "F#m7", "Gmaj7", "Dadd9", "Em7", "G6", "D/F#", "A7sus",
-    "Dadd9", "Em7", "Bm7", "G6", "F#m7", "Gmaj7", "Em7", "A7sus",
+TABLE = (
+    ("G", (67, -1, 71, 74, 0, 76, 74, 71)),
+    ("D/F#", (66, 69, 74, -1, 76, 74, 69, 0)),
+    ("Em", (67, -1, 71, 76, 79, 76, 74, 71)),
+    ("A", (69, 73, 76, -1, 78, 76, 73, 0)),
+    ("Bm", (71, 74, 78, 81, 83, -1, 81, 78)),
+    ("F#m", (76, 73, 69, -1, 73, 76, 78, 0)),
+    ("G", (79, -1, 83, 81, 79, 76, 74, 71)),
+    ("D", (74, 78, 81, -1, 78, 76, 74, 0)),
+    ("Em", (76, 79, 83, -1, 81, 79, 76, -1)),
+    ("G", (74, 79, 83, 86, 83, 81, 79, 0)),
+    ("A", (76, 81, 85, -1, 83, 81, 78, 76)),
+    ("Bm", (78, -1, 74, 71, 0, 74, 78, 81)),
+    ("G", (79, 83, 86, 83, 81, -1, 79, 76)),
+    ("A", (78, 76, 73, 69, 73, -1, 76, 81)),
+    ("D", (78, 74, 69, 66, 69, 74, 76, 78)),
+    ("D", (74, -1, -1, -1, 0, 0, 0, 0)),
 )
-MELODY = (
-    (0.75, 69, 0.61), (2.5, 74, 0.53), (4.0, 73, 0.42),
-    (5.0, 69, 0.50), (7.75, 66, 0.40), (10.0, 67, 0.55),
-    (11.0, 71, 0.48), (13.5, 69, 0.38), (16.75, 69, 0.52),
-    (18.5, 76, 0.51), (20.25, 74, 0.42), (21.75, 71, 0.43),
-    (24.0, 67, 0.53), (25.75, 66, 0.38), (27.5, 64, 0.36),
-    (30.0, 69, 0.37), (33.0, 66, 0.59), (34.5, 69, 0.50),
-    (37.0, 73, 0.46), (40.0, 74, 0.52), (42.0, 71, 0.46),
-    (44.25, 69, 0.43), (49.0, 67, 0.42), (50.5, 71, 0.48),
-    (53.0, 69, 0.46), (55.5, 64, 0.35), (57.0, 66, 0.47),
-    (60.25, 64, 0.40), (62.25, 62, 0.32),
+BRICK_BOX = (
+    ("C", (72, 0, 76, 79, 81, 79, 76, 0)),
+    ("F", (77, 0, 81, 84, 83, 81, 77, 0)),
+    ("Am", (76, 79, 81, 84, 88, -1, 84, 81)),
+    ("E", (80, 76, 74, 71, 76, -1, 74, 0)),
+    ("Dm", (74, 77, 81, -1, 86, 84, 81, 77)),
+    ("Bb", (77, 82, 86, -1, 84, 82, 77, 0)),
+    ("F", (81, 84, 89, 88, 84, 81, 77, 81)),
+    ("C", (79, -1, 76, 72, 76, -1, 79, 0)),
+    ("Am", (81, -1, -1, 84, 83, 81, 79, 76)),
+    ("F", (77, -1, 81, 84, 88, -1, 84, 81)),
+    ("Bb", (82, 86, 89, -1, 86, 84, 82, 77)),
+    ("C", (79, 76, 74, 72, 76, 79, 84, 0)),
+    ("Dm", (86, -1, 81, 77, 79, 81, 84, 86)),
+    ("F", (84, -1, 81, 77, 81, 84, 89, -1)),
+    ("C", (88, 84, 79, 76, 79, 84, 83, 79)),
+    ("C", (84, -1, -1, -1, 0, 0, 0, 0)),
+)
+TINKER = (
+    ("F", (65, 69, 72, -1, 69, 72, 77, -1)),
+    ("Dm", (74, 72, 69, 65, 69, -1, 72, 74)),
+    ("Bb", (77, -1, 74, 70, 72, 74, 77, 79)),
+    ("C", (76, 72, 67, -1, 72, 74, 76, 0)),
+    ("Am", (76, 81, 84, -1, 83, 79, 76, 72)),
+    ("Dm", (74, 77, 81, 84, 86, -1, 84, 81)),
+    ("Bb", (82, 77, 74, -1, 77, 79, 82, 84)),
+    ("F", (81, 77, 72, -1, 69, 72, 77, 0)),
+    ("Gm", (79, -1, 74, 70, 74, 77, 79, 82)),
+    ("Bb", (86, -1, -1, 82, 77, 74, 77, 79)),
+    ("F", (81, 84, 89, -1, 86, 84, 81, 77)),
+    ("Am", (76, 79, 81, 84, 88, -1, 84, 0)),
+    ("Dm", (86, -1, 84, 81, 77, 81, 84, 86)),
+    ("Bb", (82, 77, 74, 70, 74, 77, 82, 84)),
+    ("C", (79, -1, 76, 72, 76, 79, 84, 0)),
+    ("F", (77, -1, -1, -1, 0, 0, 0, 0)),
+)
+RAIN = (
+    ("Bm", (78, -1, -1, 74, 0, 0, 81, -1)), ("G", (79, -1, 76, -1, 0, 0, 0, 0)),
+    ("D/F#", (76, -1, 74, -1, 0, 69, -1, -1)), ("Em", (71, -1, -1, -1, 0, 0, 0, 0)),
+    ("Bm", (74, -1, 78, -1, 0, 0, 83, -1)), ("G", (81, -1, -1, 79, 0, 0, 0, 0)),
+    ("Em", (76, -1, 74, -1, 0, 0, 71, -1)), ("A", (73, -1, -1, -1, 0, 0, 0, 0)),
+    ("G", (74, -1, -1, 79, 0, 0, 83, -1)), ("D", (81, -1, 78, -1, 0, 0, 0, 0)),
+    ("Bm", (74, -1, 76, -1, 78, -1, 81, -1)), ("F#m", (76, -1, -1, -1, 0, 0, 0, 0)),
+    ("G", (79, -1, -1, 76, 0, 0, 74, -1)), ("Em", (71, -1, 74, -1, 0, 0, 0, 0)),
+    ("A", (76, -1, 73, -1, 0, 0, 69, -1)), ("Bm", (71, -1, -1, -1, 0, 0, 0, 0)),
+)
+NIGHT = (
+    ("D", (81, -1, -1, -1, 86, -1, 88, -1)), ("A", (85, -1, -1, -1, 0, 0, 0, 0)),
+    ("Bm", (86, -1, 83, -1, 81, -1, -1, -1)), ("G", (79, -1, -1, -1, 0, 0, 0, 0)),
+    ("D/F#", (81, -1, -1, -1, 78, -1, 76, -1)), ("Em", (79, -1, -1, -1, 0, 0, 0, 0)),
+    ("Gm", (82, -1, 81, -1, 79, -1, 74, -1)), ("D", (74, -1, -1, -1, 0, 0, 0, 0)),
+    ("Bm", (78, -1, -1, -1, 81, -1, 86, -1)), ("G", (83, -1, -1, -1, 0, 0, 0, 0)),
+    ("D", (81, -1, 86, -1, 88, -1, 90, -1)), ("A", (88, -1, -1, -1, 0, 0, 0, 0)),
+    ("Em", (86, -1, -1, -1, 83, -1, 79, -1)), ("G", (81, -1, -1, -1, 0, 0, 0, 0)),
+    ("A", (76, -1, 73, -1, 76, -1, 78, -1)), ("D", (74, -1, -1, -1, 0, 0, 0, 0)),
 )
 
 
-def render_note(midi, instrument, strength, length, sample_rate):
-    """Damped, mildly inharmonic partials model a struck or plucked string."""
-    t = np.arange(int(sample_rate * length)) / sample_rate
-    frequency = 440.0 * 2 ** ((midi - 69) / 12.0)
-    if instrument == "felt":
-        partials = (1.0, 0.31, 0.17, 0.058, 0.028, 0.015)
-        stiffness, damping, attack = 0.00011, 1.44, 0.010
-    else:
-        partials = (0.87, 0.39, 0.18, 0.094, 0.061, 0.029)
-        stiffness, damping, attack = 0.00003, 2.14, 0.007
+def write_chip_score(filename, chart, tempo, groove, ambient=False, playlist=False):
+    """Render band-limited pulse, triangle bass and clocked percussion to stereo."""
+    rate = 32000
+    beat_seconds = 60.0 / tempo
+    phrase = chart if not playlist else chart[:8] + chart + chart[8:]
+    phrase_length = len(phrase) * 4 * beat_seconds
+    frame_count = round((phrase_length + (0.55 if playlist else 0.0)) * rate)
+    mix = np.zeros((frame_count, 2), dtype=np.float64)
+    noise_rng = np.random.default_rng(626 + tempo)
 
-    note = np.zeros_like(t)
-    for order, partial in enumerate(partials, 1):
-        f = frequency * order * math.sqrt(1 + stiffness * order ** 2)
-        decay = np.exp(-t * (damping + 0.67 * (order - 1)))
-        note += partial * decay * np.sin(math.tau * f * t)
-        if instrument == "felt" and order <= 3:
-            note += 0.13 * partial * decay * np.sin(math.tau * f * 1.0017 * t)
-    envelope = np.minimum(1.0, t / attack) * np.minimum(1.0, (length - t) / 0.15)
-    return note * envelope * strength
+    def note(start_beat, midi, beats, volume, pan, voice):
+        held = beats * beat_seconds
+        release = {"pad": 0.57, "bell": 0.64, "lead": 0.048, "answer": 0.036, "bass": 0.048}[voice]
+        t = np.arange(round((held + release) * rate)) / rate
+        frequency = 440.0 * 2 ** ((midi - 69) / 12.0)
+        phase = math.tau * frequency * t
+        if voice == "bass":
+            tone = np.sin(phase) - np.sin(3 * phase) / 9 + np.sin(5 * phase) / 25
+        elif voice == "pad":
+            tone = np.sin(phase) * 0.75 + np.sin(phase * 1.004) * 0.20 + np.sin(2 * phase) * 0.12
+        elif voice == "bell":
+            tone = np.sin(phase) + 0.26 * np.sin(phase * 2.004) * np.exp(-t * 4) + 0.07 * np.sin(phase * 3)
+        else:
+            duty = 0.26 if voice == "lead" else 0.48
+            tone = np.zeros_like(t)
+            for n in range(1, min(10, int(5700 / frequency)) + 1):
+                amplitude = math.sin(math.pi * n * duty) / (n ** 1.21)
+                tone += amplitude * np.cos(n * phase)
+        attack = {"pad": 0.32, "bell": 0.024, "lead": 0.008, "answer": 0.005, "bass": 0.008}[voice]
+        env = np.minimum(1.0, t / attack) * np.clip((held + release - t) / release, 0.0, 1.0) ** 1.6
+        if voice == "bell":
+            env *= np.exp(-t * 1.8)
+        elif voice in ("lead", "answer"):
+            env *= 0.76 + 0.24 * np.exp(-t * 7)
+        blend(start_beat, tone * env * volume, pan)
 
+    def blend(start_beat, sound, pan):
+        start = round(start_beat * beat_seconds * rate)
+        if playlist:
+            sound = sound[:max(0, frame_count - start)]
+        indices = (np.arange(sound.size) + start) % frame_count
+        balance = np.sqrt(np.array([(1 - pan) / 2, (1 + pan) / 2]))
+        mix[indices] += sound[:, None] * balance
 
-def write_score(filename, voicings, tempo, melodic):
-    """Wrap releases and room reflections into the first bar for a sample-continuous loop."""
-    sample_rate = 32000
-    seconds_per_beat = 60.0 / tempo
-    frame_count = round(len(voicings) * 4 * seconds_per_beat * sample_rate)
-    score = np.zeros((frame_count, 2), dtype=np.float64)
-    timing = random.Random(9421 if melodic else 643)
+    def drum(beat, voice, strength):
+        t = np.arange(round(0.17 * rate)) / rate
+        if voice == "kick":
+            phase = math.tau * (47 * t + 3.5 * (1 - np.exp(-28 * t)))
+            sound = np.sin(phase) * np.exp(-t * 31)
+        else:
+            noise = noise_rng.choice((-1.0, 1.0), size=round(t.size / 4) + 1)
+            stepped = np.repeat(noise, 4)[:t.size]
+            sound = stepped * np.exp(-t * (69 if voice == "hat" else 36))
+        blend(beat, sound * np.minimum(1.0, t / 0.003) * strength, 0.22 if voice == "hat" else 0.0)
 
-    def add_note(beat, midi, instrument, strength, pan, length=3.0):
-        humanized_beat = beat + timing.uniform(-0.012, 0.012)
-        start = round(humanized_beat * seconds_per_beat * sample_rate)
-        strength *= timing.uniform(0.93, 1.06)
-        note = render_note(midi, instrument, strength, length, sample_rate)
-        stereo = note[:, None] * np.array([math.sqrt((1 - pan) / 2), math.sqrt((1 + pan) / 2)])
-        indices = (np.arange(note.size) + start) % frame_count
-        score[indices] += stereo
+    for bar, (chord, melody) in enumerate(phrase):
+        bar_start = 4 * bar
+        bass, harmony = HARMONY[chord]
+        for step, midi in enumerate(melody):
+            if midi < 1:
+                continue
+            cells = 1
+            while step + cells < len(melody) and melody[step + cells] == -1:
+                cells += 1
+            note(bar_start + step / 2, midi, cells * 0.5 * (1 if ambient else 0.87), 0.36 if ambient else 0.42, -0.21, "bell" if ambient else "lead")
+        if ambient:
+            note(bar_start, bass + 12, 3.3, 0.16, -0.09, "pad")
+            for chord_note in harmony[:3]:
+                note(bar_start + 0.5, chord_note, 3.1, 0.068, 0.25, "pad")
+            if bar % 2 == 1:
+                note(bar_start + 2.75, harmony[0] + 12, 0.6, 0.12, 0.4, "bell")
+            continue
 
-    for bar, chord in enumerate(voicings):
-        bass, chord_notes = VOICINGS[chord]
-        downbeat = 4 * bar
-        add_note(downbeat, bass + 12, "plucked", 0.36, -0.13)
-        if bar % 4 != 3:
-            add_note(downbeat + 2.5, bass + 19, "plucked", 0.15, -0.19)
-        # Leave the third beat open and vary the voicing order across the phrase.
-        pattern = ((0.5, 0), (1.0, 2), (1.75, 1), (3.25, 3))
-        if bar % 4 == 2:
-            pattern = ((0.5, 1), (1.5, 0), (2.75, 3), (3.5, 2))
-        for step, chord_index in pattern:
-            strength = 0.18 if step == 0.5 else 0.11
-            instrument = "felt" if melodic else "plucked"
-            add_note(downbeat + step, chord_notes[chord_index], instrument, strength, 0.24)
-        if not melodic and bar % 2 == 0:
-            add_note(downbeat + 1.75, chord_notes[-1] + 12, "felt", 0.13, -0.29)
-            add_note(downbeat + 3.5, chord_notes[1] + 12, "felt", 0.11, -0.29)
+        final_bar = playlist and bar == len(phrase) - 1
+        bass_pattern = (
+            ((0, 0, 0.67), (1, 7, 0.40), (1.5, 12, 0.38), (2.5, 0, 0.62), (3.5, 7, 0.35)),
+            ((0, 0, 0.72), (1.5, 12, 0.44), (2, 7, 0.40), (2.75, 0, 0.44), (3.5, 7, 0.35)),
+            ((0, 0, 0.92), (1.5, 7, 0.68), (2.5, 12, 0.42), (3, 0, 0.63)),
+        )[groove]
+        if final_bar:
+            bass_pattern = ((0, 0, 1.65),)
+        for offset, interval, duration in bass_pattern:
+            note(bar_start + offset, bass + 12 + interval, duration, 0.28, 0.0, "bass")
 
-    if melodic:
-        for beat, midi, strength in MELODY:
-            add_note(beat, midi, "felt", strength, -0.26, 3.5)
+        counter = ((0.5, 0), (1.25, 2), (2.0, 1), (2.75, 3), (3.5, 2)) if groove == 1 else ((0.75, 1), (1.5, 2), (2.25, 0), (3.25, 3))
+        if bar % 4 == 3:
+            counter = ((0.5, 1), (1.0, 2), (1.75, 3), (2.5, 2))
+        for offset, index in counter:
+            if not final_bar or offset < 1:
+                note(bar_start + offset, harmony[index], 0.27, 0.19, 0.34, "answer")
+        drum(bar_start, "kick", 0.20)
+        if not final_bar:
+            drum(bar_start + (2.5 if groove == 1 else 2.0), "kick", 0.15)
+            drum(bar_start + 1, "snare", 0.075)
+            drum(bar_start + 3, "snare", 0.087)
+            for step in (0.5, 1.5, 2.5, 3.5):
+                drum(bar_start + step, "hat", 0.038 if step % 2 > 1 else 0.025)
 
-    dry = score.copy()
-    # Short asymmetric stereo reflections with dark crossfeed.
-    for delay, wet in ((0.037, 0.13), (0.063, 0.11), (0.102, 0.085), (0.159, 0.06), (0.221, 0.035)):
-        score += wet * np.roll(dry[:, ::-1], round(delay * sample_rate), axis=0)
-    score -= np.mean(score, axis=0)
-    target_peak = 0.42 if melodic else 0.34
-    score *= target_peak / np.max(np.abs(score))
-    pcm = np.round(np.clip(score, -1.0, 1.0) * 32767).astype("<i2")
+    dry = mix.copy()
+    for delay, wet in ((0.079, 0.12), (0.163, 0.085), (0.297, 0.055)) if ambient else ((0.071, 0.085), (0.13, 0.046)):
+        shift = round(delay * rate)
+        reflected = np.roll(dry[:, ::-1], shift, axis=0)
+        if playlist:
+            reflected[:shift] = 0.0
+        mix += wet * reflected
+    mix -= np.mean(mix, axis=0)
+    mix *= (0.28 if ambient else 0.51) / np.max(np.abs(mix))
+    pcm = np.round(np.clip(mix, -1.0, 1.0) * 32767).astype("<i2")
 
     with tempfile.NamedTemporaryFile(suffix=".wav") as source:
         with wave.open(source.name, "wb") as wav:
             wav.setnchannels(2)
             wav.setsampwidth(2)
-            wav.setframerate(sample_rate)
+            wav.setframerate(rate)
             wav.writeframes(pcm.tobytes())
         subprocess.run(
             ["ffmpeg", "-v", "error", "-y", "-i", source.name, "-c:a", "libvorbis", "-q:a", "5",
              os.path.join(OUT_DIR, filename)],
             check=True,
         )
-    print(f"Generated {filename}: {frame_count / sample_rate:.2f}s stereo loop")
+    print(f"Generated {filename}: {frame_count / rate:.2f}s stereo")
 
 
 if __name__ == "__main__":
@@ -227,5 +338,9 @@ if __name__ == "__main__":
     make_rotate()
     make_reject()
     make_chime()
-    write_score("music_menu.ogg", MENU, tempo=76, melodic=True)
-    write_score("music_building.ogg", BUILDING, tempo=70, melodic=False)
+    write_chip_score("music_menu.ogg", OPENING, tempo=138, groove=0)
+    write_chip_score("music_building.ogg", TABLE, tempo=132, groove=0, playlist=True)
+    write_chip_score("music_brick_box.ogg", BRICK_BOX, tempo=146, groove=1, playlist=True)
+    write_chip_score("music_tinker.ogg", TINKER, tempo=124, groove=2, playlist=True)
+    write_chip_score("music_rain.ogg", RAIN, tempo=79, groove=0, ambient=True)
+    write_chip_score("music_night.ogg", NIGHT, tempo=70, groove=0, ambient=True)

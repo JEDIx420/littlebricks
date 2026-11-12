@@ -85,11 +85,11 @@ theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="ContentScroll/Center/Body/Copy"]
 layout_mode = 2
-text = "Make something\nsmall."
+text = "Small bricks.\nBig builds."
 
 [node name="Tagline" type="Label" parent="ContentScroll/Center/Body/Copy"]
 layout_mode = 2
-text = "Pick a few bricks and see what they become. Then step inside your creation."
+text = "Grab a handful of bricks, build your own world, and explore it as a tiny figure."
 autowrap_mode = 2
 
 [node name="ActionSpace" type="Control" parent="ContentScroll/Center/Body/Copy"]
@@ -132,3 +132,4 @@ size_flags_stretch_ratio = 1.7
 layout_mode = 2
 mouse_filter = 2
 script = ExtResource("2_vignette")
+opening = true

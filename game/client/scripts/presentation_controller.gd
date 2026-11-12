@@ -13,6 +13,9 @@ const THEMES = {
 		"ambient_color": Color("#f7efe3"),
 		"table_color": Color("#9e6842"),
 		"plate_color": Color("#668475"),
+		"wall_color": Color("#deccb7"),
+		"panel_color": Color("#6d9084"),
+		"rug_color": Color("#b46b57"),
 	},
 	"cabin": {
 		"name": "Alpine Pine Cabin",
@@ -21,6 +24,9 @@ const THEMES = {
 		"ambient_color": Color("#f0e1d0"),
 		"table_color": Color("#8b5e42"),
 		"plate_color": Color("#738674"),
+		"wall_color": Color("#d4ba9d"),
+		"panel_color": Color("#748173"),
+		"rug_color": Color("#966556"),
 	},
 	"studio": {
 		"name": "Clean Creator Studio",
@@ -29,38 +35,193 @@ const THEMES = {
 		"ambient_color": Color("#f3eee9"),
 		"table_color": Color("#b48764"),
 		"plate_color": Color("#70838b"),
+		"wall_color": Color("#e2d8cb"),
+		"panel_color": Color("#7c8896"),
+		"rug_color": Color("#819185"),
 	}
 }
 
+signal atmosphere_changed(mode: String, label: String)
+
+const MODES := ["cycle", "day", "dusk", "night", "rain"]
+const CYCLE_SECONDS := 210.0
+const MORPH_SECONDS := 1.5
+const PRESETS := {
+	"day": Vector3(1.0, 0.0, 0.0),
+	"dusk": Vector3(0.51, 0.95, 0.0),
+	"night": Vector3(0.08, 0.0, 0.0),
+	"rain": Vector3(0.79, 0.09, 1.0),
+}
+# Phase, daylight, sunset warmth, rain. Smooth interpolation keeps the
+# workshop clock independent from turn timing and gameplay simulation.
+const CYCLE := [
+	Vector4(0.00, 1.00, 0.00, 0.00),
+	Vector4(0.23, 1.00, 0.00, 0.00),
+	Vector4(0.36, 0.49, 1.00, 0.00),
+	Vector4(0.51, 0.08, 0.00, 0.00),
+	Vector4(0.65, 0.08, 0.00, 0.00),
+	Vector4(0.76, 0.45, 0.53, 0.78),
+	Vector4(0.87, 0.89, 0.15, 1.00),
+	Vector4(0.97, 1.00, 0.00, 0.00),
+	Vector4(1.00, 1.00, 0.00, 0.00),
+]
+
 var current_theme_id: String = "harbour"
-var current_quality: String = "balanced" # "economy", "balanced", "showcase"
+var current_quality: String = "balanced"
 var is_reduced_motion: bool = false
 
-func apply_presentation(theme_id: String, world_env: WorldEnvironment, sun: DirectionalLight3D, table_view = null) -> void:
-	current_theme_id = theme_id if THEMES.has(theme_id) else "harbour"
-	var t_data = THEMES[current_theme_id]
-	
-	if sun:
-		sun.light_color = t_data["sun_color"]
-		sun.light_energy = t_data["sun_energy"]
-		sun.rotation_degrees = Vector3(-27.0, 211.0, 0.0)
-		sun.shadow_enabled = (current_quality != "economy")
-		sun.shadow_bias = 0.04
-		
-	if world_env and world_env.environment:
-		var env = world_env.environment
-		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-		env.ambient_light_color = t_data["ambient_color"]
-		env.ambient_light_energy = 0.61
-		env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+var _mode := "cycle"
+var _phase := 0.12
+var _rain_time := 0.0
+var _blend := Vector3(1.0, 0.0, 0.0)
+var _transition_start := Vector3(1.0, 0.0, 0.0)
+var _transition_time := MORPH_SECONDS
+var _last_status := ""
+var _sun: DirectionalLight3D
+var _world_env: WorldEnvironment
+var _bounce: OmniLight3D
+var _window_fill: DirectionalLight3D
+var _table_view: Node
+var _light_scale := 1.0
+var _base_bounce := 0.42
+var _base_fill := 0.23
 
-	if table_view and table_view.has_method("set_palette"):
-		table_view.set_palette(t_data["table_color"], t_data["plate_color"])
+func apply_presentation(theme_id: String, world_env: WorldEnvironment, sun: DirectionalLight3D, table_view = null, light_scale: float = 1.0) -> void:
+	current_theme_id = theme_id if THEMES.has(theme_id) else "harbour"
+	var theme: Dictionary = THEMES[current_theme_id]
+	_light_scale = light_scale
+	_sun = sun
+	if _world_env != world_env and world_env and world_env.environment:
+		world_env.environment = world_env.environment.duplicate()
+		var room := world_env.get_parent()
+		if room:
+			_bounce = room.get_node_or_null("BounceLight") as OmniLight3D
+			_window_fill = room.get_node_or_null("WindowBounce") as DirectionalLight3D
+			if _bounce:
+				_base_bounce = _bounce.light_energy
+			if _window_fill:
+				_base_fill = _window_fill.light_energy
+	_world_env = world_env
+	_table_view = table_view
+	if _table_view and _table_view.has_method("set_palette"):
+		_table_view.set_palette(theme["table_color"], theme["plate_color"])
+	if _table_view and _table_view.has_method("set_room_palette"):
+		_table_view.set_room_palette(theme["wall_color"], theme["panel_color"], theme["rug_color"])
+	_apply_light_and_weather()
 
 func apply_quality(profile: String, sun: DirectionalLight3D) -> void:
 	current_quality = profile
 	if sun:
-		sun.shadow_enabled = (profile != "economy")
+		sun.shadow_enabled = profile != "economy" and _blend.x > 0.22
+
+func set_atmosphere_mode(mode: String) -> void:
+	if not mode in MODES or _mode == mode:
+		return
+	_mode = mode
+	_transition_start = _blend
+	_transition_time = 0.0
+	if is_reduced_motion:
+		_blend = _sample()
+		_transition_time = MORPH_SECONDS
+		_apply_light_and_weather()
+	_publish_atmosphere()
+
+func get_atmosphere_mode() -> String:
+	return _mode
+
+func get_atmosphere_label() -> String:
+	if _blend.z >= 0.44:
+		return "Rain"
+	if _blend.x < 0.22:
+		return "Night"
+	if _blend.x < 0.78:
+		return "Dawn" if _mode == "cycle" and _phase > 0.55 else "Dusk"
+	return "Day"
+
+func get_atmosphere_state() -> Dictionary:
+	return {
+		"mode": _mode,
+		"phase": _phase,
+		"is_raining": _blend.z >= 0.44,
+		"is_night": _blend.x < 0.22,
+		"rain_time": _rain_time,
+	}
+
+func restore_atmosphere_state(state: Dictionary) -> void:
+	var mode: String = state.get("mode", "cycle")
+	_mode = mode if mode in MODES else "cycle"
+	_phase = fposmod(float(state.get("phase", _phase)), 1.0)
+	_rain_time = maxf(0.0, float(state.get("rain_time", _rain_time)))
+	_blend = _sample()
+	_transition_time = MORPH_SECONDS
+	_apply_light_and_weather()
+	_publish_atmosphere()
+
+func _process(delta: float) -> void:
+	if not _table_view or not _table_view.is_node_ready():
+		return
+	if _mode == "cycle" and not is_reduced_motion:
+		_phase = fposmod(_phase + delta / CYCLE_SECONDS, 1.0)
+	var next := _sample()
+	if _transition_time < MORPH_SECONDS:
+		_transition_time = MORPH_SECONDS if is_reduced_motion else minf(_transition_time + delta, MORPH_SECONDS)
+		var progress := smoothstep(0.0, MORPH_SECONDS, _transition_time)
+		next = _transition_start.lerp(next, progress)
+	var animated_rain := next.z > 0.01 and not is_reduced_motion
+	if animated_rain:
+		_rain_time += delta
+	if not _blend.is_equal_approx(next):
+		_blend = next
+		_apply_light_and_weather()
+	elif animated_rain and _table_view.has_method("set_rain_time"):
+		_table_view.set_rain_time(_rain_time)
+	_publish_atmosphere()
+
+func _sample() -> Vector3:
+	if _mode != "cycle":
+		return PRESETS[_mode]
+	for i in range(1, CYCLE.size()):
+		var next: Vector4 = CYCLE[i]
+		if _phase <= next.x:
+			var before: Vector4 = CYCLE[i - 1]
+			var factor := smoothstep(before.x, next.x, _phase)
+			return Vector3(before.y, before.z, before.w).lerp(Vector3(next.y, next.z, next.w), factor)
+	return Vector3(1.0, 0.0, 0.0)
+
+func _apply_light_and_weather() -> void:
+	var theme: Dictionary = THEMES[current_theme_id]
+	var daylight := _blend.x
+	var sunset := _blend.y
+	var rain := _blend.z
+	if _sun:
+		var sun_color: Color = theme["sun_color"]
+		_sun.light_color = sun_color.lerp(Color("#ffd097"), sunset * 0.8).lerp(Color("#b7cef8"), (1.0 - daylight) * 0.66)
+		_sun.light_energy = float(theme["sun_energy"]) * daylight * lerpf(1.0, 0.12, rain) * _light_scale
+		_sun.rotation_degrees = Vector3(-27.0 + sunset * 10.0, 211.0 - sunset * 4.0, 0.0)
+		_sun.shadow_enabled = current_quality != "economy" and daylight > 0.22 and rain < 0.88
+		_sun.shadow_bias = 0.04
+	if _world_env and _world_env.environment:
+		var env := _world_env.environment
+		var ambient_color: Color = theme["ambient_color"]
+		env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+		env.ambient_light_color = ambient_color.lerp(Color("#acbff0"), (1.0 - daylight) * 0.72 + rain * 0.17)
+		env.ambient_light_energy = lerpf(0.38, 0.61, daylight) * _light_scale
+		env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	if _bounce:
+		_bounce.light_energy = _base_bounce * lerpf(1.16, 1.0, daylight) * _light_scale
+		_bounce.light_color = Color("#ffead4").lerp(Color("#ffc689"), (1.0 - daylight) * 0.76)
+	if _window_fill:
+		_window_fill.light_energy = _base_fill * lerpf(0.45, 1.0, daylight) * _light_scale
+	if _table_view and _table_view.has_method("apply_atmosphere"):
+		_table_view.apply_atmosphere(daylight, sunset, rain, _rain_time)
+
+func _publish_atmosphere() -> void:
+	var label := get_atmosphere_label()
+	var status := "%s|%s|%s|%s" % [_mode, label, _blend.x < 0.22, _blend.z >= 0.44]
+	if status == _last_status:
+		return
+	_last_status = status
+	atmosphere_changed.emit(_mode, label)
 
 ## Frame the completed creation nicely for showcase/reveal
 func frame_creation(pieces_container: Node3D, camera_rig: Node3D) -> AABB:

@@ -12,8 +12,10 @@ const TABLE_HEIGHT: float = TABLE_TOP_Y - FLOOR_Y
 const ROOM_WIDTH: float = 142.0
 const BACK_WALL: float = -48.0
 const ROOM_FRONT: float = 73.0
-const ROOM_HEIGHT: float = 68.0
+const ROOM_HEIGHT: float = 102.0
 const WOOD_GRAIN = preload("res://client/shaders/workshop_wood.gdshader")
+const WINDOW_SKY = preload("res://client/shaders/workshop_sky.gdshader")
+const WINDOW_RAIN = preload("res://client/shaders/workshop_rain.gdshader")
 
 @onready var table_mesh: MeshInstance3D = $TableMesh
 @onready var baseplate_mesh: MeshInstance3D = $BaseplateMesh
@@ -25,12 +27,27 @@ var _plate_material: StandardMaterial3D
 var _stud_material: StandardMaterial3D
 var _table_color := Color("#9e6842")
 var _plate_color := Color("#668475")
+var _wall_color := Color("#deccb7")
+var _panel_color := Color("#6d9084")
+var _rug_color := Color("#b46b57")
+var _wall_material: StandardMaterial3D
+var _panel_material: StandardMaterial3D
+var _rug_material: StandardMaterial3D
+var _window_sky: ShaderMaterial
+var _rain_layers: Array[MeshInstance3D] = []
+var _garden_green: StandardMaterial3D
+var _lamp_bulb: StandardMaterial3D
+var _workshop_lamp: OmniLight3D
+var _desk_lamp: OmniLight3D
+var _desk_diffuser: StandardMaterial3D
+var _atmosphere := Vector4(1.0, 0.0, 0.0, 0.0)
 
 func _ready() -> void:
 	_setup_table()
 	_setup_baseplate()
 	_generate_studs()
 	_setup_room()
+	apply_atmosphere(_atmosphere.x, _atmosphere.y, _atmosphere.z, _atmosphere.w)
 
 func set_palette(table_color: Color, plate_color: Color) -> void:
 	_table_color = table_color
@@ -40,6 +57,15 @@ func set_palette(table_color: Color, plate_color: Color) -> void:
 	if _plate_material and _stud_material:
 		_plate_material.albedo_color = plate_color
 		_stud_material.albedo_color = plate_color.lightened(0.06)
+
+func set_room_palette(wall_color: Color, panel_color: Color, rug_color: Color) -> void:
+	_wall_color = wall_color
+	_panel_color = panel_color
+	_rug_color = rug_color
+	if _wall_material and _panel_material and _rug_material:
+		_wall_material.albedo_color = _wall_color
+		_panel_material.albedo_color = _panel_color
+		_rug_material.albedo_color = _rug_color
 
 func _setup_table() -> void:
 	_table_wood = _wood(_table_color, Vector3.RIGHT, 0.48)
@@ -141,8 +167,11 @@ func _setup_room() -> void:
 	add_child(room_node)
 	_setup_floor()
 	_setup_walls()
+	_setup_ceiling()
 	_setup_window()
+	_setup_window_weather()
 	_setup_furniture()
+	_setup_desk_lamp()
 
 func _setup_floor() -> void:
 	var depth := ROOM_FRONT - BACK_WALL + 4.0
@@ -154,15 +183,18 @@ func _setup_floor() -> void:
 	rug.name = "WovenRug"
 	rug.mesh = _beveled_slab(67.0, 53.0, 0.13, 2.3, 0.03)
 	rug.position = Vector3(0, FLOOR_Y + 0.065, 1.4)
-	rug.material_override = _material(Color("#b46b57"), 0.98)
+	_rug_material = _material(_rug_color, 0.98)
+	rug.material_override = _rug_material
 	room_node.add_child(rug)
 	var stripe := _material(Color("#ddaa89"), 0.97)
 	for z in [-24.1, -23.0, 25.8, 26.9]:
 		_box(room_node, "RugStripe", Vector3(62.0, 0.02, 0.36), Vector3(0, FLOOR_Y + 0.133, z), stripe)
 
 func _setup_walls() -> void:
-	var plaster := _material(Color("#deccb7"), 0.95)
-	var panel := _material(Color("#6d9084"), 0.86)
+	_wall_material = _material(_wall_color, 0.95)
+	var plaster := _wall_material
+	_panel_material = _material(_panel_color, 0.86)
+	var panel := _panel_material
 	var trim := _material(Color("#e6d4b9"), 0.8)
 	var floor_trim := _material(Color("#b4ac96"), 0.8)
 	var half_width := ROOM_WIDTH * 0.5
@@ -193,6 +225,87 @@ func _setup_walls() -> void:
 	_box(room_node, "BackPaneling", Vector3(ROOM_WIDTH - 1.6, 17.0, 0.48), Vector3(0, FLOOR_Y + 8.5, BACK_WALL + 1.0), panel)
 	_box(room_node, "BackDadoRail", Vector3(ROOM_WIDTH - 1.3, 0.64, 0.68), Vector3(0, FLOOR_Y + 17.0, BACK_WALL + 1.1), trim)
 	_box(room_node, "BackSkirting", Vector3(ROOM_WIDTH - 1.3, 1.4, 0.68), Vector3(0, FLOOR_Y + 0.7, BACK_WALL + 1.1), floor_trim)
+
+func _setup_ceiling() -> void:
+	var plaster := _material(Color("#d5c7b6"), 0.94)
+	var depth := ROOM_FRONT - BACK_WALL + 1.8
+	var center_z := (ROOM_FRONT + BACK_WALL) * 0.5
+	var ceiling_y := FLOOR_Y + ROOM_HEIGHT
+	_box(room_node, "WorkshopCeiling", Vector3(ROOM_WIDTH + 1.8, 1.4, depth), Vector3(0, ceiling_y + 0.7, center_z), plaster)
+	var trim := _material(Color("#b59b81"), 0.85)
+	for z in [BACK_WALL + 0.85, ROOM_FRONT - 0.85]:
+		_box(room_node, "CeilingTrim", Vector3(ROOM_WIDTH, 1.5, 1.6), Vector3(0, ceiling_y - 0.75, z), trim)
+	for x in [-ROOM_WIDTH * 0.5 + 0.85, ROOM_WIDTH * 0.5 - 0.85]:
+		_box(room_node, "CeilingTrim", Vector3(1.6, 1.5, depth), Vector3(x, ceiling_y - 0.75, center_z), trim)
+
+	# The wall-mounted fixture keeps the board visible from overhead.
+	var lamp_position := Vector3(21.0, 3.5, BACK_WALL + 5.8)
+	var bronze := _material(Color("#6d5541"), 0.56)
+	_box(room_node, "LampMount", Vector3(2.6, 4.8, 0.75), Vector3(lamp_position.x, lamp_position.y + 2.6, BACK_WALL + 1.2), bronze)
+	_box(room_node, "LampArm", Vector3(0.62, 0.62, 4.8), Vector3(lamp_position.x, lamp_position.y + 2.6, lamp_position.z - 1.9), bronze)
+	var shade := MeshInstance3D.new()
+	var shade_mesh := CylinderMesh.new()
+	shade_mesh.top_radius = 1.07
+	shade_mesh.bottom_radius = 2.45
+	shade_mesh.height = 1.8
+	shade_mesh.radial_segments = 24
+	shade.mesh = shade_mesh
+	shade.position = lamp_position + Vector3.UP * 1.65
+	shade.material_override = _material(Color("#b88459"), 0.63)
+	room_node.add_child(shade)
+	_lamp_bulb = _material(Color("#f6dfbc"), 0.55)
+	_lamp_bulb.emission_enabled = true
+	_lamp_bulb.emission = Color("#ffc174")
+	_lamp_bulb.emission_energy_multiplier = 0.0
+	_box(room_node, "LampDiffuser", Vector3(2.5, 0.18, 2.5), lamp_position + Vector3.UP * 0.75, _lamp_bulb)
+	_workshop_lamp = OmniLight3D.new()
+	_workshop_lamp.name = "WorkshopLamp"
+	_workshop_lamp.position = lamp_position - Vector3.UP * 0.25
+	_workshop_lamp.light_color = Color("#ffce95")
+	_workshop_lamp.light_energy = 0.0
+	_workshop_lamp.omni_range = 74.0
+	_workshop_lamp.omni_attenuation = 1.2
+	room_node.add_child(_workshop_lamp)
+
+func _setup_desk_lamp() -> void:
+	# Small practical light, clear of the plate, inventory, and overhead camera.
+	var finish := _material(Color("#496861"), 0.5)
+	var hardware := _material(Color("#73614b"), 0.6)
+	var foot := Vector3(23.4, TABLE_TOP_Y, -15.6)
+	var elbow := foot + Vector3(0, 8.7, 0)
+	var head := elbow + Vector3(-3.5, 0, 2.4)
+	_add_lamp_cylinder("DeskLampBase", foot + Vector3.UP * 0.25, 2.0, 2.0, 0.5, finish)
+	_add_lamp_cylinder("DeskLampStem", foot + Vector3.UP * 4.55, 0.19, 0.19, 8.3, hardware)
+	var arm := _add_lamp_cylinder("DeskLampArm", (elbow + head) * 0.5, 0.16, 0.16, elbow.distance_to(head), hardware)
+	arm.quaternion = Quaternion(Vector3.UP, (head - elbow).normalized())
+	_add_lamp_cylinder("DeskLampShade", head - Vector3.UP * 0.73, 0.75, 1.73, 1.46, finish)
+	_desk_diffuser = _material(Color("#f1ddc0"), 0.69)
+	_desk_diffuser.emission_enabled = true
+	_desk_diffuser.emission = Color("#ffca8c")
+	_desk_diffuser.emission_energy_multiplier = 0.0
+	_add_lamp_cylinder("DeskLampDiffuser", head - Vector3.UP * 1.49, 1.48, 1.48, 0.10, _desk_diffuser)
+	_desk_lamp = OmniLight3D.new()
+	_desk_lamp.name = "DeskLamp"
+	_desk_lamp.position = head - Vector3.UP * 1.9
+	_desk_lamp.light_color = Color("#ffca8c")
+	_desk_lamp.light_energy = 0.0
+	_desk_lamp.omni_range = 49.0
+	_desk_lamp.omni_attenuation = 1.35
+	room_node.add_child(_desk_lamp)
+
+func _add_lamp_cylinder(label: String, at: Vector3, top_radius: float, bottom_radius: float, height: float, material: Material) -> MeshInstance3D:
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = top_radius
+	mesh.bottom_radius = bottom_radius
+	mesh.height = height
+	mesh.radial_segments = 20
+	var part := MeshInstance3D.new()
+	part.name = label
+	part.mesh = mesh
+	part.material_override = material
+	part.position = at
+	room_node.add_child(part)
+	return part
 
 func _back_wall_section(left: float, right: float, bottom: float, top: float, material: Material) -> void:
 	_box(room_node, "BackWall", Vector3(right - left, top - bottom, 1.6), Vector3((left + right) * 0.5, (bottom + top) * 0.5, BACK_WALL), material)
@@ -226,8 +339,8 @@ func _setup_window() -> void:
 			room_node.add_child(fold)
 
 	# A stylized garden horizon provides depth beyond the actual aperture.
-	var distant_green := _material(Color("#91ae92"), 0.95)
-	distant_green.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_garden_green = _material(Color("#91ae92"), 0.95)
+	_garden_green.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	for i in 7:
 		var hill := MeshInstance3D.new()
 		var hill_shape := SphereMesh.new()
@@ -237,9 +350,60 @@ func _setup_window() -> void:
 		hill_shape.rings = 5
 		hill.mesh = hill_shape
 		hill.position = Vector3(-82.0 + 14.0 * i, -5.0 - (i % 2) * 2.8, -73.0)
-		hill.material_override = distant_green
+		hill.material_override = _garden_green
 		hill.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		room_node.add_child(hill)
+
+func _setup_window_weather() -> void:
+	_window_sky = ShaderMaterial.new()
+	_window_sky.shader = WINDOW_SKY
+	_weather_quad("GardenSky", Vector3(-28.5, 19, -91.0), Vector2(220, 124), _window_sky)
+	for i in 2:
+		var material := ShaderMaterial.new()
+		material.shader = WINDOW_RAIN
+		material.set_shader_parameter("layer_seed", float(i))
+		var layer := _weather_quad("OutdoorRain", Vector3(-28.5, 16.5, BACK_WALL - 2.0 - i * 9.0), Vector2(73, 54), material)
+		layer.visible = false
+		_rain_layers.append(layer)
+
+func _weather_quad(label: String, at: Vector3, size: Vector2, material: Material) -> MeshInstance3D:
+	var plane := QuadMesh.new()
+	plane.size = size
+	var instance := MeshInstance3D.new()
+	instance.name = label
+	instance.mesh = plane
+	instance.position = at
+	instance.material_override = material
+	instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	room_node.add_child(instance)
+	return instance
+
+func apply_atmosphere(daylight: float, sunset: float, rain: float, rain_time: float) -> void:
+	_atmosphere = Vector4(daylight, sunset, rain, rain_time)
+	if not _window_sky:
+		return
+	_window_sky.set_shader_parameter("daylight", daylight)
+	_window_sky.set_shader_parameter("sunset", sunset)
+	_window_sky.set_shader_parameter("rain", rain)
+	var garden_day := Color("#8eab8e").lerp(Color("#718483"), rain)
+	var garden_night := Color("#263e4a")
+	_garden_green.albedo_color = garden_night.lerp(garden_day, daylight)
+	for layer in _rain_layers:
+		layer.visible = rain > 0.01
+		if layer.visible:
+			(layer.material_override as ShaderMaterial).set_shader_parameter("rain", rain)
+	set_rain_time(rain_time)
+	var lamplight := clampf((1.0 - daylight) * 1.05 + rain * 0.46, 0.0, 1.2)
+	_workshop_lamp.light_energy = lamplight * 1.32
+	_desk_lamp.light_energy = lamplight * 1.4
+	_desk_diffuser.emission_energy_multiplier = lamplight * 1.08
+	_lamp_bulb.emission_energy_multiplier = lamplight * 0.92
+
+func set_rain_time(rain_time: float) -> void:
+	_atmosphere.w = rain_time
+	for layer in _rain_layers:
+		if layer.visible:
+			(layer.material_override as ShaderMaterial).set_shader_parameter("animation_time", rain_time)
 
 func _setup_furniture() -> void:
 	var shelf_scale := 47.0

@@ -34,7 +34,7 @@ func _ready() -> void:
 	Studio.apply_theme(self)
 	Studio.style_label($ContentScroll/Center/Body/Copy/Tagline, 20, false, Studio.MUTED)
 	Studio.style_label(label_continue_info, 14, false, Studio.MUTED)
-	Studio.button(btn_play, true)
+	Studio.button(btn_play, true, Color("#93452f"))
 	for button in [btn_continue, btn_my_builds, btn_settings, btn_mute]:
 		Studio.button(button)
 	var hero := $ContentScroll/Center/Body/Hero as PanelContainer

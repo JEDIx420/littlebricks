@@ -3,9 +3,9 @@ extends RefCounted
 
 const INK := Color("#f5e8ce")
 const MUTED := Color("#cabda8")
-const PANEL := Color("#292d29")
-const BUTTON := Color("#383d35")
-const EDGE := Color("#55594d")
+const PANEL := Color("#222a27")
+const BUTTON := Color("#303b34")
+const EDGE := Color("#526052")
 const ACTIVE := Color("#eac481")
 const DARK := Color("#252a25")
 
@@ -34,15 +34,15 @@ static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 	var focus := surface(Color.TRANSPARENT, ACTIVE)
 	focus.set_border_width_all(2)
 	theme.set_stylebox("focus", "Button", focus)
-	var card := surface(PANEL, EDGE, 15, 10)
+	var card := surface(Color(PANEL, 0.94), EDGE, 12, 5)
 	card.shadow_color = Color(0.06, 0.05, 0.04, 0.44)
 	card.shadow_offset = Vector2(0, 4)
-	card.shadow_size = 7
+	card.shadow_size = 4
 	theme.set_stylebox("panel", "PanelContainer", card)
 	root.theme = theme
 	var title := root.find_child("Title", true, false) as Label
 	title.add_theme_font_override("font", display_font)
-	title.add_theme_font_size_override("font_size", 24)
+	title.add_theme_font_size_override("font_size", 19)
 	for name in ["BtnOrbitLeft", "BtnOrbitUp", "BtnOrbitDown", "BtnOrbitRight"]:
 		var nudge := root.find_child(name, true, false) as Button
 		nudge.add_theme_stylebox_override("normal", surface(BUTTON, EDGE, 21))

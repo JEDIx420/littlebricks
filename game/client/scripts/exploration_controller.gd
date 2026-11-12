@@ -9,6 +9,8 @@ const PartCatalog = preload("res://core/part_catalog.gd")
 const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 const ToyExplorer = preload("res://client/scripts/toy_explorer.gd")
+const MinifigureModel = preload("res://client/scripts/minifigure_model.gd")
+const FIGURE_STYLE_PATH := "user://explorer_style.cfg"
 
 signal return_to_table(save_state: bool)
 signal return_to_table_requested()
@@ -22,16 +24,20 @@ signal return_to_table_requested()
 @onready var label_pov_mode: Label = %LabelPOVMode
 @onready var touch_stick: Control = %TouchStick
 @onready var controls_hint: Label = %ControlsHint
+@onready var figure_picker: OptionButton = %FigurePicker
 
 var catalog: PartCatalog
 var world_gen: ExplorationWorld
 var explorer_instance: ToyExplorer = null
+var presentation: PresentationController
+var selected_figure := "toy_explorer_pippin"
 
 func _ready() -> void:
 	catalog = PartCatalog.new()
 	catalog.load_catalog("res://assets/catalog/parts_manifest.json")
 	world_gen = ExplorationWorld.new(catalog)
 	_connect_ui()
+	_setup_figure_picker()
 	_style_hud()
 	_touch_controls(DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"))
 
@@ -42,6 +48,39 @@ func _connect_ui() -> void:
 		btn_reset_fig.pressed.connect(_on_reset_figure)
 	if btn_return_table and not btn_return_table.pressed.is_connected(_on_return_to_table):
 		btn_return_table.pressed.connect(_on_return_to_table)
+
+func _setup_figure_picker() -> void:
+	var preferences := ConfigFile.new()
+	if preferences.load(FIGURE_STYLE_PATH) == OK:
+		var saved: String = preferences.get_value("explore", "figure", selected_figure)
+		if MinifigureModel.STYLES.has(saved):
+			selected_figure = saved
+	figure_picker.clear()
+	for id: String in MinifigureModel.STYLES:
+		var index := figure_picker.item_count
+		figure_picker.add_item(MinifigureModel.STYLES[id])
+		figure_picker.set_item_metadata(index, id)
+		if id == selected_figure:
+			figure_picker.select(index)
+	if not figure_picker.item_selected.is_connected(_on_figure_selected):
+		figure_picker.item_selected.connect(_on_figure_selected)
+
+func _on_figure_selected(index: int) -> void:
+	selected_figure = String(figure_picker.get_item_metadata(index))
+	var preferences := ConfigFile.new()
+	preferences.set_value("explore", "figure", selected_figure)
+	preferences.save(FIGURE_STYLE_PATH)
+	if explorer_instance:
+		explorer_instance.set_figure(selected_figure)
+		if explorer_instance.camera_mode == ToyExplorer.CameraMode.FIRST_PERSON:
+			explorer_instance.set_camera_mode(ToyExplorer.CameraMode.THIRD_PERSON)
+
+func get_atmosphere_state() -> Dictionary:
+	return presentation.get_atmosphere_state() if presentation else {}
+
+func restore_atmosphere_state(state: Dictionary) -> void:
+	if presentation and not state.is_empty():
+		presentation.restore_atmosphere_state(state)
 
 func _style_hud() -> void:
 	for panel in [%InfoCard, %ActionCard, %HintCard]:
@@ -55,6 +94,7 @@ func _style_hud() -> void:
 	UIThemeHelper.apply_primary_button(btn_return_table)
 	UIThemeHelper.apply_secondary_button(btn_toggle_pov)
 	UIThemeHelper.apply_secondary_button(btn_reset_fig)
+	UIThemeHelper.apply_secondary_button(figure_picker)
 
 func _touch_controls(enabled: bool) -> void:
 	touch_stick.visible = enabled
@@ -92,16 +132,12 @@ func setup_exploration_scene(placements: Array, theme_id: String = "harbour") ->
 	# Apply theme presentation lighting (LB-063)
 	var world_env = find_child("WorldEnvironment", true, false) as WorldEnvironment
 	var sun = find_child("DirectionalLight3D", true, false) as DirectionalLight3D
-	var pres = PresentationController.new()
-	pres.apply_presentation(theme_id, world_env, sun, $TableView)
-	pres.free()
-	# At toy height the sunlit walls and shiny brick tops fill much more of the
-	# frame. Soften the same window light so those surfaces retain their colors.
-	if sun:
-		sun.light_energy *= 0.74
-	if world_env and world_env.environment:
-		world_env.environment.ambient_light_energy *= 0.90
-	
+	if not presentation:
+		presentation = PresentationController.new()
+		add_child(presentation)
+	# At toy height the sunlit walls and shiny brick tops fill more of the frame.
+	presentation.apply_presentation(theme_id, world_env, sun, $TableView, 0.80)
+
 	# Clear previous instances
 	for c in world_colliders_container.get_children():
 		c.queue_free()
@@ -138,6 +174,7 @@ func setup_exploration_scene(placements: Array, theme_id: String = "harbour") ->
 	var exp_scene: PackedScene = load("res://client/scenes/explorer.tscn")
 	explorer_instance = exp_scene.instantiate() as ToyExplorer
 	explorer_instance.position = spawn_pos
+	explorer_instance.set_figure(selected_figure)
 	
 	explorer_container.add_child(explorer_instance)
 

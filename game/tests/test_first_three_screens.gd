@@ -146,6 +146,21 @@ func test_setup_screen() -> void:
 	btn_create.emit_signal("pressed")
 	assert(emitted_configs.size() == 3, "Create room emitted config")
 	assert(emitted_configs[2]["mode"] == "online" and emitted_configs[2]["is_host"] == true, "Online create config correct")
+
+	var expected_pack_ids := ["harbour", "cabin", "galaxy", "heroes", "castle"]
+	var expected_names := ["Sunny Harbour", "Forest Cabin", "Galactic Hangar", "Heroes HQ", "Castle Keep"]
+	setup_view.configure_for_mode("solo")
+	assert(setup_view.opt_solo_theme.item_count == 5, "Solo setup offers all five packs")
+	for index in range(expected_pack_ids.size()):
+		setup_view.opt_solo_theme.select(index)
+		btn_start.pressed.emit()
+		assert(emitted_configs[-1]["theme_id"] == expected_pack_ids[index], "Solo selection keeps the pack ID")
+		assert(emitted_configs[-1]["creation_name"] == expected_names[index], "Blank solo name follows the pack")
+	setup_view.configure_for_mode("pass_and_play")
+	assert(setup_view.opt_pass_theme.item_count == 5, "Pass & Play setup offers all five packs")
+	setup_view.opt_pass_theme.select(4)
+	btn_start.pressed.emit()
+	assert(emitted_configs[-1]["theme_id"] == "castle", "Pass & Play keeps the selected pack")
 	
 	setup_view.queue_free()
 	print("  ✓ Setup Screen verified")

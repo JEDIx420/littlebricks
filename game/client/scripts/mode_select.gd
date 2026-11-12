@@ -4,6 +4,7 @@ class_name ModeSelectScreen
 ## Mode selection screen (LB-035).
 ## Displays 3 cards for Solo, Pass & Play, and Online with clear player-facing descriptions.
 
+const Vignette = preload("res://client/scripts/menu_vignette.gd")
 const Studio = preload("res://client/scripts/menu_studio.gd")
 
 signal mode_selected(mode: String)
@@ -24,14 +25,25 @@ func _ready() -> void:
 	Studio.button(btn_back)
 	Studio.style_label($MainLayout/HeadingBox/Subheading, 18, false, Studio.MUTED)
 	var cards := %CardsContainer as HFlowContainer
-	for card in cards.get_children():
-		card.add_theme_stylebox_override("panel", Studio.surface(Studio.PAPER, 14, Studio.BORDER, true))
+	var accents: Array[Color] = [Color("#93452f"), Color("#285648"), Color("#4e5c82")]
+	var mode_buttons: Array[Button] = [btn_solo, btn_pass_play, btn_online]
+	var badges: Array[Label] = [%BadgeSolo, %BadgePassPlay, %BadgeOnline]
+	for index in range(cards.get_child_count()):
+		var card := cards.get_child(index) as PanelContainer
+		var accent := accents[index]
+		var edge := accent.lerp(Studio.PAPER, 0.68)
+		card.add_theme_stylebox_override("panel", Studio.surface(Studio.PAPER, 14, edge, true))
 		Studio.style_label(card.get_node("VBox/Title"), 30, true)
 		Studio.style_label(card.get_node("VBox/Desc"), 17, false, Studio.MUTED)
-	for badge in [%BadgeSolo, %BadgePassPlay, %BadgeOnline]:
-		Studio.style_label(badge, 13, false, Studio.MUTED)
-	for button in [btn_solo, btn_pass_play, btn_online]:
-		Studio.button(button, true)
+		Studio.style_label(badges[index], 13, false, accent)
+		var button: Button = mode_buttons[index]
+		Studio.button(button, true, accent)
+		var artwork := card.get_node("VBox/Artwork") as Vignette
+		if not button.mouse_entered.is_connected(artwork.set_highlighted.bind(true)):
+			button.mouse_entered.connect(artwork.set_highlighted.bind(true))
+			button.mouse_exited.connect(artwork.set_highlighted.bind(false))
+			button.focus_entered.connect(artwork.set_highlighted.bind(true))
+			button.focus_exited.connect(artwork.set_highlighted.bind(false))
 	if not resized.is_connected(_layout_cards):
 		resized.connect(_layout_cards)
 	_layout_cards()

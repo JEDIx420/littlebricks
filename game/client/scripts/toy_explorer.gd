@@ -36,6 +36,9 @@ func _ready() -> void:
 		_default_eye_pitch = first_person_cam.rotation.x
 	set_camera_mode(CameraMode.THIRD_PERSON)
 
+func set_figure(id: String) -> void:
+	$VisualMesh.configure(id)
+
 func remember_spawn() -> void:
 	spawn_position = position
 	_spawn_yaw = rotation.y

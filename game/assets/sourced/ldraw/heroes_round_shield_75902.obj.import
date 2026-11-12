@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dsp38a3reygqp"
+path="res://.godot/imported/heroes_round_shield_75902.obj-864a5c98d376f06ffa167a3cc1d9e119.mesh"
+
+[deps]
+
+files=["res://.godot/imported/heroes_round_shield_75902.obj-864a5c98d376f06ffa167a3cc1d9e119.mesh"]
+
+source_file="res://assets/sourced/ldraw/heroes_round_shield_75902.obj"
+dest_files=["res://.godot/imported/heroes_round_shield_75902.obj-864a5c98d376f06ffa167a3cc1d9e119.mesh", "res://.godot/imported/heroes_round_shield_75902.obj-864a5c98d376f06ffa167a3cc1d9e119.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

@@ -2,6 +2,7 @@ extends RefCounted
 
 const SANS = preload("res://assets/ui/fonts/DM-Sans.ttf")
 const SERIF = preload("res://assets/ui/fonts/DM-Serif-Text.ttf")
+const BACKDROP = preload("res://client/shaders/menu_backdrop.gdshader")
 const INK := Color("#233b35")
 const MUTED := Color("#546359")
 const PAPER := Color("#faf6ec")
@@ -26,6 +27,9 @@ static func apply_theme(screen: Control) -> void:
 	screen.theme = theme
 	var background := screen.get_node_or_null("Background") as ColorRect
 	if background:
+		var backdrop := ShaderMaterial.new()
+		backdrop.shader = BACKDROP
+		background.material = backdrop
 		background.color = CANVAS
 		background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
@@ -55,10 +59,10 @@ static func focus_ring(radius: int) -> StyleBoxFlat:
 	box.set_border_width_all(2)
 	return box
 
-static func button(control: Button, primary: bool = false) -> void:
-	var normal := GREEN if primary else PAPER
-	var hover := Color("#356b59") if primary else Color("#e8ecdf")
-	var pressed := Color("#1d4439") if primary else Color("#dce4d7")
+static func button(control: Button, primary: bool = false, accent: Color = GREEN) -> void:
+	var normal := accent if primary else PAPER
+	var hover := accent.lightened(0.12) if primary else Color("#e8ecdf")
+	var pressed := accent.darkened(0.18) if primary else Color("#dce4d7")
 	var border := normal if primary else BORDER
 	var ink := Color("#fff9ea") if primary else INK
 	control.add_theme_stylebox_override("normal", surface(normal, 9, border, primary))

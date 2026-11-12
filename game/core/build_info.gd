@@ -1,6 +1,6 @@
 class_name BuildInfo
 
-const VERSION: String = "2.1.0-dev"
+const VERSION: String = "2.2.0-dev"
 const GIT_SHA: String = "source"
 const BUILD_DATE: String = ""
 const RENDERER: String = "gl_compatibility"

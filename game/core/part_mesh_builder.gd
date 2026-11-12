@@ -62,15 +62,16 @@ static func build_part_node(part_def: Dictionary, color: Color) -> Node3D:
 		figure.configure(pid)
 		# Fit the figure to its existing stud footprint. The walking explorer
 		# instantiates the same model directly at its natural scale.
-		var figure_bounds := Vector3(2.340, 3.89, 1.523)
+		var figure_bounds: AABB = figure.get_render_bounds()
 		var slot := Vector3(float(dims[0]) - 0.035, body_top_y - 0.020, float(dims[2]) - 0.035)
-		figure.scale = slot / figure_bounds
+		figure.scale = slot / figure_bounds.size
 		if pid == "explorer_candidate_01":
 			figure.scale = Vector3.ONE * minf(figure.scale.x, figure.scale.y)
-		figure.position.z = -0.12125 * figure.scale.z
+		var center := figure_bounds.get_center()
+		figure.position = Vector3(-center.x, -figure_bounds.position.y, -center.z) * figure.scale
 		root.add_child(figure)
 		return root
-	if _try_build_sourced_mesh(root, pid, mat):
+	if _build_catalogue_mesh(root, part_def, mat) or _try_build_sourced_mesh(root, pid, mat):
 		return root
 
 	if cat == "slope" or pid.contains("slope"):
@@ -236,6 +237,29 @@ static func _build_stairs_body(root: Node3D, part_def: Dictionary, dims: Array, 
 		profile.append(Vector2(edge + 0.5, height))
 		profile.append(Vector2(edge - 0.5, height))
 	SpecialtyMeshes.extrude_profile(root, profile, float(dims[0]) - 0.035, mat)
+
+static func _build_catalogue_mesh(root: Node3D, part: Dictionary, mat: StandardMaterial3D) -> bool:
+	var source_path: String = part.get("sourced_mesh", "")
+	if source_path.is_empty():
+		return false
+	var mesh := load("res://" + source_path) as Mesh
+	if mesh == null:
+		push_error("Missing sourced brick mesh: " + source_path)
+		return false
+	var mount: Array = part.get("mesh_mount", [])
+	var y: float = 0.0
+	if not mount.is_empty():
+		var pedestal := SpecialtyMeshes.tint(mat, mat.albedo_color.darkened(0.45))
+		SpecialtyMeshes.box(root, Vector3(float(mount[0]) - 0.035, PLATE_HEIGHT, float(mount[1]) - 0.035), Vector3.UP * PLATE_HEIGHT * 0.5, pedestal)
+		y = PLATE_HEIGHT
+	if part.get("mesh_glazing", false):
+		mat.albedo_color = mat.albedo_color.lerp(Color("#8AD5E8"), 0.68)
+		mat.albedo_color.a = 0.54
+		mat.roughness = 0.15
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	SpecialtyMeshes.add_mesh(root, mesh, Vector3.UP * y, mat)
+	return true
 
 ## Attempts to build part node using vetted sourced 3D model (LB-072).
 static func _try_build_sourced_mesh(root: Node3D, pid: String, mat: StandardMaterial3D) -> bool:

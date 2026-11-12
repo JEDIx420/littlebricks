@@ -7,6 +7,7 @@ class_name PartCatalog
 const MANIFEST_PATH: String = "res://assets/catalog/parts_manifest.json"
 
 var _parts_by_id: Dictionary = {}
+var _themes_by_id: Dictionary = {}
 var _catalog_metadata: Dictionary = {}
 var _is_loaded: bool = false
 
@@ -39,6 +40,11 @@ func load_catalog(path: String = MANIFEST_PATH) -> bool:
 		"brick_height": data.get("brick_height", 1.2)
 	}
 	
+	_themes_by_id.clear()
+	for theme in data.get("themes", []):
+		if theme is Dictionary and theme.has("id"):
+			_themes_by_id[theme["id"]] = theme
+
 	_parts_by_id.clear()
 	for p in data["parts"]:
 		if p is Dictionary and p.has("id"):
@@ -66,13 +72,18 @@ func get_parts_by_category(cat: String) -> Array[Dictionary]:
 			res.append(p)
 	return res
 
-func get_theme_parts(theme_tag: String) -> Array[Dictionary]:
-	var res: Array[Dictionary] = []
-	for p in _parts_by_id.values():
-		var tags: Array = p.get("theme_tags", [])
-		if theme_tag in tags:
-			res.append(p)
-	return res
+func get_theme(theme_id: String) -> Dictionary:
+	return _themes_by_id.get(theme_id, {})
+
+func get_theme_parts(theme_tag: String, include_shared: bool = true) -> Array[Dictionary]:
+	var include_core: bool = include_shared and get_theme(theme_tag).get("include_core", false)
+	var result: Array[Dictionary] = []
+	for part in _parts_by_id.values():
+		var tags: Array = part.get("theme_tags", [])
+		var common_part: bool = include_core and "core" in tags and part.get("category", "") in ["brick", "plate", "tile"]
+		if theme_tag in tags or common_part:
+			result.append(part)
+	return result
 
 ## Rotate a 2D local stud/socket coordinate (x, z) by quarter-turn (0, 1, 2, 3 -> 0, 90, 180, 270 deg)
 static func rotate_coord(x: float, z: float, rot_step: int) -> Vector2:

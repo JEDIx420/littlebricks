@@ -2,6 +2,15 @@
 
 Last updated: **2026-11-12**
 
+## Workshop packs and atmosphere
+
+- Added Galactic Hangar, Heroes HQ and Castle Keep. The new packs have 15 construction and display parts converted from attributed LDraw models. Darth Vader, Stormtrooper, Iron Man and Captain America are available as both catalogue figures and playable Explorer looks. See [asset attribution](../ATTRIBUTION.md) for the source licenses, transformations, and the distinction between CAD and franchise rights.
+- Solo Free Build can browse every pack and place pieces from several packs in the same creation. Starting packs also provide balanced theme-specific bags and palettes.
+- The closed workshop has a gradual day and night cycle, window rain, warm lamps, and manual Day, Dusk, Night and Rain presets. The atmosphere follows exploration and is included in saved builds.
+- Five printed reference plans use legal, finished builds. The paper on the tabletop or **Plans** opens the same finished image without changing the board.
+- The camera controls collapse behind **View**. Placement tools sit above the tray. The menus preview the selected pack in 3D, and original handheld-style themes rotate while building. Rain and night crossfade to gentler music.
+- Native verification covered pack mixing, paper and HUD input ownership, weather, the Explorer picker, and returning to a saved mixed-pack build. All 33 local regression suites passed, including geometry, balanced hands, rule-valid reference plans, and previous game behavior. Browser and mobile device playback have not been verified.
+
 ## Workshop gameplay rework
 
 Source branch `codex/littlebricks-workshop` is based on `f1b9041`. The linked localhost build was inspected before implementation. Its toolbar clipped on both sides, the close camera left the room out of view, and mouse-down could place a piece before a drag was distinguishable.

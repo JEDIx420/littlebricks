@@ -17,6 +17,7 @@ const ModeSelectScene = preload("res://client/scenes/mode_select.tscn")
 const SetupScene = preload("res://client/scenes/setup_screen.tscn")
 const MainTableScene = preload("res://client/scenes/main.tscn")
 const ExplorationScene = preload("res://client/scenes/exploration_view.tscn")
+const ExplorationController = preload("res://client/scripts/exploration_controller.gd")
 const SettingsModalScene = preload("res://client/scenes/settings_modal.tscn")
 const MyBuildsGalleryScene = preload("res://client/scenes/my_builds_gallery.tscn")
 const ShowcaseOverlayScene = preload("res://client/scenes/showcase_overlay.tscn")
@@ -132,26 +133,21 @@ func start_session(config: Dictionary) -> void:
 		active_session.timer_duration_sec = config["timer_sec"]
 		active_session.time_remaining_sec = config["timer_sec"]
 		
+	_open_active_table()
+
+func _open_active_table() -> void:
 	_clear_current_view()
-	audio.play_building_music()
-	
-	# Instantiate 3D tabletop
 	var table = MainTableScene.instantiate()
 	add_child(table)
 	current_view = table
 	if not table.is_node_ready():
 		table._ready()
-	
-	# Pass active session and audio/haptics/settings to tabletop
-	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics, settings)
-		
-	if table.has_signal("finish_requested"):
-		table.finish_requested.connect(_on_table_finish_requested)
-	if table.has_signal("leave_requested"):
-		table.leave_requested.connect(save_and_leave)
-	if table.has_signal("settings_requested"):
-		table.settings_requested.connect(open_settings)
+
+	table.attach_session(active_session, audio, haptics, settings, current_session_config.get("workshop_atmosphere", {}))
+	audio.play_building_music()
+	table.finish_requested.connect(_on_table_finish_requested)
+	table.leave_requested.connect(save_and_leave)
+	table.settings_requested.connect(open_settings)
 
 func continue_latest_save() -> void:
 	var dir = DirAccess.open("user://saves")
@@ -235,17 +231,22 @@ func _on_table_finish_requested() -> void:
 	)
 
 func _open_exploration_view() -> void:
+	_capture_workshop_atmosphere()
 	_clear_current_view()
-	var exp_view = ExplorationScene.instantiate()
+	var exp_view := ExplorationScene.instantiate() as ExplorationController
 	add_child(exp_view)
 	current_view = exp_view
 	if not exp_view.is_node_ready():
 		exp_view._ready()
 	
-	if exp_view.has_method("setup_exploration"):
-		exp_view.setup_exploration(active_session.placements, active_session.theme_id)
-	if exp_view.has_signal("return_to_table"):
-		exp_view.return_to_table.connect(_on_return_to_table_requested)
+	exp_view.setup_exploration(active_session.placements, active_session.theme_id)
+	exp_view.presentation.is_reduced_motion = settings.reduced_motion
+	exp_view.presentation.atmosphere_changed.connect(func(_mode: String, _label: String):
+		var state := exp_view.get_atmosphere_state()
+		audio.set_workshop_atmosphere(state.get("is_raining", false), state.get("is_night", false))
+	)
+	exp_view.restore_atmosphere_state(current_session_config.get("workshop_atmosphere", {}))
+	exp_view.return_to_table.connect(_on_return_to_table_requested)
 
 func _play_showcase_replay(showcase: ShowcaseOverlay) -> ReplayTimeline:
 	if not active_session or active_session.placements.is_empty():
@@ -348,28 +349,12 @@ func _prepare_film_frame(image: Image, frame_size: Vector2i) -> Image:
 	return image
 
 func _on_return_to_table_requested(save_state: bool) -> void:
+	_capture_workshop_atmosphere()
 	if save_state:
 		_save_active_session()
 	if active_session:
 		active_session.return_to_building_new_revision()
-	# Restore table
-	_clear_current_view()
-	audio.play_building_music()
-	
-	var table = MainTableScene.instantiate()
-	add_child(table)
-	current_view = table
-	if not table.is_node_ready():
-		table._ready()
-	
-	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics, settings)
-	if table.has_signal("finish_requested"):
-		table.finish_requested.connect(_on_table_finish_requested)
-	if table.has_signal("leave_requested"):
-		table.leave_requested.connect(save_and_leave)
-	if table.has_signal("settings_requested"):
-		table.settings_requested.connect(open_settings)
+	_open_active_table()
 
 func save_and_leave() -> void:
 	_save_active_session()
@@ -389,7 +374,17 @@ func _save_active_session() -> void:
 	
 	var data = SaveManager.serialize_session(active_session)
 	data["creation_name"] = creation_name
+	_capture_workshop_atmosphere()
+	data["workshop_atmosphere"] = current_session_config.get("workshop_atmosphere", {})
 	SaveManager.save_to_file(data, save_path)
+
+func _capture_workshop_atmosphere() -> void:
+	if not is_instance_valid(current_view):
+		return
+	if current_view.has_method("get_workshop_state"):
+		current_session_config["workshop_atmosphere"] = current_view.get_workshop_state()
+	elif current_view.has_method("get_atmosphere_state"):
+		current_session_config["workshop_atmosphere"] = current_view.get_atmosphere_state()
 
 func open_my_builds() -> void:
 	# Opens creation library gallery (LB-064)
@@ -430,23 +425,9 @@ func _restore_saved_build(file_path: String) -> bool:
 	if active_session.phase == SessionManager.SessionPhase.EXPLORATION:
 		active_session.return_to_building_new_revision()
 
-	_clear_current_view()
-	audio.play_building_music()
-	
-	var table = MainTableScene.instantiate()
-	add_child(table)
-	current_view = table
-	if not table.is_node_ready():
-		table._ready()
-	
-	if table.has_method("attach_session"):
-		table.attach_session(active_session, audio, haptics, settings)
-	if table.has_signal("finish_requested"):
-		table.finish_requested.connect(_on_table_finish_requested)
-	if table.has_signal("leave_requested"):
-		table.leave_requested.connect(save_and_leave)
-	if table.has_signal("settings_requested"):
-		table.settings_requested.connect(open_settings)
+	if data.get("workshop_atmosphere") is Dictionary:
+		current_session_config["workshop_atmosphere"] = data["workshop_atmosphere"]
+	_open_active_table()
 	return true
 
 func open_settings() -> void:
