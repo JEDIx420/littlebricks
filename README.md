@@ -64,3 +64,15 @@ The live review did not rerun the previous agent's complete test/build matrix. U
 Game code is available under the [MIT License](LICENSE). See asset-specific provenance and [credits](CREDITS.md) for content terms; new or replaced content must retain verified attribution and redistribution rights.
 
 LittleBricks uses original branding and characters and is not affiliated with the LEGO Group.
+
+## Private rooms
+
+Start the room server from the repository root.
+
+```sh
+godot --headless --path game --script res://server/run_server.gd
+```
+
+Open **Private room → Create room** and use **Copy code** in the lobby. Friends open **Private room**, enter the code, and choose **Join room**. The table opens when two to four players are present and everyone is ready.
+
+The native client defaults to `ws://127.0.0.1:9080` for local testing. For remote play, run the room server behind a TLS reverse proxy with WebSocket upgrades enabled. All players use the same server address. An HTTPS build requires a `wss://` address. Enter it in **Server address**, or set `littlebricks/online/server_url` in the Godot project settings before export to supply a default. The native client also accepts `LITTLEBRICKS_ROOM_SERVER` as an environment variable.

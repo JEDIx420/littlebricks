@@ -8,6 +8,7 @@ const Packs = preload("res://core/brick_packs.gd")
 const Studio = preload("res://client/scripts/menu_studio.gd")
 
 signal start_session_requested(config: Dictionary)
+signal online_ready_requested(is_ready: bool)
 signal back_pressed()
 
 @onready var btn_back: Button = %BtnBack
@@ -38,6 +39,10 @@ signal back_pressed()
 @onready var btn_join_room: Button = %BtnJoinRoom
 
 var current_mode: String = "solo"
+var _default_online_endpoint := ""
+var _online_pending := false
+var _online_room_code := ""
+var _online_ready := false
 
 func _ensure_nodes() -> void:
 	if not btn_back: btn_back = find_child("BtnBack", true, false)
@@ -74,8 +79,13 @@ func _ready() -> void:
 	var frame := Studio.surface(Color("#d2c0a2"), 16, Color("#e1d0b6"), true)
 	frame.set_content_margin_all(6.0)
 	%Preview.add_theme_stylebox_override("panel", frame)
-	for button in [btn_start, btn_create_room, btn_join_room]:
+	for button in [btn_start, btn_create_room, btn_join_room, %BtnOnlineReady]:
 		Studio.button(button, true)
+	Studio.button(%BtnCopyCode)
+	Studio.style_label(%OnlineStatus, 15, false, Studio.MUTED)
+	Studio.style_label(%OnlineReadyCount, 16, false, Studio.MUTED)
+	%LobbyCode.add_theme_color_override("font_uneditable_color", Studio.INK)
+	%LobbyCode.add_theme_stylebox_override("read_only", Studio.surface(Color("#fffdf7"), 9))
 	for pack_option in [opt_solo_theme, opt_pass_theme]:
 		var selected := maxi(pack_option.selected, 0)
 		pack_option.clear()
@@ -85,7 +95,7 @@ func _ready() -> void:
 	for option in [opt_solo_theme, opt_solo_mode, opt_player_count, opt_pass_theme, opt_pass_timer]:
 		Studio.button(option)
 		option.alignment = HORIZONTAL_ALIGNMENT_LEFT
-	for field in [line_edit_solo_name, line_player_1, line_player_2, line_player_3, line_player_4, line_online_name, line_online_code]:
+	for field in [line_edit_solo_name, line_player_1, line_player_2, line_player_3, line_player_4, line_online_name, line_online_code, %LineOnlineEndpoint, %LobbyCode]:
 		field.custom_minimum_size.y = 48.0
 	if not resized.is_connected(_layout_setup):
 		resized.connect(_layout_setup)
@@ -107,6 +117,10 @@ func _ready() -> void:
 		btn_create_room.pressed.connect(_on_create_room_pressed)
 	if btn_join_room and not btn_join_room.pressed.is_connected(_on_join_room_pressed):
 		btn_join_room.pressed.connect(_on_join_room_pressed)
+	if not %BtnCopyCode.pressed.is_connected(_copy_online_code):
+		%BtnCopyCode.pressed.connect(_copy_online_code)
+	if not %BtnOnlineReady.pressed.is_connected(_on_online_ready_pressed):
+		%BtnOnlineReady.pressed.connect(_on_online_ready_pressed)
 
 func _layout_setup() -> void:
 	var available := maxf(260.0, minf(size.x - 58.0, 1060.0))
@@ -161,6 +175,12 @@ func configure_for_mode(mode: String) -> void:
 		"online":
 			if label_mode_title: label_mode_title.text = "Private room"
 			if btn_start: btn_start.visible = false # Uses Create/Join buttons
+			_online_room_code = ""
+			_online_ready = false
+			%OnlineLobby.hide()
+			%OnlineConnect.show()
+			_set_online_pending(false)
+			_show_online_status("")
 
 	_refresh_preview()
 
@@ -212,41 +232,124 @@ func _on_start_pressed() -> void:
 		
 	start_session_requested.emit(config)
 
-func _generate_room_code() -> String:
-	var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
-	var code = ""
-	for i in range(6):
-		code += chars[randi() % chars.length()]
-	return code
+func configure_online_endpoint(default_endpoint: String) -> void:
+	_default_online_endpoint = default_endpoint.strip_edges()
+	var has_default := not _default_online_endpoint.is_empty()
+	%LabelOnlineEndpoint.text = "Server address (optional)" if has_default else "Server address"
+	%LineOnlineEndpoint.placeholder_text = _default_online_endpoint if has_default else "wss://server.example"
+	%LineOnlineEndpoint.tooltip_text = "Leave blank to use the default room server" if has_default else "Use the same server address as your friends"
+
+func show_online_pending() -> void:
+	_set_online_pending(true)
+	_show_online_status("Connecting to the room server…")
+
+func show_online_error(message: String) -> void:
+	_set_online_pending(false)
+	_show_online_status(message, true)
+
+func show_online_lobby(code: String, players: Array, ready_count: int, is_ready: bool) -> void:
+	_online_room_code = code
+	_online_ready = is_ready
+	_set_online_pending(false)
+	%OnlineConnect.hide()
+	%OnlineLobby.show()
+	%LobbyCode.text = code
+	%LabelModeDescription.text = "Share this code with friends. The table opens when everyone is ready."
+	%OnlineReadyCount.text = "%d of %d ready" % [ready_count, players.size()]
+	%BtnOnlineReady.text = "Cancel ready" if is_ready else "I'm ready"
+	_show_online_status("Waiting for another player." if players.size() < 2 else "")
+
+	for row in %OnlineRoster.get_children():
+		%OnlineRoster.remove_child(row)
+		row.queue_free()
+	for player in players:
+		if not player is Dictionary:
+			continue
+		var row := HBoxContainer.new()
+		var player_name := Label.new()
+		player_name.text = str(player.get("name", "Explorer"))
+		player_name.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		player_name.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+		Studio.style_label(player_name, 17)
+		row.add_child(player_name)
+		var status := Label.new()
+		if not bool(player.get("is_online", true)):
+			status.text = "Offline"
+		elif bool(player.get("is_ready", false)):
+			status.text = "Ready"
+		else:
+			status.text = "Connected"
+		Studio.style_label(status, 15, false, Studio.MUTED)
+		row.add_child(status)
+		%OnlineRoster.add_child(row)
+
+func _set_online_pending(pending: bool) -> void:
+	_online_pending = pending
+	btn_create_room.disabled = pending
+	btn_join_room.disabled = pending
+	%BtnOnlineReady.disabled = pending
+
+func _show_online_status(message: String, is_error: bool = false) -> void:
+	%OnlineStatus.text = message
+	%OnlineStatus.visible = not message.is_empty()
+	%OnlineStatus.add_theme_color_override("font_color", Color("#a1382f") if is_error else Studio.MUTED)
+
+func _copy_online_code() -> void:
+	if _online_room_code.is_empty():
+		return
+	if DisplayServer.has_feature(DisplayServer.FEATURE_CLIPBOARD):
+		DisplayServer.clipboard_set(_online_room_code)
+		_show_online_status("Room code copied.")
+	else:
+		%LobbyCode.grab_focus()
+		%LobbyCode.select_all()
+		_show_online_status("Select Copy on your device.")
+
+func _on_online_ready_pressed() -> void:
+	if not _online_pending and not _online_room_code.is_empty():
+		online_ready_requested.emit(not _online_ready)
 
 func _on_create_room_pressed() -> void:
-	var player_name = line_online_name.text.strip_edges()
+	_request_online_room(true)
+
+func _on_join_room_pressed() -> void:
+	_request_online_room(false)
+
+func _request_online_room(is_host: bool) -> void:
+	if _online_pending or not _online_room_code.is_empty():
+		return
+	var code := "" if is_host else line_online_code.text.strip_edges().to_upper()
+	if not is_host and not _is_room_code_valid(code):
+		show_online_error("Enter the 6-character room code from your host.")
+		line_online_code.grab_focus()
+		return
+	var endpoint := String(%LineOnlineEndpoint.text).strip_edges()
+	if endpoint.is_empty():
+		endpoint = _default_online_endpoint
+	if not endpoint.is_empty() and not (endpoint.begins_with("ws://") or endpoint.begins_with("wss://")):
+		show_online_error("The server address must start with ws:// or wss://.")
+		%LineOnlineEndpoint.grab_focus()
+		return
+	var player_name := line_online_name.text.strip_edges()
 	if player_name.is_empty():
-		player_name = "Explorer1"
-	var code = _generate_room_code()
+		player_name = "Explorer"
+	show_online_pending()
 	start_session_requested.emit({
 		"mode": "online",
 		"theme_id": "harbour",
-		"creation_name": "Online Room (%s)" % code,
+		"creation_name": "Private room",
 		"players": [player_name],
+		"player_name": player_name,
 		"room_code": code,
-		"is_host": true,
+		"server_url": endpoint,
+		"is_host": is_host,
 		"timer_enabled": false
 	})
 
-func _on_join_room_pressed() -> void:
-	var player_name = line_online_name.text.strip_edges()
-	if player_name.is_empty():
-		player_name = "Explorer2"
-	var code = line_online_code.text.strip_edges().to_upper()
-	if code.is_empty():
-		code = "LBRICK"
-	start_session_requested.emit({
-		"mode": "online",
-		"theme_id": "harbour",
-		"creation_name": "Online Room (%s)" % code,
-		"players": [player_name],
-		"room_code": code,
-		"is_host": false,
-		"timer_enabled": false
-	})
+func _is_room_code_valid(code: String) -> bool:
+	if code.length() != 6:
+		return false
+	for character in code:
+		if not character in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789":
+			return false
+	return true

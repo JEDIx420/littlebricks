@@ -9,6 +9,8 @@ const RoomAuthority = preload("res://server/room_authority.gd")
 const NetworkProtocol = preload("res://server/network_protocol.gd")
 const SessionManager = preload("res://core/session_manager.gd")
 const PartCatalog = preload("res://core/part_catalog.gd")
+const SaveManager = preload("res://core/save_manager.gd")
+const CODE_ALPHABET := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 const PlacementRules = preload("res://core/placement_rules.gd")
 
 var tcp_server: TCPServer
@@ -30,15 +32,6 @@ func _init() -> void:
 	catalog = PartCatalog.new()
 	catalog.load_catalog("res://assets/catalog/parts_manifest.json")
 	rules = PlacementRules.new(catalog)
-
-func _ready() -> void:
-	# Parse command line args if run directly
-	var args = OS.get_cmdline_args()
-	for arg in args:
-		if arg.begins_with("--port="):
-			server_port = int(arg.replace("--port=", ""))
-	if not is_running and not is_inside_tree():
-		start(server_port)
 
 func _process(_delta: float) -> void:
 	if is_running:
@@ -127,6 +120,8 @@ func _process_client_packet(client_idx: int, raw_json: String) -> void:
 	var c = clients[client_idx]
 	
 	match op:
+		NetworkProtocol.OP_CREATE_ROOM:
+			_handle_join(c, msg, true)
 		NetworkProtocol.OP_JOIN_ROOM:
 			_handle_join(c, msg)
 		NetworkProtocol.OP_SUBMIT_PLACEMENT:
@@ -140,12 +135,26 @@ func _process_client_packet(client_idx: int, raw_json: String) -> void:
 		_:
 			_send_to_client(c, NetworkProtocol.make_command_rejected(msg.get("request_id", ""), "UNKNOWN_OPCODE", "Unknown opcode: %s" % op))
 
-func _handle_join(client: Dictionary, msg: Dictionary) -> void:
-	var room_code = msg.get("room_code", "LBRICK").to_upper().strip_edges()
-	var player_name = msg.get("player_name", "Builder").strip_edges()
-	if player_name.is_empty(): player_name = "Builder"
-	
+func _handle_join(client: Dictionary, msg: Dictionary, create: bool = false) -> void:
+	if not client["room_code"].is_empty():
+		_send_to_client(client, NetworkProtocol.make_command_rejected("", "JOIN_FAILED", "Already in a room"))
+		return
+	var room_code := str(msg.get("room_code", "")).to_upper().strip_edges()
+	var player_name := str(msg.get("player_name", "")).strip_edges().left(24)
+	if player_name.is_empty():
+		player_name = "Builder"
+
+	if create:
+		room_code = _new_room_code()
+		_get_or_create_room(room_code).private_lobby = true
+	elif room_code.is_empty() or (msg.get("invite_only", false) and (not rooms.has(room_code) or not rooms[room_code].private_lobby)):
+		_send_to_client(client, NetworkProtocol.make_command_rejected("", "JOIN_FAILED", "Room code not found. Check the code and try again."))
+		return
+
 	var room = _get_or_create_room(room_code)
+	if room.private_lobby and room.session.phase != SessionManager.SessionPhase.LOBBY:
+		_send_to_client(client, NetworkProtocol.make_command_rejected("", "JOIN_FAILED", "This room has already started building."))
+		return
 	var res = room.handle_join(player_name)
 	
 	if not res.get("success", false):
@@ -174,16 +183,27 @@ func _handle_join(client: Dictionary, msg: Dictionary) -> void:
 	}
 	_send_to_client(client, join_ack)
 	
-	# Broadcast roster update to room
-	var roster = []
-	for p_token in room.player_tokens.keys():
-		var p_info = room.player_tokens[p_token]
+	_broadcast_roster(room)
+
+func _new_room_code() -> String:
+	while true:
+		var code := ""
+		for byte in Crypto.new().generate_random_bytes(6):
+			code += CODE_ALPHABET[byte % CODE_ALPHABET.length()]
+		if not rooms.has(code):
+			return code
+	return ""
+
+func _broadcast_roster(room: RoomAuthority) -> void:
+	var roster: Array = []
+	for p_info in room.player_tokens.values():
 		roster.append({
 			"id": p_info["player_id"],
 			"name": p_info["name"],
-			"is_online": p_info.get("is_online", true)
+			"is_online": p_info.get("is_online", true),
+			"is_ready": p_info.get("lobby_ready", false)
 		})
-	_broadcast_to_room(room_code, NetworkProtocol.make_roster_update(roster, room.session.get_current_player_id()))
+	_broadcast_to_room(room.room_code, NetworkProtocol.make_roster_update(roster, room.session.get_current_player_id()))
 
 func _handle_submit_placement(client: Dictionary, msg: Dictionary) -> void:
 	var room_code = client.get("room_code", msg.get("room_code", "")).to_upper()
@@ -192,6 +212,9 @@ func _handle_submit_placement(client: Dictionary, msg: Dictionary) -> void:
 		return
 		
 	var room = rooms[room_code]
+	if client["token"].is_empty() or msg.get("player_token", "") != client["token"]:
+		_send_to_client(client, NetworkProtocol.make_command_rejected(str(msg.get("request_id", "")), "INVALID_TOKEN", "Join the room before placing a brick"))
+		return
 	var res = room.handle_submit_placement(msg)
 	
 	if not res.get("success", false):
@@ -209,7 +232,33 @@ func _handle_vote_ready(client: Dictionary, msg: Dictionary) -> void:
 	var token = msg.get("player_token", client.get("token", ""))
 	var is_ready = msg.get("is_ready", true)
 	
-	if not room.player_tokens.has(token):
+	if token != client["token"] or not room.player_tokens.has(token):
+		return
+	if room.private_lobby and room.session.phase == SessionManager.SessionPhase.LOBBY:
+		room.player_tokens[token]["lobby_ready"] = bool(is_ready)
+		var names: Array[String] = []
+		for player in room.player_tokens.values():
+			if not player.get("lobby_ready", false):
+				_broadcast_roster(room)
+				return
+			names.append(player["name"])
+		if names.size() >= 2:
+			room.session.setup_session(SessionManager.GameMode.ONLINE_ROOM, names, "harbour", false)
+			var index := 0
+			for player_token in room.player_tokens:
+				room.player_tokens[player_token]["player_id"] = room.session.players[index]["id"]
+				index += 1
+			var snapshot := SaveManager.serialize_session(room.session)
+			for connection in clients:
+				if connection["room_code"] == room_code and room.player_tokens.has(connection["token"]):
+					connection["player_id"] = room.player_tokens[connection["token"]]["player_id"]
+					_send_to_client(connection, {
+						"op": NetworkProtocol.OP_BUILD_STARTED,
+						"session_snapshot": snapshot,
+						"player_id": connection["player_id"]
+					})
+		else:
+			_broadcast_roster(room)
 		return
 	var p_id = room.player_tokens[token]["player_id"]
 	room.session.set_ready_to_explore(p_id, is_ready)
@@ -285,16 +334,19 @@ func _handle_client_disconnected(client: Dictionary) -> void:
 		room.player_tokens[token]["is_online"] = false
 		print("[Server] Client disconnected: %s in room %s" % [client.get("player_id", "anon"), room_code])
 		
-		# Broadcast updated roster
-		var roster = []
-		for p_token in room.player_tokens.keys():
-			var p_info = room.player_tokens[p_token]
-			roster.append({
-				"id": p_info["player_id"],
-				"name": p_info["name"],
-				"is_online": p_info.get("is_online", true)
-			})
-		_broadcast_to_room(room_code, NetworkProtocol.make_roster_update(roster, room.session.get_current_player_id()))
+		if room.private_lobby and room.session.phase == SessionManager.SessionPhase.LOBBY:
+			room.player_tokens.erase(token)
+			if room.player_tokens.is_empty():
+				rooms.erase(room_code)
+				return
+			# Lobby slots may move before the build starts. Reserve the
+			# session's fixed player IDs in current roster order at start.
+			for player in room.player_tokens.values():
+				player["lobby_ready"] = false
+		if room.private_lobby and not room.player_tokens.values().any(func(player): return player["is_online"]):
+			rooms.erase(room_code)
+			return
+		_broadcast_roster(room)
 
 func _broadcast_to_room(room_code: String, message: Dictionary, exclude_token: String = "") -> void:
 	var text = JSON.stringify(message)

@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://client/scripts/settings_modal.gd" id="1_settings"]
 
 [node name="SettingsModal" type="Control"]
+visible = false
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,129 +19,193 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0, 0, 0, 0.45)
+color = Color(0.05, 0.07, 0.06, 0.73)
 
-[node name="Panel" type="PanelContainer" parent="."]
+[node name="Center" type="Control" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -260.0
-offset_top = -240.0
-offset_right = 260.0
-offset_bottom = 240.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="Panel" type="PanelContainer" parent="Center"]
+unique_name_in_owner = true
+layout_mode = 0
+
+[node name="Margin" type="MarginContainer" parent="Center/Panel"]
 layout_mode = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 20
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 20
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 14
 
-[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+[node name="VBox" type="VBoxContainer" parent="Center/Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="Header" type="HBoxContainer" parent="Panel/Margin/VBox"]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="Panel/Margin/VBox/Header"]
+[node name="Title" type="Label" parent="Center/Panel/Margin/VBox/Header"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_font_sizes/font_size = 22
-text = "Settings & Accessibility"
+theme_override_font_sizes/font_size = 32
+text = "Settings"
 
-[node name="BtnClose" type="Button" parent="Panel/Margin/VBox/Header"]
+[node name="BtnClose" type="Button" parent="Center/Panel/Margin/VBox/Header"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(36, 44)
+custom_minimum_size = Vector2(68, 44)
 layout_mode = 2
-text = "✕"
+text = "Done"
+tooltip_text = "Close settings (Esc)"
 
-[node name="HSep1" type="HSeparator" parent="Panel/Margin/VBox"]
+[node name="Divider" type="HSeparator" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 
-[node name="CheckSound" type="CheckBox" parent="Panel/Margin/VBox"]
+[node name="Scroll" type="ScrollContainer" parent="Center/Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+follow_focus = true
+horizontal_scroll_mode = 0
+
+[node name="Options" type="VBoxContainer" parent="Center/Panel/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="AudioTitle" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options"]
+layout_mode = 2
+text = "Audio"
+theme_override_colors/font_color = Color(0.81, 0.76, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="CheckSound" type="CheckBox" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 button_pressed = true
-text = "Enable Audio (Mute / Unmute)"
+text = "Sound"
 
-[node name="MasterVolBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
+[node name="MasterRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 layout_mode = 2
+theme_override_constants/separation = 10
 
-[node name="LabelMaster" type="Label" parent="Panel/Margin/VBox/MasterVolBox"]
-custom_minimum_size = Vector2(120, 0)
+[node name="LabelMaster" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/MasterRow"]
+custom_minimum_size = Vector2(98, 0)
 layout_mode = 2
-text = "Master Volume"
+text = "Master"
 
-[node name="SliderMaster" type="HSlider" parent="Panel/Margin/VBox/MasterVolBox"]
+[node name="SliderMaster" type="HSlider" parent="Center/Panel/Margin/VBox/Scroll/Options/MasterRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+scrollable = false
 value = 80.0
+tooltip_text = "Master volume"
+accessibility_name = "Master volume"
 
-[node name="MusicVolBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
+[node name="ValueMaster" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/MasterRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
 layout_mode = 2
+text = "80%"
+horizontal_alignment = 2
 
-[node name="LabelMusic" type="Label" parent="Panel/Margin/VBox/MusicVolBox"]
-custom_minimum_size = Vector2(120, 0)
+[node name="MusicRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Scroll/Options"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelMusic" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/MusicRow"]
+custom_minimum_size = Vector2(98, 0)
 layout_mode = 2
 text = "Music"
 
-[node name="SliderMusic" type="HSlider" parent="Panel/Margin/VBox/MusicVolBox"]
+[node name="SliderMusic" type="HSlider" parent="Center/Panel/Margin/VBox/Scroll/Options/MusicRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+scrollable = false
 value = 70.0
+tooltip_text = "Music volume"
+accessibility_name = "Music volume"
 
-[node name="SFXVolBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
-layout_mode = 2
-
-[node name="LabelSFX" type="Label" parent="Panel/Margin/VBox/SFXVolBox"]
-custom_minimum_size = Vector2(120, 0)
-layout_mode = 2
-text = "Brick Sounds (SFX)"
-
-[node name="SliderSFX" type="HSlider" parent="Panel/Margin/VBox/SFXVolBox"]
+[node name="ValueMusic" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/MusicRow"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+text = "70%"
+horizontal_alignment = 2
+
+[node name="SFXRow" type="HBoxContainer" parent="Center/Panel/Margin/VBox/Scroll/Options"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelSFX" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/SFXRow"]
+custom_minimum_size = Vector2(98, 0)
+layout_mode = 2
+text = "Brick sounds"
+
+[node name="SliderSFX" type="HSlider" parent="Center/Panel/Margin/VBox/Scroll/Options/SFXRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(50, 44)
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_vertical = 4
+scrollable = false
 value = 90.0
+tooltip_text = "Brick sounds volume"
+accessibility_name = "Brick sounds volume"
 
-[node name="HSep2" type="HSeparator" parent="Panel/Margin/VBox"]
+[node name="ValueSFX" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options/SFXRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(42, 0)
+layout_mode = 2
+text = "90%"
+horizontal_alignment = 2
+
+[node name="SectionDivider" type="HSeparator" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 layout_mode = 2
 
-[node name="CheckHaptics" type="CheckBox" parent="Panel/Margin/VBox"]
+[node name="AccessibilityTitle" type="Label" parent="Center/Panel/Margin/VBox/Scroll/Options"]
+layout_mode = 2
+text = "Accessibility"
+theme_override_colors/font_color = Color(0.81, 0.76, 0.66, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="CheckHaptics" type="CheckBox" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 button_pressed = true
-text = "Vibration / Haptic Pulses (Mobile)"
+text = "Vibration"
+tooltip_text = "Enable vibration on supported devices"
 
-[node name="CheckReducedMotion" type="CheckBox" parent="Panel/Margin/VBox"]
+[node name="CheckReducedMotion" type="CheckBox" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Reduced Motion"
+button_pressed = false
+text = "Reduced motion"
 
-[node name="CheckHighContrast" type="CheckBox" parent="Panel/Margin/VBox"]
+[node name="CheckHighContrast" type="CheckBox" parent="Center/Panel/Margin/VBox/Scroll/Options"]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 button_pressed = true
-text = "High Contrast Visual Cues"
+text = "High contrast cues"
 
-[node name="HSep3" type="HSeparator" parent="Panel/Margin/VBox"]
+[node name="FooterDivider" type="HSeparator" parent="Center/Panel/Margin/VBox"]
 layout_mode = 2
 
-[node name="LabelBuildInfo" type="Label" parent="Panel/Margin/VBox"]
+[node name="LabelBuildInfo" type="Label" parent="Center/Panel/Margin/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.65, 0.65, 0.65, 1)
+theme_override_colors/font_color = Color(0.81, 0.76, 0.66, 1)
 theme_override_font_sizes/font_size = 12
-text = "LittleBricks v2.0.0-dev"
-horizontal_alignment = 1
+text = "LittleBricks"
+autowrap_mode = 3

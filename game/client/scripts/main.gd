@@ -104,6 +104,36 @@ var _blueprint: WorkshopBlueprint
 var _blueprint_touch_index: int = -1
 var _room_picker: OptionButton
 
+signal online_placement_requested(slot: int, x: int, z: int, layer: int, rotation: int)
+signal online_ready_requested(is_ready: bool)
+
+var online_player_id := ""
+var online_connected := false
+var online_disconnect_message := ""
+var online_ready := false
+
+func attach_online_room(code: String, player_id: String) -> void:
+	online_player_id = player_id
+	online_connected = true
+	btn_undo.hide()
+	btn_redo.hide()
+	btn_pass_turn.hide()
+	btn_finish.text = "Ready to explore"
+	label_status.text = "Room %s  ·  %s's turn" % [code, session.get_current_player().get("name", "Builder")]
+	_validate_and_update_ghost()
+
+func set_online_ready_count(ready_count: int, total_players: int) -> void:
+	if ready_count == 0:
+		online_ready = false
+	var action := "Cancel ready" if online_ready else "Ready to explore"
+	btn_finish.text = "%s (%d/%d)" % [action, ready_count, total_players]
+
+func set_online_disconnected(message: String) -> void:
+	online_connected = false
+	online_disconnect_message = message
+	btn_finish.disabled = true
+	_validate_and_update_ghost()
+
 func _ready() -> void:
 	if _is_initialized:
 		return
@@ -793,6 +823,12 @@ func _on_rotate_right() -> void:
 	_validate_and_update_ghost()
 
 func _validate_and_update_ghost() -> void:
+	if not online_player_id.is_empty() and (not online_connected or session.get_current_player_id() != online_player_id):
+		is_current_placement_valid = false
+		btn_place.disabled = true
+		ghost_preview.hide()
+		label_status.text = "Waiting for %s" % session.get_current_player().get("name", "Builder") if online_connected else online_disconnect_message
+		return
 	if current_input_state == InputState.IDLE or _pointer_missed_board or camera_rig.is_camera_mode:
 		return
 	# Run authoritative placement rules check
@@ -834,7 +870,7 @@ func _validate_and_update_ghost() -> void:
 	var friendly_msg = _format_friendly_validation_message(is_current_placement_valid, code, reason)
 	
 	if is_current_placement_valid:
-		btn_place.disabled = false
+		btn_place.disabled = current_input_state == InputState.PENDING_ACCEPTANCE
 		status_text = "%s%s" % [player_prefix, friendly_msg]
 	else:
 		btn_place.disabled = true
@@ -906,6 +942,10 @@ func _on_place_pressed() -> void:
 		return
 		
 	current_input_state = InputState.PENDING_ACCEPTANCE
+	if not online_player_id.is_empty():
+		btn_place.disabled = true
+		online_placement_requested.emit(selected_hand_slot, current_grid_pos.x, current_grid_pos.y, current_layer_plate, current_rotation_step)
+		return
 	if session:
 		var cur_player = session.get_current_player()
 		var player_id = cur_player.get("id", "p0")
@@ -969,6 +1009,8 @@ func _on_placement_accepted(placement_record: Dictionary) -> void:
 			
 	if btn_finish:
 		btn_finish.text = "Explore"
+	if not online_player_id.is_empty():
+		set_online_ready_count(0, session.players.size())
 		
 	# A solo mixed bag replenishes the spent slot without advancing a turn.
 	if session and session.mode == SessionManager.GameMode.SOLO_CHALLENGE:
@@ -987,6 +1029,9 @@ func _on_placement_accepted(placement_record: Dictionary) -> void:
 
 func _on_placement_rejected(reason: String, code: String) -> void:
 	current_input_state = InputState.HOLDING
+	if not online_player_id.is_empty():
+		_validate_and_update_ghost()
+		label_status.text = reason
 	if feedback:
 		feedback.notify_placement_rejected("%s: %s" % [code, reason])
 	else:
@@ -1000,6 +1045,11 @@ func _on_placement_rejected(reason: String, code: String) -> void:
 # =========================================================================
 
 func _on_finish_pressed() -> void:
+	if not online_player_id.is_empty():
+		if online_connected:
+			online_ready = not online_ready
+			online_ready_requested.emit(online_ready)
+		return
 	if not session or session.players.size() <= 1:
 		finish_requested.emit()
 		return
@@ -1065,6 +1115,8 @@ func _on_inventory_refilled(_player_id: String, _new_piece: Dictionary, _slot_id
 		_setup_inventory_tray()
 
 func _on_pass_turn_pressed() -> void:
+	if not online_player_id.is_empty():
+		return
 	if not session or session.players.size() <= 1:
 		return
 	session.skip_turn()
@@ -1072,6 +1124,8 @@ func _on_pass_turn_pressed() -> void:
 		audio_director.play_pickup()
 
 func _on_undo_pressed() -> void:
+	if not online_player_id.is_empty():
+		return
 	if not session:
 		return
 	var res = session.undo_last_placement()
@@ -1104,6 +1158,8 @@ func _on_undo_pressed() -> void:
 					haptics_adapter.vibrate_error()
 
 func _on_redo_pressed() -> void:
+	if not online_player_id.is_empty():
+		return
 	if not session:
 		return
 	var res = session.redo_placement()

@@ -5,6 +5,7 @@ class_name AppRoot
 ## Owns active SessionManager, persistent AudioDirector, HapticsAdapter,
 ## seamless screen navigation, and save/resume state across views.
 
+const NetworkClient = preload("res://client/scripts/network_client.gd")
 const AudioDirector = preload("res://client/scripts/audio_director.gd")
 const HapticsAdapter = preload("res://platform/haptics_adapter.gd")
 const SettingsManager = preload("res://client/scripts/settings_manager.gd")
@@ -35,6 +36,8 @@ var active_session: SessionManager = null
 var current_view: Node = null
 var current_session_config: Dictionary = {}
 var settings_dialog: SettingsModal = null
+var room_connection: NetworkClient
+var room_roster: Array = []
 
 func _ready() -> void:
 	if not view_container:
@@ -62,6 +65,7 @@ func _clear_current_view() -> void:
 		current_view = null
 
 func navigate_to_welcome() -> void:
+	_close_room_connection()
 	_clear_current_view()
 	audio.play_menu_music()
 	
@@ -83,6 +87,7 @@ func navigate_to_welcome() -> void:
 	)
 
 func navigate_to_mode_select() -> void:
+	_close_room_connection()
 	_clear_current_view()
 	var mode_view = ModeSelectScene.instantiate()
 	view_container.add_child(mode_view)
@@ -102,10 +107,17 @@ func navigate_to_setup(mode: String) -> void:
 	current_view = setup_view
 	
 	setup_view.configure_for_mode(mode)
+	if mode == "online":
+		setup_view.configure_online_endpoint(_default_room_endpoint())
+		setup_view.online_ready_requested.connect(_vote_room_ready)
 	setup_view.back_pressed.connect(navigate_to_mode_select)
 	setup_view.start_session_requested.connect(start_session)
 
 func start_session(config: Dictionary) -> void:
+	if config.get("mode") == "online":
+		_connect_room(config)
+		return
+	_close_room_connection()
 	current_session_config = config
 	var mode_str = config.get("mode", "solo")
 	var is_free_build = config.get("free_build", false) or mode_str == "solo_creative"
@@ -117,8 +129,6 @@ func start_session(config: Dictionary) -> void:
 			g_mode = SessionManager.GameMode.SOLO_CHALLENGE
 	elif mode_str == "pass_and_play":
 		g_mode = SessionManager.GameMode.PASS_AND_PLAY
-	elif mode_str == "online":
-		g_mode = SessionManager.GameMode.ONLINE_ROOM
 		
 	var p_names: Array[String] = []
 	for p in config.get("players", ["Builder"]):
@@ -135,6 +145,147 @@ func start_session(config: Dictionary) -> void:
 		
 	_open_active_table()
 
+func _default_room_endpoint() -> String:
+	var configured := str(ProjectSettings.get_setting("littlebricks/online/server_url", "")).strip_edges()
+	if not configured.is_empty():
+		return configured
+	if OS.has_feature("web"):
+		return "ws://127.0.0.1:9080" if _is_local_web_preview() else ""
+	var environment_endpoint := OS.get_environment("LITTLEBRICKS_ROOM_SERVER").strip_edges()
+	return environment_endpoint if not environment_endpoint.is_empty() else "ws://127.0.0.1:9080"
+
+func _is_local_web_preview() -> bool:
+	var origin := str(JavaScriptBridge.eval("location.origin"))
+	return origin.begins_with("http://localhost:") or origin.begins_with("http://127.0.0.1:")
+
+func _connect_room(config: Dictionary) -> void:
+	if not current_view is SetupScreen:
+		return
+	_close_room_connection()
+	var endpoint := str(config.get("server_url", "")).strip_edges()
+	if not endpoint.begins_with("wss://") and not endpoint.begins_with("ws://"):
+		current_view.show_online_error("Enter the room server address, starting with wss://.")
+		return
+	if OS.has_feature("web") and endpoint.begins_with("ws://") and not _is_local_web_preview():
+		current_view.show_online_error("This page needs a secure room server address starting with wss://.")
+		return
+	current_session_config = config.duplicate()
+	current_view.show_online_pending()
+	var client := NetworkClient.new()
+	room_connection = client
+	add_child(client)
+	client.connected.connect(func():
+		var player_name := str(config.get("player_name", "Builder"))
+		if config.get("is_host", false):
+			client.create_room(player_name)
+		else:
+			client.join_room(str(config.get("room_code", "")), player_name, true)
+	, CONNECT_ONE_SHOT)
+	client.connection_failed.connect(func(_error): _room_connection_failed("Couldn't reach the room server. Check the address and try again."))
+	client.join_failed.connect(func(_code, message): _room_connection_failed(message))
+	client.disconnected.connect(func(): _room_connection_failed("Connection to the room server was lost."))
+	client.join_succeeded.connect(_on_room_joined)
+	client.roster_updated.connect(_on_room_roster)
+	client.build_started.connect(_on_online_build_started)
+	client.room_move_received.connect(_apply_online_move)
+	client.placement_rejected.connect(func(_request_id, code, reason):
+		if current_view and current_view.has_method("_on_placement_rejected"):
+			current_view._on_placement_rejected(reason, code)
+	)
+	client.phase_updated.connect(_on_online_phase)
+	var timeout := Timer.new()
+	timeout.one_shot = true
+	client.add_child(timeout)
+	timeout.timeout.connect(func():
+		if client.player_token.is_empty():
+			_room_connection_failed("The room server didn't respond. Check the address and try again.")
+	)
+	client.join_succeeded.connect(func(_data): timeout.stop())
+	timeout.start(10.0)
+	client.connect_to_server(endpoint)
+
+func _close_room_connection() -> void:
+	room_roster.clear()
+	if is_instance_valid(room_connection):
+		var previous := room_connection
+		room_connection = null
+		previous.set_block_signals(true)
+		previous.disconnect_from_server()
+		previous.queue_free()
+
+func _room_connection_failed(message: String) -> void:
+	var had_room := is_instance_valid(room_connection) and not room_connection.player_token.is_empty()
+	_close_room_connection()
+	if current_view is SetupScreen:
+		if had_room:
+			current_view.configure_for_mode("online")
+		current_view.show_online_error(message)
+	elif current_view and current_view.has_method("set_online_disconnected"):
+		current_view.set_online_disconnected(message)
+
+func _on_room_joined(data: Dictionary) -> void:
+	var code := str(data.get("room_code", ""))
+	current_session_config["room_code"] = code
+	current_session_config["creation_name"] = "Private room " + code
+	_on_room_roster([{"name": current_session_config.get("player_name", "Builder"), "id": room_connection.player_id}], "")
+
+func _on_room_roster(players: Array, _current_turn: String) -> void:
+	room_roster = players
+	if not current_view is SetupScreen:
+		if active_session and active_session.phase == SessionManager.SessionPhase.BUILDING:
+			for player in players:
+				if not player.get("is_online", true):
+					_room_connection_failed("%s left the room. You can save the build." % player.get("name", "A player"))
+					break
+		return
+	var ready_count := 0
+	var is_ready := false
+	for player in players:
+		if player.get("is_ready", false):
+			ready_count += 1
+			if player.get("id") == room_connection.player_id:
+				is_ready = true
+	current_view.show_online_lobby(room_connection.current_room_code, players, ready_count, is_ready)
+
+func _vote_room_ready(is_ready: bool) -> void:
+	if is_instance_valid(room_connection):
+		room_connection.vote_ready(is_ready)
+
+func _on_online_build_started(snapshot: Dictionary) -> void:
+	active_session = SessionManager.new()
+	SaveManager.restore_into_session(active_session, snapshot)
+	_open_active_table()
+
+func _submit_online_placement(slot: int, x: int, z: int, layer: int, rotation: int) -> void:
+	if not is_instance_valid(room_connection):
+		return
+	var request_id := "%s-%d" % [room_connection.player_id, Time.get_ticks_usec()]
+	room_connection.submit_placement(request_id, slot, x, z, layer, rotation)
+
+func _apply_online_move(data: Dictionary) -> void:
+	var placement: Dictionary = data["placement"]
+	placement["color"] = Color.from_string(data.get("color_hex", ""), Color.WHITE)
+	var replacement: Dictionary = data.get("replacement", {})
+	replacement["color"] = Color.from_string(replacement.get("color_hex", ""), Color.WHITE)
+	for index in range(active_session.players.size()):
+		var player := active_session.players[index]
+		if player["id"] == placement["player_id"]:
+			player["hand"][int(data["slot_idx"])] = replacement
+		if player["id"] == data["next_player_id"]:
+			active_session.current_player_idx = index
+		player["is_ready_to_explore"] = false
+	active_session.placements.append(placement)
+	active_session._record_event("PLACEMENT_ACCEPTED", placement)
+	active_session.placement_accepted.emit(placement)
+	active_session.turn_advanced.emit(active_session.get_current_player_id(), active_session.current_player_idx)
+
+func _on_online_phase(phase: int, ready_count: int, total_players: int) -> void:
+	if active_session and current_view and current_view.has_method("set_online_ready_count"):
+		current_view.set_online_ready_count(ready_count, total_players)
+		if phase != active_session.phase:
+			if phase == SessionManager.SessionPhase.EXPLORATION:
+				active_session.transition_to_exploration()
+
 func _open_active_table() -> void:
 	_clear_current_view()
 	var table = MainTableScene.instantiate()
@@ -144,6 +295,10 @@ func _open_active_table() -> void:
 		table._ready()
 
 	table.attach_session(active_session, audio, haptics, settings, current_session_config.get("workshop_atmosphere", {}))
+	if is_instance_valid(room_connection):
+		table.attach_online_room(room_connection.current_room_code, room_connection.player_id)
+		table.online_placement_requested.connect(_submit_online_placement)
+		table.online_ready_requested.connect(_vote_room_ready)
 	audio.play_building_music()
 	table.finish_requested.connect(_on_table_finish_requested)
 	table.leave_requested.connect(save_and_leave)
@@ -206,12 +361,19 @@ func _on_table_finish_requested() -> void:
 	ui_root.add_child(showcase)
 	var c_name: String = current_session_config.get("creation_name", "My Creation")
 	showcase.configure_showcase(c_name, active_session.placements.size())
+	if is_instance_valid(room_connection):
+		var keep := showcase.find_child("BtnKeepBuilding", true, false) as Button
+		if keep:
+			keep.text = "Save & leave"
 
 	showcase.explore_requested.connect(func():
 		showcase.queue_free()
 		_open_exploration_view()
 	)
 	showcase.keep_building_requested.connect(func():
+		if is_instance_valid(room_connection):
+			save_and_leave()
+			return
 		if active_session.phase != SessionManager.SessionPhase.BUILDING:
 			active_session.return_to_building_new_revision()
 		showcase.queue_free()
@@ -247,6 +409,9 @@ func _open_exploration_view() -> void:
 		audio.set_workshop_atmosphere(state.get("is_raining", false), state.get("is_night", false))
 	)
 	exp_view.restore_atmosphere_state(current_session_config.get("workshop_atmosphere", {}))
+	if is_instance_valid(room_connection):
+		exp_view.btn_return_table.text = "Save & leave"
+		exp_view.btn_return_table.tooltip_text = "Save the build and leave the room (Esc)"
 	exp_view.return_to_table.connect(_on_return_to_table_requested)
 
 func _play_showcase_replay(showcase: ShowcaseOverlay) -> ReplayTimeline:
@@ -351,6 +516,9 @@ func _prepare_film_frame(image: Image, frame_size: Vector2i) -> Image:
 	return image
 
 func _on_return_to_table_requested(save_state: bool) -> void:
+	if is_instance_valid(room_connection):
+		save_and_leave()
+		return
 	_capture_workshop_atmosphere()
 	if save_state:
 		_save_active_session()
@@ -376,6 +544,11 @@ func _save_active_session() -> void:
 	
 	var data = SaveManager.serialize_session(active_session)
 	data["creation_name"] = creation_name
+	if active_session.mode == SessionManager.GameMode.ONLINE_ROOM:
+		data["mode"] = SessionManager.GameMode.SOLO_CREATIVE
+		data["phase"] = SessionManager.SessionPhase.BUILDING
+		data["players"] = data["players"].slice(0, 1)
+		data["current_player_idx"] = 0
 	_capture_workshop_atmosphere()
 	data["workshop_atmosphere"] = current_session_config.get("workshop_atmosphere", {})
 	SaveManager.save_to_file(data, save_path)

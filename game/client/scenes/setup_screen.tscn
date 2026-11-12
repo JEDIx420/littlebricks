@@ -235,45 +235,119 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="OnlineConnect" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Your name"
 
-[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Explorer"
-text = "Explorer1"
+max_length = 24
 
-[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LabelOnlineEndpoint" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Server address"
+
+[node name="LineOnlineEndpoint" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+placeholder_text = "wss://server.example"
+clear_button_enabled = true
+max_length = 256
+
+[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Create Private Room"
 
-[node name="HSeparator2" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="HSeparator2" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 layout_mode = 2
 
-[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Join with a code"
 
-[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "6-character room code"
+max_length = 24
 
-[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
 text = "Join Room"
+
+[node name="OnlineLobby" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="LabelLobbyCode" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Room code"
+
+[node name="LobbyCodeRow" type="HBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="LobbyCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby/LobbyCodeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 23
+editable = false
+select_all_on_focus = true
+
+[node name="BtnCopyCode" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby/LobbyCodeRow"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(90, 48)
+layout_mode = 2
+text = "Copy code"
+
+[node name="LobbySeparator" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+layout_mode = 2
+
+[node name="OnlineReadyCount" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+unique_name_in_owner = true
+layout_mode = 2
+
+[node name="OnlineRoster" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnOnlineReady" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineLobby"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+text = "I'm ready"
+
+[node name="OnlineStatus" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+autowrap_mode = 2
 
 [node name="BtnStart" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox"]
 unique_name_in_owner = true

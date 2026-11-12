@@ -12,6 +12,7 @@ const DISCONNECT_GRACE_PERIOD_SEC: float = 30.0
 
 var room_code: String = "LBRICK"
 var session: SessionManager
+var private_lobby := false
 
 # Token -> Player Info (token, id, name, is_online, last_seen_time, blocked)
 var player_tokens: Dictionary = {}
@@ -35,8 +36,8 @@ func handle_join(player_name: String) -> Dictionary:
 		return {"success": false, "code": "ROOM_FULL", "error": "Room already has 4 players"}
 		
 	var p_idx = player_tokens.size()
-	var p_id = "p_%d" % (p_idx + 1)
-	var token = "tok_%s_%d_%d" % [p_id, Time.get_unix_time_from_system(), randi() % 10000]
+	var token := Crypto.new().generate_random_bytes(24).hex_encode()
+	var p_id := "lobby_" + token.left(12) if private_lobby else "p_%d" % (p_idx + 1)
 	
 	player_tokens[token] = {
 		"token": token,
@@ -47,7 +48,7 @@ func handle_join(player_name: String) -> Dictionary:
 	}
 	
 	# If first 2 players joined, start session if not started
-	if player_tokens.size() == 2 and session.phase == SessionManager.SessionPhase.LOBBY:
+	if not private_lobby and player_tokens.size() == 2 and session.phase == SessionManager.SessionPhase.LOBBY:
 		var names: Array[String] = []
 		for p in player_tokens.values():
 			names.append(p["name"])
@@ -115,6 +116,13 @@ func handle_submit_placement(cmd: Dictionary) -> Dictionary:
 		
 	# 5. Success! Prepare broadcast
 	var latest_placement = session.placements.back()
+	var replacement: Dictionary = {}
+	for player in session.players:
+		if player["id"] == p_id:
+			replacement = player["hand"][slot_idx].duplicate()
+			replacement["color_hex"] = (replacement["color"] as Color).to_html()
+			replacement.erase("color")
+			break
 	var accept_resp = {
 		"success": true,
 		"op": NetworkProtocol.OP_PLACEMENT_BROADCAST,
@@ -122,7 +130,10 @@ func handle_submit_placement(cmd: Dictionary) -> Dictionary:
 		"placement": latest_placement,
 		"next_player_id": session.get_current_player_id(),
 		"build_revision": session.build_revision,
-		"sequence": latest_placement.get("sequence", 0)
+		"sequence": latest_placement.get("sequence", 0),
+		"slot_idx": slot_idx,
+		"replacement": replacement,
+		"color_hex": (latest_placement["color"] as Color).to_html()
 	}
 	
 	# Cache result for idempotency

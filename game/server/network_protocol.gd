@@ -6,6 +6,7 @@ class_name NetworkProtocol
 const PROTOCOL_VERSION: String = "1.0.0"
 
 # Client -> Server Opcodes
+const OP_CREATE_ROOM := "create_room"
 const OP_JOIN_ROOM: String = "join_room"
 const OP_SUBMIT_PLACEMENT: String = "submit_placement"
 const OP_VOTE_READY: String = "vote_ready"
@@ -14,6 +15,7 @@ const OP_EXPLORER_MOVE: String = "explorer_move"
 const OP_REPORT_USER: String = "report_user"
 
 # Server -> Client Opcodes
+const OP_BUILD_STARTED := "build_started"
 const OP_JOIN_ACK: String = "join_ack"
 const OP_PLACEMENT_BROADCAST: String = "placement_broadcast"
 const OP_COMMAND_REJECTED: String = "command_rejected"

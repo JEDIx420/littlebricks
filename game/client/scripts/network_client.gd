@@ -10,6 +10,8 @@ signal connected()
 signal disconnected()
 signal connection_failed(error_code: int)
 signal join_succeeded(data: Dictionary)
+signal build_started(snapshot: Dictionary)
+signal room_move_received(data: Dictionary)
 signal join_failed(code: String, error: String)
 signal placement_received(placement: Dictionary, next_player_id: String, sequence: int)
 signal placement_rejected(req_id: String, code: String, error: String)
@@ -97,9 +99,15 @@ func poll() -> void:
 			var raw = ws.get_packet().get_string_from_utf8()
 			_handle_server_message(raw)
 
-func join_room(room_code: String, player_name: String) -> void:
+func create_room(player_name: String) -> void:
+	var request := NetworkProtocol.make_join_request("", player_name)
+	request["op"] = NetworkProtocol.OP_CREATE_ROOM
+	_send_json(request)
+
+func join_room(room_code: String, player_name: String, invite_only: bool = false) -> void:
 	current_room_code = room_code.to_upper().strip_edges()
 	var req = NetworkProtocol.make_join_request(current_room_code, player_name)
+	req["invite_only"] = invite_only
 	_send_json(req)
 
 func submit_placement(req_id: String, slot_idx: int, gx: int, gz: int, z: int, rot: int) -> void:
@@ -142,6 +150,10 @@ func _handle_server_message(raw_json: String) -> void:
 			current_room_code = msg.get("room_code", "")
 			join_succeeded.emit(msg)
 			
+		NetworkProtocol.OP_BUILD_STARTED:
+			player_id = msg.get("player_id", "")
+			build_started.emit(msg.get("session_snapshot", {}))
+
 		NetworkProtocol.OP_COMMAND_REJECTED:
 			var req_id = msg.get("request_id", "")
 			var code = msg.get("code", "")
@@ -151,7 +163,7 @@ func _handle_server_message(raw_json: String) -> void:
 				placement_rejected.emit(req_id, code, err_msg)
 			elif code == "JOIN_FAILED" or code == "ROOM_FULL":
 				join_failed.emit(code, err_msg)
-			elif code == "RECONNECT_FAILED":
+			elif code in ["RECONNECT_FAILED", "EXPIRED_SESSION", "ROOM_NOT_FOUND"]:
 				reconnect_failed.emit(code, err_msg)
 				
 		NetworkProtocol.OP_PLACEMENT_BROADCAST:
@@ -166,6 +178,7 @@ func _handle_server_message(raw_json: String) -> void:
 			if seq <= last_received_seq:
 				return
 			last_received_seq = seq
+			room_move_received.emit(msg)
 			placement_received.emit(placement, next_p, seq)
 			
 		NetworkProtocol.OP_ROSTER_UPDATE:
