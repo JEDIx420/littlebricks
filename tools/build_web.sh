@@ -46,6 +46,14 @@ echo ""
 echo "[Export] Exporting WebAssembly (HTML5) Release to ${BUILDS_DIR}/index.html..."
 "${GODOT_BIN}" --headless --path "${GAME_DIR}" --export-release "Web" "${BUILDS_DIR}/index.html"
 
+# 3.5 Ensure Cloudflare Pages / Static Server headers (COOP/COEP)
+cat << 'EOF' > "${BUILDS_DIR}/_headers"
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
+  Access-Control-Allow-Origin: *
+EOF
+
 # 4. Verify output artifacts
 echo ""
 echo "[Verification] Checking exported web artifacts..."
