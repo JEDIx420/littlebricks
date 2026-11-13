@@ -63,6 +63,9 @@ const PresentationController = preload("res://client/scripts/presentation_contro
 @onready var tray_container: HBoxContainer = %TrayContainer
 
 enum InputState { IDLE, HOLDING, CAMERA_GESTURE, PENDING_ACCEPTANCE, MODAL }
+enum TouchAction { NONE, WORLD, PLAN, TRAY, TRAY_BRICK, TRAY_SCROLL, CAMERA }
+
+const TAP_RADIUS := 12.0
 
 var current_input_state: InputState = InputState.HOLDING
 var selected_hand_slot: int = 0
@@ -101,7 +104,14 @@ var _catalog_part_id: String = ""
 var _external_modal_open: bool = false
 var _local_placement_sequence: int = 0
 var _blueprint: WorkshopBlueprint
-var _blueprint_touch_index: int = -1
+var _touch_action: TouchAction = TouchAction.NONE
+var _touch_indices: Array[int] = []
+var _primary_touch: int = -1
+var _touch_origin := Vector2.ZERO
+var _touch_moved: bool = false
+var _touch_interrupted: bool = false
+var _touch_slot: int = -1
+var _touch_scroll_origin: int = 0
 var _room_picker: OptionButton
 
 signal online_placement_requested(slot: int, x: int, z: int, layer: int, rotation: int)
@@ -180,6 +190,7 @@ func _ready() -> void:
 	rules = PlacementRules.new(catalog)
 	
 	WorkbenchHUD.apply($UI/RootControl, HUD_FONT, HUD_DISPLAY_FONT)
+	WorkbenchHUD.bind_responsive_layout($UI/RootControl)
 	_connect_ui()
 	_connect_camera_hud()
 	_setup_catalog_packs()
@@ -334,6 +345,9 @@ func _connect_ui() -> void:
 func _setup_inventory_tray() -> void:
 	if not tray_container:
 		return
+	var scroll := tray_container.get_parent() as ScrollContainer
+	var scroll_offset: int = scroll.scroll_horizontal
+	var compact: bool = $UI/RootControl.get_meta("compact_hud", false)
 	for child in tray_container.get_children():
 		tray_container.remove_child(child)
 		child.queue_free()
@@ -369,13 +383,15 @@ func _setup_inventory_tray() -> void:
 		btn.text = pname
 		btn.tooltip_text = "%s  ·  %d" % [pname, i + 1]
 		btn.focus_mode = Control.FOCUS_CLICK
-		btn.custom_minimum_size = Vector2(88, 68)
+		btn.custom_minimum_size = Vector2(88, 64 if compact else 68)
+		if compact:
+			btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		btn.add_theme_font_size_override("font_size", 12)
 		var pocket := WorkbenchHUD.surface(WorkbenchHUD.BUTTON, WorkbenchHUD.EDGE)
-		pocket.content_margin_top = 45
-		pocket.content_margin_bottom = 4
+		pocket.content_margin_top = 32 if compact else 45
+		pocket.content_margin_bottom = 3 if compact else 4
 		btn.add_theme_stylebox_override("normal", pocket)
 		var pocket_hover := pocket.duplicate() as StyleBoxFlat
 		pocket_hover.border_color = WorkbenchHUD.ACTIVE
@@ -389,13 +405,19 @@ func _setup_inventory_tray() -> void:
 		if not part.is_empty():
 			WorkbenchHUD.add_part_preview(btn, part, pcolor)
 
-		var slot_idx = i
-		btn.pressed.connect(func():
-			selected_hand_slot = slot_idx
-			_select_piece_from_slot(slot_idx, pid, pcolor)
-			_setup_inventory_tray()
-		)
+		btn.set_meta("tray_part_id", pid)
+		btn.set_meta("tray_part_color", pcolor)
+		btn.pressed.connect(_pick_tray_button.bind(btn))
 		tray_container.add_child(btn)
+	# Containers update their scroll range after laying out the rebuilt slots.
+	if scroll_offset > 0:
+		scroll.set_deferred("scroll_horizontal", scroll_offset)
+
+func _pick_tray_button(button: Button) -> void:
+	if current_input_state == InputState.PENDING_ACCEPTANCE:
+		return
+	_select_piece_from_slot(button.get_index(), button.get_meta("tray_part_id"), button.get_meta("tray_part_color"))
+	_setup_inventory_tray()
 
 func _select_slot_by_index(slot_idx: int) -> void:
 	var hand: Array = []
@@ -442,6 +464,165 @@ func _rebuild_ghost() -> void:
 	_ghost_material.roughness = 0.42
 	_set_ghost_material(_ghost_node)
 	btn_place.tooltip_text = "Place %s (Enter)" % p_def.get("name", "brick")
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_clear_touch_sequence()
+
+func _input(event: InputEvent) -> void:
+	if not _is_initialized or not camera_rig:
+		return
+	if event is InputEventMouseButton or event is InputEventMouseMotion:
+		if event.device == InputEvent.DEVICE_ID_EMULATION and not _touch_modal_open():
+			# Godot emits mouse compatibility input around real touch input.
+			# Native touch owns tray pockets, while other controls keep their
+			# regular button events. A world release over the HUD belongs to
+			# the same touch sequence that started over the table.
+			var over_tray := _tray_slot_at(event.position) >= 0
+			var over_world := not _touch_over_hud(event.position)
+			if over_tray or over_world or _touch_action != TouchAction.NONE:
+				_consume_input()
+		return
+	if event is InputEventScreenTouch and event.device != InputEvent.DEVICE_ID_EMULATION:
+		_route_touch(event)
+	elif event is InputEventScreenDrag and event.device != InputEvent.DEVICE_ID_EMULATION:
+		_route_touch_drag(event)
+
+func _touch_modal_open() -> bool:
+	return _external_modal_open or catalog_modal.visible
+
+func _route_touch(event: InputEventScreenTouch) -> void:
+	if event.pressed:
+		if event.index in _touch_indices:
+			return
+		_touch_indices.append(event.index)
+		if _touch_modal_open():
+			return
+		_begin_touch(event)
+		if _touch_action != TouchAction.NONE:
+			_consume_input()
+		return
+
+	var had_owner: bool = _touch_action != TouchAction.NONE
+	_touch_indices.erase(event.index)
+	camera_rig.release_world_touch(event.index)
+	if event.index == _primary_touch:
+		_end_touch(event)
+	if _touch_indices.is_empty():
+		_clear_touch_sequence()
+	if had_owner:
+		_consume_input()
+
+func _begin_touch(event: InputEventScreenTouch) -> void:
+	_mouse_placement_armed = false
+	if _touch_indices.size() > 1:
+		if not _touch_over_hud(event.position) and (_touch_action == TouchAction.WORLD or _touch_action == TouchAction.PLAN or _touch_action == TouchAction.CAMERA):
+			camera_rig.press_world_touch(event.index, event.position)
+			_touch_action = TouchAction.CAMERA
+		elif _touch_action != TouchAction.NONE and _touch_action != TouchAction.CAMERA:
+			# A second finger cancels the pending drop. Camera gestures
+			# are available when both touches start on the table.
+			_touch_interrupted = true
+		return
+
+	_primary_touch = event.index
+	_touch_origin = event.position
+	_touch_moved = false
+	_touch_interrupted = false
+	_touch_slot = _tray_slot_at(event.position)
+	if _touch_slot >= 0:
+		_touch_action = TouchAction.TRAY
+		var scroll := tray_container.get_parent() as ScrollContainer
+		_touch_scroll_origin = scroll.scroll_horizontal
+	elif not _touch_over_hud(event.position):
+		camera_rig.press_world_touch(event.index, event.position)
+		if camera_rig.is_camera_mode:
+			_touch_action = TouchAction.CAMERA
+		elif _blueprint.is_under_pointer(camera_rig.camera, event.position):
+			_touch_action = TouchAction.PLAN
+		else:
+			_touch_action = TouchAction.WORLD
+			_aim_touch(event.position)
+
+func _route_touch_drag(event: InputEventScreenDrag) -> void:
+	if _touch_modal_open() or event.index not in _touch_indices or _touch_action == TouchAction.NONE:
+		return
+	if _touch_action == TouchAction.CAMERA:
+		camera_rig.drag_world_touch(event.index, event.position)
+		_consume_input()
+		return
+	if event.index != _primary_touch or _touch_interrupted or _touch_indices.size() > 1:
+		_consume_input()
+		return
+	if _touch_action == TouchAction.WORLD or _touch_action == TouchAction.PLAN:
+		camera_rig.drag_world_touch(event.index, event.position)
+	var delta: Vector2 = event.position - _touch_origin
+	_touch_moved = _touch_moved or delta.length_squared() > TAP_RADIUS * TAP_RADIUS
+	match _touch_action:
+		TouchAction.TRAY, TouchAction.TRAY_SCROLL:
+			_drag_from_tray(event.position, delta)
+		TouchAction.WORLD, TouchAction.TRAY_BRICK:
+			if not _touch_over_hud(event.position):
+				_aim_touch(event.position)
+	_consume_input()
+
+func _drag_from_tray(position: Vector2, delta: Vector2) -> void:
+	if _touch_slot < 0:
+		return
+	var scroll := tray_container.get_parent() as ScrollContainer
+	var drag_started: bool = delta.y < -TAP_RADIUS and position.y < scroll.get_global_rect().position.y
+	if _touch_action == TouchAction.TRAY and drag_started:
+		_touch_action = TouchAction.TRAY_BRICK
+		_pick_tray_button(tray_container.get_child(_touch_slot) as Button)
+		if not _touch_over_hud(position):
+			_aim_touch(position)
+	elif _touch_action == TouchAction.TRAY_SCROLL or (absf(delta.x) >= TAP_RADIUS and absf(delta.x) > absf(delta.y)):
+		_touch_action = TouchAction.TRAY_SCROLL
+		scroll.scroll_horizontal = _touch_scroll_origin - roundi(delta.x)
+
+func _end_touch(event: InputEventScreenTouch) -> void:
+	_primary_touch = -1
+	if event.canceled or _touch_interrupted or _touch_modal_open() or not _touch_indices.is_empty():
+		return
+	var is_tap: bool = not _touch_moved and event.position.distance_squared_to(_touch_origin) <= TAP_RADIUS * TAP_RADIUS
+	match _touch_action:
+		TouchAction.TRAY:
+			if is_tap and _touch_slot >= 0 and _tray_slot_at(event.position) == _touch_slot:
+				_pick_tray_button(tray_container.get_child(_touch_slot) as Button)
+		TouchAction.PLAN:
+			if is_tap and not _touch_over_hud(event.position) and _blueprint.is_under_pointer(camera_rig.camera, event.position):
+				_open_blueprint()
+		TouchAction.WORLD, TouchAction.TRAY_BRICK:
+			if _touch_over_hud(event.position):
+				return
+			_aim_touch(event.position)
+			if has_valid_target_surface and (is_tap or _touch_action == TouchAction.TRAY_BRICK):
+				_on_place_pressed()
+
+func _aim_touch(position: Vector2) -> void:
+	_last_pointer_screen_pos = position
+	_handle_pointer_position(position)
+
+func _tray_slot_at(position: Vector2) -> int:
+	var scroll := tray_container.get_parent() as ScrollContainer
+	if not scroll.is_visible_in_tree() or not scroll.get_global_rect().has_point(position):
+		return -1
+	for child in tray_container.get_children():
+		if child is Button and child.is_visible_in_tree() and child.get_global_rect().has_point(position):
+			return child.get_index()
+	return -1
+
+func _touch_over_hud(position: Vector2) -> bool:
+	for control in $UI/RootControl.get_children():
+		if control is Control and control.is_visible_in_tree() and control.mouse_filter != Control.MOUSE_FILTER_IGNORE and control.get_global_rect().has_point(position):
+			return true
+	return false
+
+func _clear_touch_sequence() -> void:
+	_touch_action = TouchAction.NONE
+	_primary_touch = -1
+	_touch_slot = -1
+	_touch_indices.clear()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _external_modal_open:
@@ -537,12 +718,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			_consume_input()
 			return
 
-	# Commit only a click. A left drag can explore a candidate without spending
-	# a brick. Touch aims the ghost and uses the visible Place button.
+	# Mouse clicks commit once on release. A left drag only aims.
 	var is_cam_busy := camera_rig.is_camera_mode or camera_rig.is_gesture_active
 	if is_cam_busy:
 		_mouse_placement_armed = false
-		_blueprint_touch_index = -1
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.device == InputEvent.DEVICE_ID_EMULATION:
@@ -574,20 +753,6 @@ func _unhandled_input(event: InputEvent) -> void:
 			label_status.text = "Click to read the build plan"
 		else:
 			_handle_pointer_position(event.position)
-	elif event is InputEventScreenTouch:
-		if event.pressed:
-			_blueprint_touch_index = event.index if _blueprint.is_under_pointer(camera_rig.camera, event.position) else -1
-			_last_pointer_screen_pos = event.position
-			_handle_pointer_position(event.position)
-		elif event.index == _blueprint_touch_index:
-			_blueprint_touch_index = -1
-			if not event.canceled and _blueprint.is_under_pointer(camera_rig.camera, event.position):
-				_open_blueprint()
-				_consume_input()
-	elif event is InputEventScreenDrag:
-		_blueprint_touch_index = -1
-		_last_pointer_screen_pos = event.position
-		_handle_pointer_position(event.position)
 
 func _consume_input() -> void:
 	if get_viewport():
@@ -710,6 +875,7 @@ func _on_camera_mode_changed(mode: int, mode_name: String) -> void:
 		CameraController.InteractionMode.PAN:
 			hint.text = "Drag to slide the view"
 	if mode != CameraController.InteractionMode.BUILD:
+		_touch_interrupted = true
 		_mouse_placement_armed = false
 		_pointer_missed_board = true
 		_invalidate_candidate()
@@ -1077,6 +1243,7 @@ func _on_session_phase_changed(new_phase: SessionManager.SessionPhase) -> void:
 		btn_finish.text = "Explore"
 
 func _on_turn_advanced(player_id: String, player_idx: int) -> void:
+	_touch_interrupted = true
 	if not session:
 		return
 	var cur_player = session.get_current_player()
@@ -1215,7 +1382,7 @@ func _update_modal_input() -> void:
 	camera_rig.is_input_enabled = not (_external_modal_open or catalog_modal.visible)
 	camera_rig.reset_gesture_state()
 	_mouse_placement_armed = false
-	_blueprint_touch_index = -1
+	_clear_touch_sequence()
 
 func _setup_catalog_packs() -> void:
 	opt_catalog_pack.add_item("All packs")

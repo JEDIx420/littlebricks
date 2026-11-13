@@ -50,6 +50,8 @@ The pack meshes use [LDraw.org](https://library.ldraw.org/) files under [CC BY 4
 
 Kenney's [Brick Kit](https://kenney.nl/assets/brick-kit) and [Furniture Kit](https://kenney.nl/assets/furniture-kit) retain CC0-1.0 terms.
 
+The workshop dog uses Quaternius's [Shiba Inu](https://poly.pizza/m/y4wdQpg767) under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). LittleBricks retains the original model, rig, and four animation clips and adjusts the coat colors and material. See the [dog asset ledger](game/assets/sourced/quaternius_dog/source.json) for the source download and checksums.
+
 ### LDraw figure accessories
 
 | Accessory | LDraw part | Principal author |

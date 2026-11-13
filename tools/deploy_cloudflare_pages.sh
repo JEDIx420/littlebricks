@@ -10,6 +10,13 @@ PROJECT_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 BUILDS_DIR="${PROJECT_ROOT}/builds/web"
 STAGING_DIR="${PROJECT_ROOT}/builds/pages_staging"
 PROJECT_NAME="littlebricks"
+STAGE_ONLY=false
+if [[ "${1:-}" == "--stage-only" ]]; then
+    STAGE_ONLY=true
+elif [[ $# -ne 0 ]]; then
+    echo "Usage: $0 [--stage-only]" >&2
+    exit 2
+fi
 
 echo "=== LittleBricks Cloudflare Pages Deployment ==="
 echo "Timestamp: $(date -u +"%Y-%m-%dT%H:%M:%SZ")"
@@ -45,9 +52,14 @@ for file in "${STAGING_DIR}"/*; do
         echo "ERROR: File $fname is $size bytes (exceeds 25MB limit)!"
         exit 1
     else
-        echo "  ✓ $fname ($(numfmt --to=iec-i --suffix=B "$size" 2>/dev/null || echo "$((size/1024/1024)) MB"))"
+        echo "  ✓ $fname (${size} bytes)"
     fi
 done
+
+if [[ "${STAGE_ONLY}" == true ]]; then
+    echo "Cloudflare Pages upload folder: ${STAGING_DIR}"
+    exit 0
+fi
 
 # 5. Deploy via Wrangler to Cloudflare Pages
 echo ""

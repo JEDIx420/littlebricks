@@ -17,11 +17,14 @@ const WOOD_GRAIN = preload("res://client/shaders/workshop_wood.gdshader")
 const WINDOW_SKY = preload("res://client/shaders/workshop_sky.gdshader")
 const WINDOW_RAIN = preload("res://client/shaders/workshop_rain.gdshader")
 
+@export var workshop_dog_enabled := false
+
 @onready var table_mesh: MeshInstance3D = $TableMesh
 @onready var baseplate_mesh: MeshInstance3D = $BaseplateMesh
 @onready var studs_multimesh: MultiMeshInstance3D = $StudsMultiMesh
 
 var room_node: Node3D
+var _dog: WorkshopDog
 var _table_wood: ShaderMaterial
 var _plate_material: StandardMaterial3D
 var _stud_material: StandardMaterial3D
@@ -66,6 +69,10 @@ func set_room_palette(wall_color: Color, panel_color: Color, rug_color: Color) -
 		_wall_material.albedo_color = _wall_color
 		_panel_material.albedo_color = _panel_color
 		_rug_material.albedo_color = _rug_color
+
+func set_reduced_motion(enabled: bool) -> void:
+	if _dog:
+		_dog.set_reduced_motion(enabled)
 
 func _setup_table() -> void:
 	_table_wood = _wood(_table_color, Vector3.RIGHT, 0.48)
@@ -172,6 +179,11 @@ func _setup_room() -> void:
 	_setup_window_weather()
 	_setup_furniture()
 	_setup_desk_lamp()
+	if workshop_dog_enabled:
+		_dog = WorkshopDog.new()
+		_dog.name = "WorkshopDog"
+		_dog.position.y = FLOOR_Y
+		room_node.add_child(_dog)
 
 func _setup_floor() -> void:
 	var depth := ROOM_FRONT - BACK_WALL + 4.0

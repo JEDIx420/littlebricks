@@ -123,14 +123,44 @@ func _ready() -> void:
 		%BtnOnlineReady.pressed.connect(_on_online_ready_pressed)
 
 func _layout_setup() -> void:
-	var available := maxf(260.0, minf(size.x - 58.0, 1060.0))
-	var split := available > 780.0 and size.x / maxf(size.y, 1.0) > 1.0
+	var compact := size.x < 920.0 or size.y < 545.0
+	var landscape_form := compact and size.x >= 620.0 and size.x > size.y
+	var gutter := 12.0 if compact else 20.0
+	var available := maxf(230.0, minf(size.x - 2.0 * gutter - 14.0, 1060.0))
+	var split := not compact and available > 780.0 and size.x > size.y
+	var form_width := minf(available, 700.0 if landscape_form else 540.0)
 	var body := $ContentScroll/CenterWrapper/Body as BoxContainer
-	body.vertical = not split
+	var margin := %MainPanel.get_node("Margin") as MarginContainer
+	var form := margin.get_node("VBox") as VBoxContainer
+	var fields := container_solo.get_node("Fields") as GridContainer
+
+	$TopBar.offset_left = gutter if compact else 28.0
+	$TopBar.offset_right = -gutter if compact else -28.0
+	$TopBar.offset_top = 8.0 if compact else 24.0
+	$TopBar.offset_bottom = 56.0 if compact else 72.0
+	$ContentScroll.offset_left = gutter
+	$ContentScroll.offset_right = -gutter
+	$ContentScroll.offset_top = 62.0 if compact else 80.0
+	$ContentScroll.offset_bottom = -10.0 if compact else -20.0
+	for side in ["left", "right", "top", "bottom"]:
+		margin.add_theme_constant_override("margin_" + side, 15 if compact else 24)
+	form.add_theme_constant_override("separation", 8 if compact else 16)
+	fields.columns = 3 if landscape_form else 1
+	fields.add_theme_constant_override("v_separation", 8 if compact else 12)
+	var player_names := container_pass_play.get_node("PlayerNames") as GridContainer
+	player_names.columns = 2 if compact and size.x >= 340.0 else 1
+	Studio.style_label(label_mode_title, 32 if compact else 43, true)
 	%Preview.visible = split or size.y >= 660.0
 	%Stage.custom_minimum_size.y = 465.0 if split else 145.0
-	body.custom_minimum_size.x = available if split else minf(available, 540.0)
-	%MainPanel.custom_minimum_size.x = 385.0 if split else minf(available, 540.0)
+	body.vertical = not split
+	body.custom_minimum_size.x = available if split else form_width
+	%MainPanel.custom_minimum_size.x = 385.0 if split else form_width
+	for option in [opt_solo_theme, opt_solo_mode, opt_player_count, opt_pass_theme, opt_pass_timer]:
+		var popup: PopupMenu = option.get_popup()
+		var font := popup.get_theme_font("font")
+		var font_size := popup.get_theme_font_size("font_size")
+		var row_gap := maxi(8, ceili(48.0 - font.get_height(font_size)))
+		popup.add_theme_constant_override("v_separation", row_gap if compact else 8)
 
 func _refresh_preview(_selection: int = -1) -> void:
 	var mode_description := %LabelModeDescription as Label

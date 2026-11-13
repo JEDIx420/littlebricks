@@ -60,23 +60,44 @@ func _ready() -> void:
 	_check_for_latest_save()
 
 func _layout_welcome() -> void:
-	var stacked := size.x < 740.0 or size.x / maxf(size.y, 1.0) < 0.92
+	var compact := size.x < 920.0 or size.y < 545.0
+	var stacked := size.x < 620.0 or size.x / maxf(size.y, 1.0) < 0.92
 	var body := $ContentScroll/Center/Body as BoxContainer
-	var stage := $ContentScroll/Center/Body/Hero/Stage as SubViewportContainer
-	var title := $ContentScroll/Center/Body/Copy/Title as Label
-	var available := maxf(260.0, minf(size.x - 62.0, 1300.0))
+	var copy := body.get_node("Copy") as VBoxContainer
+	var stage := body.get_node("Hero/Stage") as SubViewportContainer
+	var title := copy.get_node("Title") as Label
+	var gutter := 12.0 if compact else 28.0
+	var available := maxf(230.0, minf(size.x - 2.0 * gutter - 14.0, 1300.0))
 	var compact_header := size.x < 465.0
+
 	Studio.style_label($TopBar/Brand, 19 if compact_header else 28, true)
-	$TopBar.offset_left = 8.0 if compact_header else 28.0
-	$TopBar.offset_right = -8.0 if compact_header else -28.0
+	$TopBar.offset_left = gutter
+	$TopBar.offset_right = -gutter
+	$TopBar.offset_top = 8.0 if compact else 16.0
+	$TopBar.offset_bottom = 56.0 if compact else 68.0
 	$TopBar.add_theme_constant_override("separation", 7 if compact_header else 12)
 	for button in [btn_settings, btn_mute]:
 		button.add_theme_font_size_override("font_size", 14 if compact_header else 17)
+	$Divider.offset_left = gutter
+	$Divider.offset_right = -gutter
+	$Divider.offset_top = 62.0 if compact else 76.0
+	$Divider.offset_bottom = $Divider.offset_top + 1.0
+	$ContentScroll.offset_left = gutter
+	$ContentScroll.offset_right = -gutter
+	$ContentScroll.offset_top = 70.0 if compact else 94.0
+	$ContentScroll.offset_bottom = -12.0 if compact else -26.0
+
 	body.vertical = stacked
-	body.custom_minimum_size = Vector2(available, 0.0 if stacked else clampf(size.y - 135.0, 400.0, 635.0))
-	body.add_theme_constant_override("separation", 22 if stacked else 44)
-	stage.custom_minimum_size.y = clampf(available * 0.64, 180.0, 440.0) if stacked else 0.0
-	Studio.style_label(title, int(clampf(available * (0.13 if stacked else 0.065), 34, 88)), true)
+	var hero_height := clampf(size.y - 92.0, 180.0, 400.0) if compact else clampf(size.y - 135.0, 400.0, 635.0)
+	body.custom_minimum_size = Vector2(available, 0.0 if stacked else hero_height)
+	body.add_theme_constant_override("separation", 14 if compact else 44)
+	copy.add_theme_constant_override("separation", 7 if compact else 14)
+	stage.custom_minimum_size.y = clampf(available * 0.57, 140.0, 280.0) if stacked else 0.0
+	Studio.style_label(copy.get_node("Tagline"), 15 if compact else 20, false, Studio.MUTED)
+	title.text = "Small bricks. Big builds." if compact and not stacked else "Small bricks.\nBig builds."
+	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if compact else TextServer.AUTOWRAP_OFF
+	var font_size := int(clampf(available * (0.11 if stacked else 0.047 if compact else 0.065), 32, 88))
+	Studio.style_label(title, font_size, true)
 
 func set_mute_state(muted: bool) -> void:
 	is_muted = muted

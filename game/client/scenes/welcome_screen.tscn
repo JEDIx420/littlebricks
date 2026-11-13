@@ -67,6 +67,8 @@ offset_top = 94.0
 offset_right = -28.0
 offset_bottom = -26.0
 horizontal_scroll_mode = 0
+follow_focus = true
+scroll_deadzone = 10
 
 [node name="Center" type="CenterContainer" parent="ContentScroll"]
 layout_mode = 2

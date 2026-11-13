@@ -33,12 +33,12 @@ func _ready() -> void:
 		var accent := accents[index]
 		var edge := accent.lerp(Studio.PAPER, 0.68)
 		card.add_theme_stylebox_override("panel", Studio.surface(Studio.PAPER, 14, edge, true))
-		Studio.style_label(card.get_node("VBox/Title"), 30, true)
-		Studio.style_label(card.get_node("VBox/Desc"), 17, false, Studio.MUTED)
+		Studio.style_label(card.get_node("CardLayout/VBox/Title"), 30, true)
+		Studio.style_label(card.get_node("CardLayout/VBox/Desc"), 17, false, Studio.MUTED)
 		Studio.style_label(badges[index], 13, false, accent)
 		var button: Button = mode_buttons[index]
 		Studio.button(button, true, accent)
-		var artwork := card.get_node("VBox/Artwork") as Vignette
+		var artwork := card.get_node("CardLayout/Artwork") as Vignette
 		if not button.mouse_entered.is_connected(artwork.set_highlighted.bind(true)):
 			button.mouse_entered.connect(artwork.set_highlighted.bind(true))
 			button.mouse_exited.connect(artwork.set_highlighted.bind(false))
@@ -59,13 +59,40 @@ func _ready() -> void:
 
 func _layout_cards() -> void:
 	var cards := %CardsContainer as HFlowContainer
-	var available := maxf(260.0, minf(size.x - 74.0, 1150.0))
-	var columns := 3 if available >= 820.0 and size.x / maxf(size.y, 1.0) > 0.92 else 1
-	Studio.style_label($MainLayout/HeadingBox/Heading, 55 if columns == 3 else 38, true)
-	$MainLayout/HeadingBox/Subheading.visible = columns == 3
-	var card_width := minf(available, 550.0) if columns == 1 else floorf((available - 36.0) / 3.0)
-	cards.custom_minimum_size.x = card_width * columns + 18.0 * (columns - 1)
+	var compact := size.x < 920.0 or size.y < 545.0
+	var columns := 3 if size.x >= (620.0 if compact else 920.0) else 1
+	var row_cards := compact and columns == 1
+	var gutter := 12.0 if compact else 28.0
+	var gap := 10.0 if compact else 18.0
+	var available := minf(maxf(230.0, size.x - 2.0 * gutter - 14.0), 1150.0)
+	var card_width := minf(available, 520.0) if row_cards else floorf((available - 2.0 * gap) / 3.0)
+
+	$TopBar.offset_left = gutter
+	$TopBar.offset_right = -gutter
+	$TopBar.offset_top = 8.0 if compact else 24.0
+	$TopBar.offset_bottom = 56.0 if compact else 72.0
+	$MainLayout.offset_left = gutter
+	$MainLayout.offset_right = -gutter
+	$MainLayout.offset_top = 60.0 if compact else 80.0
+	$MainLayout.offset_bottom = -10.0 if compact else -24.0
+	$MainLayout.add_theme_constant_override("separation", 7 if compact else 20)
+	Studio.style_label($MainLayout/HeadingBox/Heading, 32 if compact else 55, true)
+	$MainLayout/HeadingBox/Subheading.visible = not compact
+
+	cards.add_theme_constant_override("h_separation", int(gap))
+	cards.add_theme_constant_override("v_separation", int(gap))
+	cards.custom_minimum_size.x = card_width * columns + gap * (columns - 1)
 	for card in cards.get_children():
+		var layout := card.get_node("CardLayout") as BoxContainer
+		var content := layout.get_node("VBox") as VBoxContainer
+		var artwork := layout.get_node("Artwork") as Control
+		var description := content.get_node("Desc") as Label
+		layout.vertical = not row_cards
+		layout.add_theme_constant_override("separation", 9 if compact else 10)
+		content.add_theme_constant_override("separation", 4 if compact else 10)
+		artwork.custom_minimum_size = Vector2(88, 76) if row_cards else Vector2(0, 84 if compact else 152)
+		Studio.style_label(content.get_node("Title"), 22 if compact else 30, true)
+		description.visible = not compact
 		card.custom_minimum_size.x = card_width
 
 func _on_solo_pressed() -> void:
