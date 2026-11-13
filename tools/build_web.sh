@@ -82,6 +82,38 @@ chunk_loader = """		<script>
 					if (!resA.ok || !resB.ok) {
 						throw new Error("Failed to load WASM parts: " + resA.status + " / " + resB.status);
 					}
+					if (resA.body && typeof resA.body.getReader === "function" && resB.body && typeof resB.body.getReader === "function") {
+						const stream = new ReadableStream({
+							async start(controller) {
+								try {
+									const readerA = resA.body.getReader();
+									while (true) {
+										const { done, value } = await readerA.read();
+										if (done) break;
+										controller.enqueue(value);
+									}
+									const readerB = resB.body.getReader();
+									while (true) {
+										const { done, value } = await readerB.read();
+										if (done) break;
+										controller.enqueue(value);
+									}
+									controller.close();
+								} catch (streamErr) {
+									controller.error(streamErr);
+								}
+							}
+						});
+						return new Response(stream, {
+							status: 200,
+							statusText: "OK",
+							headers: {
+								"Content-Type": "application/wasm",
+								"Cross-Origin-Opener-Policy": "same-origin",
+								"Cross-Origin-Embedder-Policy": "require-corp"
+							}
+						});
+					}
 					const [bufA, bufB] = await Promise.all([resA.arrayBuffer(), resB.arrayBuffer()]);
 					const combined = new Uint8Array(bufA.byteLength + bufB.byteLength);
 					combined.set(new Uint8Array(bufA), 0);
