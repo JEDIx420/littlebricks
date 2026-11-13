@@ -1,6 +1,13 @@
 # LittleBricks status and continuation ledger
 
-Last updated: **2026-11-12**
+Last updated: **2026-11-13**
+
+## Phone web controls and workshop proportions
+
+- The mobile web viewport follows CSS pixel dimensions. Welcome, mode selection and setup reflow for portrait and landscape. The web export enables the browser's on-screen keyboard for text fields.
+- Tap a tray pocket to select, tap the plate or a legal brick top to place, or drag a pocket out of the tray and drop it on a legal surface. Horizontal swipes scroll the tray. Two-finger camera gestures never commit a brick. The phone layout puts rotation next to the tray and keeps manual height controls in the Height panel.
+- The sofa is scaled against the tabletop, the window curtain has a clear wall margin, and the workshop dog walks, sniffs and gallops on the floor in build and Explore. The rig is adapted from Quaternius's CC0 Shiba Inu.
+- Verification includes 38 Godot suites and native viewport touch playthroughs at 390 × 844 and 844 × 390. The web export and Cloudflare upload layout build successfully. The available browser reported no WebGL2 support, so browser touch play and the browser keyboard were not directly exercised. Physical phone and native mobile package validation are pending.
 
 ## Playroom, figure finish, brick fit and replay
 

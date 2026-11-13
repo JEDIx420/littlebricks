@@ -15,27 +15,26 @@ func furnish(floor_y: float, back_wall: float, front_wall: float, half_width: fl
 	var brass := _finish(Color("#977c5b"), 0.44)
 	var linen := _finish(Color("#547a79"), 0.93)
 
-	var sofa_origin := Vector3(-34.2, floor_y, 4.0)
+	var sofa_origin := Vector3(-49.0, floor_y, 24.0)
 	var sofa_turn := Basis(Vector3.UP, PI * 0.5)
-	_prop("loungeDesignSofa", sofa_origin, 30.0, {"carpetBlue": linen, "metal": brass}, 90.0)
-	_prop("pillow", sofa_origin + sofa_turn * Vector3(6.9, 6.9, -8.3), 24.0, {"carpet": _finish(Color("#db9c59"), 0.94)}, 77.0)
-	_prop("pillow", sofa_origin + sofa_turn * Vector3(22.7, 6.9, -7.9), 22.0, {"carpet": _finish(Color("#d8816c"), 0.94)}, 101.0)
+	_prop("loungeDesignSofa", sofa_origin, 39.0, {"carpetBlue": linen, "metal": brass}, 90.0)
+	_prop("pillow", sofa_origin + sofa_turn * Vector3(8.8, 8.7, -10.7), 24.0, {"carpet": _finish(Color("#db9c59"), 0.94)}, 77.0)
+	_prop("pillow", sofa_origin + sofa_turn * Vector3(29.0, 8.7, -10.2), 22.0, {"carpet": _finish(Color("#d8816c"), 0.94)}, 101.0)
 
-	_prop("bookcaseClosedDoors", Vector3(32, floor_y, back_wall + 11.0), 40.0, {"wood": light_oak, "metal": brass})
-	_prop("cabinetBedDrawer", Vector3(20, floor_y, back_wall + 13.0), 43.0, {"wood": walnut, "metal": brass, "_defaultMat": linen})
+	_prop("bookcaseClosedDoors", Vector3(33, floor_y, back_wall + 11.0), 39.0, {"wood": light_oak, "metal": brass})
+	_prop("cabinetBedDrawer", Vector3(18, floor_y, back_wall + 12.0), 43.0, {"wood": walnut, "metal": brass, "_defaultMat": linen})
 	_prop("cabinetBedDrawer", Vector3(5, floor_y, front_wall - 10.0), 42.0, {"wood": walnut, "metal": brass, "_defaultMat": linen}, 180.0)
 
 	var catalog := Catalog.new()
 	if catalog.load_catalog():
-		_display_shelf(Vector3(19.5, 10.5, back_wall + 7.2), 24.0, shelf_wood, walnut, catalog, "galaxy")
+		_display_shelf(Vector3(20.0, 10.5, back_wall + 7.2), 21.0, shelf_wood, walnut, catalog, "galaxy")
 		_display_shelf(Vector3(22.5, 22.3, back_wall + 7.2), 22.0, shelf_wood, walnut, catalog, "harbour")
 		_display_shelf(Vector3(44, 8.5, front_wall - 7.2), 24.0, shelf_wood, walnut, catalog, "castle", 180.0)
 
-	_hang_picture(Vector3(-0.1, 9.9, back_wall + 1.7), Vector2(12.2, 15.0), walnut, false)
-	_hang_picture(Vector3(58, 17, back_wall + 1.7), Vector2(13.3, 17.0), walnut, true)
+	_hang_picture(Vector3(57, 16.4, back_wall + 1.6), Vector2(14.0, 18.0), walnut, true)
 	_hang_picture(Vector3(2, 7.4, front_wall - 1.7), Vector2(20, 23), walnut, true, 180.0)
-	_hang_picture(Vector3(half_width - 1.7, 8.5, -12), Vector2(18, 23), walnut, false, -90.0)
-	_hang_picture(Vector3(-half_width + 1.7, 8.5, 9), Vector2(19, 24), walnut, true, 90.0)
+	_hang_picture(Vector3(half_width - 1.3, 10.0, -12), Vector2(16, 20), walnut, false, -90.0)
+	_hang_picture(Vector3(-half_width + 1.3, 11.0, 7), Vector2(17, 21), walnut, true, 90.0)
 
 func _display_shelf(
 		at: Vector3, width: float, shelf_material: Material, support_material: Material,
@@ -60,14 +59,19 @@ func _display_shelf(
 
 func _hang_picture(at: Vector3, size: Vector2, frame: Material, rocket: bool, yaw: float = 0.0) -> void:
 	var picture := _group("RocketPrint" if rocket else "HillsidePrint", at, yaw)
-	_box(picture, "Frame", Vector3(size.x, size.y, 0.75), Vector3.ZERO, frame)
-	_box(picture, "Mount", Vector3(size.x - 0.7, size.y - 0.7, 0.12), Vector3(0, 0, 0.41), _finish(Color("#f3dfba"), 0.90))
+	var border := 0.58
+	var mat_board := _finish(Color("#f3e2c2"), 0.92)
+	_box(picture, "Mount", Vector3(size.x - border, size.y - border, 0.35), Vector3.ZERO, mat_board)
+	for side in [-1.0, 1.0]:
+		_box(picture, "HorizontalFrame", Vector3(size.x, border, 0.58), Vector3(0, side * (size.y - border) * 0.5, 0.01), frame)
+		_box(picture, "VerticalFrame", Vector3(border, size.y - 2 * border, 0.58), Vector3(side * (size.x - border) * 0.5, 0, 0.01), frame)
 	var canvas := SurfaceTool.new()
 	canvas.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var ink := _finish(Color.WHITE, 0.96)
 	ink.vertex_color_use_as_albedo = true
 	ink.vertex_color_is_srgb = true
 	ink.cull_mode = BaseMaterial3D.CULL_DISABLED
+	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	canvas.set_material(ink)
 	if rocket:
 		_rocket_art(canvas)
@@ -76,7 +80,7 @@ func _hang_picture(at: Vector3, size: Vector2, frame: Material, rocket: bool, ya
 	var illustration := MeshInstance3D.new()
 	illustration.name = "OriginalIllustration"
 	illustration.mesh = canvas.commit()
-	illustration.position.z = 0.49
+	illustration.position.z = 0.23
 	illustration.scale = Vector3(size.x - 2.15, size.y - 2.35, 1.0)
 	illustration.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	picture.add_child(illustration)

@@ -38,8 +38,10 @@ var current_session_config: Dictionary = {}
 var settings_dialog: SettingsModal = null
 var room_connection: NetworkClient
 var room_roster: Array = []
+var _mobile_web := false
 
 func _ready() -> void:
+	_setup_web_touch_viewport()
 	if not view_container:
 		view_container = get_node_or_null("ViewContainer")
 		
@@ -54,6 +56,23 @@ func _ready() -> void:
 	audio.set_volumes(settings.master_volume, settings.music_volume, settings.sfx_volume)
 	
 	navigate_to_welcome()
+
+func _setup_web_touch_viewport() -> void:
+	if not OS.has_feature("web"):
+		return
+	_mobile_web = bool(JavaScriptBridge.eval("matchMedia('(pointer: coarse)').matches"))
+	if not _mobile_web:
+		return
+	get_window().size_changed.connect(_resize_web_touch_viewport)
+	_resize_web_touch_viewport()
+
+func _resize_web_touch_viewport() -> void:
+	var width := int(JavaScriptBridge.eval("document.documentElement.clientWidth"))
+	var height := int(JavaScriptBridge.eval("document.documentElement.clientHeight"))
+	if width > 0 and height > 0:
+		var css_size := Vector2i(width, height)
+		if get_window().content_scale_size != css_size:
+			get_window().content_scale_size = css_size
 
 func _input(event: InputEvent) -> void:
 	if audio and event.is_pressed() and (event is InputEventMouseButton or event is InputEventKey or event is InputEventScreenTouch):
@@ -295,6 +314,8 @@ func _open_active_table() -> void:
 		table._ready()
 
 	table.attach_session(active_session, audio, haptics, settings, current_session_config.get("workshop_atmosphere", {}))
+	if _mobile_web:
+		table.camera_rig.frame_plate()
 	if is_instance_valid(room_connection):
 		table.attach_online_room(room_connection.current_room_code, room_connection.player_id)
 		table.online_placement_requested.connect(_submit_online_placement)

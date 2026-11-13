@@ -34,6 +34,14 @@ static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 	var focus := surface(Color.TRANSPARENT, ACTIVE)
 	focus.set_border_width_all(2)
 	theme.set_stylebox("focus", "Button", focus)
+	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
+		theme.set_stylebox(state, "OptionButton", theme.get_stylebox(state, "Button"))
+	theme.set_color("font_pressed_color", "OptionButton", DARK)
+	theme.set_color("font_hover_color", "OptionButton", INK)
+	theme.set_stylebox("panel", "PopupMenu", surface(PANEL, EDGE))
+	theme.set_stylebox("hover", "PopupMenu", surface(ACTIVE, ACTIVE, 7, 0))
+	theme.set_color("font_color", "PopupMenu", INK)
+	theme.set_color("font_hover_color", "PopupMenu", DARK)
 	var card := surface(Color(PANEL, 0.94), EDGE, 12, 5)
 	card.shadow_color = Color(0.06, 0.05, 0.04, 0.44)
 	card.shadow_offset = Vector2(0, 4)
@@ -117,3 +125,148 @@ static func add_part_preview(button: Button, part: Dictionary, color: Color) -> 
 	preview.offset_right = -4
 	preview.offset_top = 2
 	preview.offset_bottom = -28
+
+static func bind_responsive_layout(root: Control) -> void:
+	var top := root.get_node("TopPanel") as Control
+	var commands := root.get_node("Commands") as Control
+	var dock := root.get_node("LeftDock") as Control
+	var camera := root.get_node("CameraPanel") as Control
+	var build := root.get_node("RightControls") as Control
+	var tray := root.get_node("BottomPanel") as Control
+	var catalog := root.get_node("CatalogModal") as Control
+	var panels := [top, commands, dock, camera, build, tray, catalog]
+	var default_rects: Dictionary = {}
+	for panel in panels:
+		default_rects[panel] = [panel.anchor_left, panel.anchor_top, panel.anchor_right, panel.anchor_bottom,
+			panel.offset_left, panel.offset_top, panel.offset_right, panel.offset_bottom]
+	var mobile_buttons: Array[Button] = []
+	for panel in [commands, dock, camera, build, tray, catalog]:
+		for child in panel.find_children("*", "Button", true, false):
+			mobile_buttons.append(child as Button)
+	var defaults: Dictionary = {}
+	for button in mobile_buttons:
+		defaults[button] = [button.custom_minimum_size, button.text, button.clip_text, button.size_flags_horizontal]
+	var filters := catalog.find_child("FilterBar") as BoxContainer
+	var catalog_body := catalog.find_child("CatalogBody") as BoxContainer
+	var catalog_detail := catalog.find_child("CatalogDetail") as Control
+	var catalog_grid := catalog.find_child("CatalogGrid") as GridContainer
+	var search := catalog.find_child("LineCatalogSearch") as LineEdit
+	var title := top.find_child("Title") as Label
+	var tools := build.find_child("BuildTools") as BoxContainer
+	var place := tools.find_child("BtnPlace") as Button
+	var height_mode := tools.find_child("BtnAutoHeight") as Button
+	var fine_tools := [height_mode, tools.find_child("BtnLayerDown"), tools.find_child("BtnLayerUp"), tools.find_child("BtnReturnBase")]
+	var command_labels := {"BtnLeave": "Leave"}
+	var build_labels := {"BtnRotateLeft": "Turn left", "BtnRotateRight": "Turn right", "BtnCancel": "Drop"}
+	var camera_hint := camera.find_child("CameraHint") as Label
+	var catalogue_title := catalog.find_child("ModalTitle") as Label
+	var advanced := PanelContainer.new()
+	advanced.name = "HeightControls"
+	advanced.hide()
+	root.add_child(advanced)
+	root.move_child(advanced, build.get_index() + 1)
+	var advanced_row := HBoxContainer.new()
+	advanced.add_child(advanced_row)
+	var height_button := Button.new()
+	height_button.text = "Height"
+	height_button.tooltip_text = "Show height controls"
+	height_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	height_button.hide()
+	tools.add_child(height_button)
+	height_button.pressed.connect(func():
+		advanced.visible = not advanced.visible
+		select(height_button, advanced.visible)
+	)
+
+	var layout := func():
+		var width := root.size.x
+		var height := root.size.y
+		var compact := width < 820.0 or height < 530.0
+		var tall := height > width or width < 580.0
+		root.set_meta("compact_hud", compact)
+		for panel in panels:
+			_set_rect(panel, default_rects[panel])
+		for button in mobile_buttons:
+			var previous: Array = defaults[button]
+			button.custom_minimum_size = previous[0]
+			button.clip_text = previous[2]
+			button.size_flags_horizontal = previous[3]
+			if command_labels.has(button.name) or build_labels.has(button.name):
+				button.text = previous[1]
+			if command_labels.has(button.name) or button.get_parent() == commands.find_child("Actions"):
+				button.remove_theme_font_size_override("font_size")
+		for option in [dock.find_child("OptRoom"), catalog.find_child("OptCatalogPack"), catalog.find_child("OptCatalogCategory")]:
+			var popup: PopupMenu = option.get_popup()
+			var line_height := popup.get_theme_font("font").get_height(popup.get_theme_font_size("font_size"))
+			popup.add_theme_constant_override("v_separation", maxi(8, ceili(44.0 - line_height)) if compact else 8)
+			popup.max_size.y = clampi(int(height * 0.68), 160, 480) if compact else 0
+		for button in fine_tools:
+			var parent := advanced_row as Node if compact else tools as Node
+			if button.get_parent() != parent:
+				button.reparent(parent, false)
+		height_button.visible = compact
+		title.visible = not compact
+		place.visible = not compact
+		filters.vertical = compact and tall
+		catalog_body.vertical = compact and tall
+		catalog_detail.custom_minimum_size.x = 0 if compact and tall else 180
+		catalogue_title.text = "Parts" if compact else "Parts catalogue"
+		search.custom_minimum_size.y = 44 if compact else 0
+		if not compact:
+			advanced.hide()
+			select(height_button, false)
+			camera_hint.text = "Right-drag · Scroll" if camera_hint.text == "Pinch to zoom" else camera_hint.text
+			return
+
+		for button in mobile_buttons:
+			button.custom_minimum_size.y = 44
+		for button in commands.find_child("Actions").get_children():
+			button.custom_minimum_size.x = 44
+			button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+			button.clip_text = true
+			button.add_theme_font_size_override("font_size", 13)
+			if command_labels.has(button.name):
+				button.text = command_labels[button.name]
+		for button in tools.get_children():
+			button.custom_minimum_size = Vector2(44, 46)
+			button.clip_text = true
+			if build_labels.has(button.name):
+				button.text = build_labels[button.name]
+		height_mode.custom_minimum_size.x = 135
+		if camera_hint.text == "Right-drag · Scroll":
+			camera_hint.text = "Pinch to zoom"
+		for name in ["OptCatalogPack", "OptCatalogCategory"]:
+			var filter := catalog.find_child(name) as OptionButton
+			filter.custom_minimum_size.x = 0 if tall else 132
+			filter.fit_to_longest_item = false
+			filter.clip_text = true
+		catalog_grid.columns = 2 if tall else 3
+		_set_rect(tray, [0, 1, 1, 1, 6, -87, -6, -6])
+		_set_rect(catalog, [0, 0, 1, 1, 8, 8, -8, -8])
+		if tall:
+			_set_rect(top, [0, 0, 1, 0, 6, 4, -6, 31])
+			_set_rect(commands, [0, 0, 1, 0, 6, 36, -6, 90])
+			_set_rect(dock, [0, 0, 0, 0, 6, 95, 234, 149])
+			_set_rect(camera, [0, 0, 0, 0, 6, 154, 234, 420])
+			_set_rect(build, [0, 1, 1, 1, 6, -146, -6, -91])
+			_set_rect(advanced, [1, 1, 1, 1, -291, -202, -6, -150])
+		else:
+			_set_rect(top, [0, 0, 0.35, 0, 6, 7, -6, 55])
+			_set_rect(commands, [0.35, 0, 1, 0, 0, 5, -6, 59])
+			_set_rect(dock, [0, 1, 0, 1, 6, -146, 234, -91])
+			_set_rect(camera, [0, 0, 0, 0, 6, 60, 234, 325])
+			_set_rect(build, [0, 1, 1, 1, 239, -146, -6, -91])
+			_set_rect(advanced, [1, 1, 1, 1, -291, -202, -6, -150])
+
+	root.resized.connect(layout)
+	layout.call()
+
+static func _set_rect(panel: Control, values: Array) -> void:
+	panel.anchor_left = values[0]
+	panel.anchor_top = values[1]
+	panel.anchor_right = values[2]
+	panel.anchor_bottom = values[3]
+	panel.offset_left = values[4]
+	panel.offset_top = values[5]
+	panel.offset_right = values[6]
+	panel.offset_bottom = values[7]

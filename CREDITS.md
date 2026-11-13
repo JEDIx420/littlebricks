@@ -48,6 +48,7 @@ All audio assets located in `game/assets/audio/` were synthesized and mastered s
 ## 4. Visual Identity & Characters
 
 - **Branding**: Original *LittleBricks* logo and icon assets (`icon.svg`, `index.icon.png`, `index.apple-touch-icon.png`).
+- **Workshop dog**: [Shiba Inu by Quaternius](https://poly.pizza/m/y4wdQpg767), CC0-1.0.
 - **Explorer Figures**: LittleBricks-authored generic explorers and fan interpretations of Darth Vader, Stormtrooper, Iron Man, and Captain America. Selected helmets and Captain America’s shield use attributed LDraw CAD meshes. Character rights belong to their respective owners.
 
 ---

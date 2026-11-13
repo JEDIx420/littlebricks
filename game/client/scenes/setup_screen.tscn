@@ -54,6 +54,8 @@ offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
+follow_focus = true
+scroll_deadzone = 10
 
 [node name="CenterWrapper" type="CenterContainer" parent="ContentScroll"]
 layout_mode = 2
@@ -102,36 +104,56 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="Fields" type="GridContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+layout_mode = 2
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 8
+
+[node name="Name" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Name"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Creation name"
 
-[node name="LineEditSoloName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="LineEditSoloName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Name"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Sunny Harbour"
 
-[node name="LabelTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="Pack" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Pack"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Brick pack"
 
-[node name="OptSoloTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="OptSoloTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Pack"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 
-[node name="LabelMode" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="Rules" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelMode" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Rules"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Building rules"
 
-[node name="OptSoloMode" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo"]
+[node name="OptSoloMode" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerSolo/Fields/Rules"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -167,34 +189,44 @@ popup/item_1/id = 1
 popup/item_2/text = "4 Players"
 popup/item_2/id = 2
 
-[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="PlayerNames" type="GridContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+layout_mode = 2
+columns = 1
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 8
+
+[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-placeholder_text = "Player 1 (Red)"
+size_flags_horizontal = 3
+placeholder_text = "Player 1"
 text = "Player 1"
 
-[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-placeholder_text = "Player 2 (Blue)"
+size_flags_horizontal = 3
+placeholder_text = "Player 2"
 text = "Player 2"
 
-[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-placeholder_text = "Player 3 (Yellow)"
+size_flags_horizontal = 3
+placeholder_text = "Player 3"
 text = "Player 3"
 
-[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-placeholder_text = "Player 4 (Green)"
+size_flags_horizontal = 3
+placeholder_text = "Player 4"
 text = "Player 4"
 
 [node name="LabelPassTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]

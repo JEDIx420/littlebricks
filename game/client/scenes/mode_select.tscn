@@ -80,6 +80,8 @@ autowrap_mode = 2
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
+follow_focus = true
+scroll_deadzone = 10
 
 [node name="CenterWrapper" type="CenterContainer" parent="MainLayout/CardsScroll"]
 layout_mode = 2
@@ -95,34 +97,40 @@ alignment = 1
 [node name="CardSolo" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo"]
+[node name="CardLayout" type="BoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo"]
 layout_mode = 2
+vertical = true
 theme_override_constants/separation = 10
 
-[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 152)
 mouse_filter = 2
 script = ExtResource("2_vignette")
 composition = 1
 
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout/VBox"]
 layout_mode = 2
 text = "Build Solo"
 
-[node name="BadgeSolo" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+[node name="BadgeSolo" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "1 PLAYER"
 
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
 text = "A table to yourself. Try a mixed bag or open the full parts collection."
 autowrap_mode = 2
 
-[node name="BtnSolo" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/VBox"]
+[node name="BtnSolo" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 48)
@@ -131,34 +139,40 @@ text = "Build solo"
 [node name="CardPassPlay" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay"]
+[node name="CardLayout" type="BoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay"]
 layout_mode = 2
+vertical = true
 theme_override_constants/separation = 10
 
-[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 152)
 mouse_filter = 2
 script = ExtResource("2_vignette")
 composition = 2
 
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout/VBox"]
 layout_mode = 2
 text = "Pass & Play"
 
-[node name="BadgePassPlay" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+[node name="BadgePassPlay" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "2–4 PLAYERS  /  ONE DEVICE"
 
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
 text = "Share a table and take turns adding one brick at a time."
 autowrap_mode = 2
 
-[node name="BtnPassPlay" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/VBox"]
+[node name="BtnPassPlay" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 48)
@@ -167,34 +181,40 @@ text = "Pass & play"
 [node name="CardOnline" type="PanelContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer"]
 layout_mode = 2
 
-[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline"]
+[node name="CardLayout" type="BoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline"]
 layout_mode = 2
+vertical = true
 theme_override_constants/separation = 10
 
-[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+[node name="Artwork" type="SubViewportContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 152)
 mouse_filter = 2
 script = ExtResource("2_vignette")
 composition = 3
 
-[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+[node name="VBox" type="VBoxContainer" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout/VBox"]
 layout_mode = 2
 text = "Private Room"
 
-[node name="BadgeOnline" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+[node name="BadgeOnline" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "2–4 PLAYERS  /  ONLINE"
 
-[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+[node name="Desc" type="Label" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout/VBox"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
 text = "Build together from different devices using a room code."
 autowrap_mode = 2
 
-[node name="BtnOnline" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/VBox"]
+[node name="BtnOnline" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout/VBox"]
 unique_name_in_owner = true
 layout_mode = 2
 custom_minimum_size = Vector2(0, 48)

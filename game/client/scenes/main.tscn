@@ -54,6 +54,7 @@ light_energy = 0.23
 
 [node name="TableView" type="Node3D" parent="."]
 script = ExtResource("3_table")
+workshop_dog_enabled = true
 
 [node name="TableMesh" type="MeshInstance3D" parent="TableView"]
 
@@ -510,9 +511,9 @@ text = "Parts catalogue"
 unique_name_in_owner = true
 custom_minimum_size = Vector2(32, 44)
 layout_mode = 2
-text = "✕"
+text = "Done"
 
-[node name="FilterBar" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
+[node name="FilterBar" type="BoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
@@ -534,7 +535,7 @@ size_flags_horizontal = 3
 placeholder_text = "Search parts..."
 clear_button_enabled = true
 
-[node name="CatalogBody" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
+[node name="CatalogBody" type="BoxContainer" parent="UI/RootControl/CatalogModal/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_constants/separation = 12

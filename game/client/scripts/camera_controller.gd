@@ -115,14 +115,6 @@ func _input(event: InputEvent) -> void:
 			_drag_view(_last_mouse_pos, event.position, _is_panning)
 			_last_mouse_pos = event.position
 			get_viewport().set_input_as_handled()
-	elif event is InputEventScreenTouch and not event.pressed and _touches.has(event.index):
-		_touches.erase(event.index)
-		if _touches.is_empty():
-			_end_pointer_drag()
-		elif _touches.size() == 1:
-			_last_mouse_pos = _touches.values()[0]
-		elif _touches.size() == 2:
-			_start_pinch()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not is_input_enabled:
@@ -149,21 +141,6 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif event is InputEventMagnifyGesture:
 		_zoom_at(event.position, distance / maxf(event.factor, 0.01) - distance)
 		get_viewport().set_input_as_handled()
-	elif event is InputEventScreenTouch and event.pressed:
-		_touches[event.index] = event.position
-		if _touches.size() == 1 and is_camera_mode:
-			_last_mouse_pos = event.position
-			_is_panning = interaction_mode == InteractionMode.PAN
-			_is_orbiting = not _is_panning
-		elif _touches.size() == 2:
-			_start_pinch()
-	elif event is InputEventScreenDrag and _touches.has(event.index):
-		_touches[event.index] = event.position
-		if _touches.size() == 2:
-			_update_pinch()
-		elif _touches.size() == 1 and is_camera_mode:
-			_drag_view(_last_mouse_pos, event.position, interaction_mode == InteractionMode.PAN)
-			_last_mouse_pos = event.position
 
 	# Keyboard navigation
 	elif event is InputEventKey and event.pressed:
@@ -184,6 +161,38 @@ func _unhandled_input(event: InputEvent) -> void:
 			elif k == KEY_BRACKETRIGHT or k == KEY_EQUAL: zoom_by(-1.5)
 			elif k == KEY_F: frame_plate()
 			elif k == KEY_HOME: set_default_view()
+
+## The workshop passes only touches that began away from the HUD.
+func press_world_touch(index: int, position: Vector2) -> void:
+	if not is_input_enabled:
+		return
+	_touches[index] = position
+	if _touches.size() == 1 and is_camera_mode:
+		_last_mouse_pos = position
+		_is_panning = interaction_mode == InteractionMode.PAN
+		_is_orbiting = not _is_panning
+	elif _touches.size() == 2:
+		_start_pinch()
+
+func drag_world_touch(index: int, position: Vector2) -> void:
+	if not is_input_enabled or not _touches.has(index):
+		return
+	_touches[index] = position
+	if _touches.size() == 2:
+		_update_pinch()
+	elif _touches.size() == 1 and is_camera_mode:
+		_drag_view(_last_mouse_pos, position, interaction_mode == InteractionMode.PAN)
+		_last_mouse_pos = position
+
+func release_world_touch(index: int) -> void:
+	if not _touches.erase(index):
+		return
+	if _touches.is_empty():
+		_end_pointer_drag()
+	elif _touches.size() == 1:
+		_last_mouse_pos = _touches.values()[0]
+	elif _touches.size() == 2:
+		_start_pinch()
 
 func _start_pinch() -> void:
 	var first: Vector2 = _touches.values()[0]

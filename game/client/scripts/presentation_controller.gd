@@ -73,6 +73,7 @@ var is_reduced_motion: bool = false
 var _mode := "cycle"
 var _phase := 0.12
 var _rain_time := 0.0
+var _applied_reduced_motion := false
 var _blend := Vector3(1.0, 0.0, 0.0)
 var _transition_start := Vector3(1.0, 0.0, 0.0)
 var _transition_time := MORPH_SECONDS
@@ -182,6 +183,9 @@ func _is_finite_number(value: Variant) -> bool:
 func _process(delta: float) -> void:
 	if not _table_view or not _table_view.is_node_ready():
 		return
+	if is_reduced_motion != _applied_reduced_motion and _table_view.has_method("set_reduced_motion"):
+		_table_view.set_reduced_motion(is_reduced_motion)
+		_applied_reduced_motion = is_reduced_motion
 	if _mode == "cycle" and not is_reduced_motion:
 		_phase = fposmod(_phase + delta / CYCLE_SECONDS, 1.0)
 	var next := _sample()

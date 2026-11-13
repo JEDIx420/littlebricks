@@ -54,6 +54,7 @@ light_energy = 0.18
 
 [node name="TableView" type="Node3D" parent="."]
 script = ExtResource("2_table")
+workshop_dog_enabled = true
 
 [node name="TableMesh" type="MeshInstance3D" parent="TableView"]
 
