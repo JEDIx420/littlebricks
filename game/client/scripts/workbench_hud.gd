@@ -37,6 +37,8 @@ static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 	for state in ["normal", "hover", "pressed", "disabled", "focus"]:
 		theme.set_stylebox(state, "OptionButton", theme.get_stylebox(state, "Button"))
 	theme.set_color("font_pressed_color", "OptionButton", DARK)
+	theme.set_color("font_hover_pressed_color", "OptionButton", DARK)
+	theme.set_color("font_focus_color", "OptionButton", INK)
 	theme.set_color("font_hover_color", "OptionButton", INK)
 	theme.set_stylebox("panel", "PopupMenu", surface(PANEL, EDGE))
 	theme.set_stylebox("hover", "PopupMenu", surface(ACTIVE, ACTIVE, 7, 0))
@@ -198,8 +200,13 @@ static func bind_responsive_layout(root: Control) -> void:
 		for option in [dock.find_child("OptRoom"), catalog.find_child("OptCatalogPack"), catalog.find_child("OptCatalogCategory")]:
 			var popup: PopupMenu = option.get_popup()
 			var line_height := popup.get_theme_font("font").get_height(popup.get_theme_font_size("font_size"))
-			popup.add_theme_constant_override("v_separation", maxi(8, ceili(44.0 - line_height)) if compact else 8)
-			popup.max_size.y = clampi(int(height * 0.68), 160, 480) if compact else 0
+			var row_height := 44.0
+			if compact and not tall and option.name != "OptRoom":
+				# Keep the entire filter list tappable in short landscape views.
+				var available := height - 119.0
+				row_height = minf(row_height, available / maxf(9.0, option.item_count))
+			popup.add_theme_constant_override("v_separation", maxi(4, floori(row_height - line_height)) if compact else 8)
+			popup.max_size.y = clampi(int(height * 0.84), 160, 540) if compact else 0
 		for button in fine_tools:
 			var parent := advanced_row as Node if compact else tools as Node
 			if button.get_parent() != parent:
