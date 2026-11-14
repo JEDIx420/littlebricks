@@ -70,54 +70,70 @@ workshop_dog_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="InfoCard" type="PanelContainer" parent="CanvasLayer"]
+[node name="ExploreHUD" type="Control" parent="CanvasLayer"]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="InfoCard" type="PanelContainer" parent="CanvasLayer/ExploreHUD"]
 unique_name_in_owner = true
 offset_left = 18.0
 offset_top = 18.0
-offset_right = 217.0
-offset_bottom = 124.0
+offset_right = 308.0
+offset_bottom = 83.0
 mouse_filter = 2
 
-[node name="Info" type="VBoxContainer" parent="CanvasLayer/InfoCard"]
+[node name="Info" type="HBoxContainer" parent="CanvasLayer/ExploreHUD/InfoCard"]
 layout_mode = 2
 mouse_filter = 2
-theme_override_constants/separation = 1
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CanvasLayer/InfoCard/Info"]
+[node name="Labels" type="VBoxContainer" parent="CanvasLayer/ExploreHUD/InfoCard/Info"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.973, 0.906, 0.761, 1)
-theme_override_font_sizes/font_size = 23
-text = "  Explore"
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 0
 
-[node name="LabelPOVMode" type="Label" parent="CanvasLayer/InfoCard/Info"]
+[node name="Title" type="Label" parent="CanvasLayer/ExploreHUD/InfoCard/Info/Labels"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.86, 0.79, 0.655, 1)
-theme_override_font_sizes/font_size = 15
-text = "   Figure view"
+theme_override_font_sizes/font_size = 24
+text = "Explore"
 
-[node name="FigurePicker" type="OptionButton" parent="CanvasLayer/InfoCard/Info"]
+[node name="LabelPOVMode" type="Label" parent="CanvasLayer/ExploreHUD/InfoCard/Info/Labels"]
 unique_name_in_owner = true
 layout_mode = 2
-custom_minimum_size = Vector2(175, 44)
+theme_override_font_sizes/font_size = 12
+text = "Figure view"
+
+[node name="FigurePicker" type="OptionButton" parent="CanvasLayer/ExploreHUD/InfoCard/Info"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+custom_minimum_size = Vector2(156, 48)
+fit_to_longest_item = false
 tooltip_text = "Choose the figure that explores your build"
 
-[node name="ActionCard" type="PanelContainer" parent="CanvasLayer"]
+[node name="ActionCard" type="PanelContainer" parent="CanvasLayer/ExploreHUD"]
 unique_name_in_owner = true
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -372.0
+offset_left = -392.0
 offset_top = 18.0
 offset_right = -18.0
-offset_bottom = 80.0
+offset_bottom = 83.0
 grow_horizontal = 0
 
-[node name="Actions" type="HBoxContainer" parent="CanvasLayer/ActionCard"]
+[node name="Actions" type="HBoxContainer" parent="CanvasLayer/ExploreHUD/ActionCard"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 7
 
-[node name="BtnTogglePOV" type="Button" parent="CanvasLayer/ActionCard/Actions"]
+[node name="BtnTogglePOV" type="Button" parent="CanvasLayer/ExploreHUD/ActionCard/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(106, 48)
 layout_mode = 2
@@ -125,48 +141,49 @@ size_flags_horizontal = 3
 tooltip_text = "Change perspective (V)"
 text = "First person"
 
-[node name="BtnResetFig" type="Button" parent="CanvasLayer/ActionCard/Actions"]
+[node name="BtnResetFig" type="Button" parent="CanvasLayer/ExploreHUD/ActionCard/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(66, 48)
+custom_minimum_size = Vector2(58, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 tooltip_text = "Return to the starting spot (R)"
 text = "Reset"
 
-[node name="BtnReturnTable" type="Button" parent="CanvasLayer/ActionCard/Actions"]
+[node name="BtnReturnTable" type="Button" parent="CanvasLayer/ExploreHUD/ActionCard/Actions"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(130, 48)
+custom_minimum_size = Vector2(112, 48)
 layout_mode = 2
+size_flags_horizontal = 3
 tooltip_text = "Return to the tabletop (Esc)"
 text = "Back to table"
 
-[node name="HintCard" type="PanelContainer" parent="CanvasLayer"]
+[node name="HintCard" type="PanelContainer" parent="CanvasLayer/ExploreHUD"]
 unique_name_in_owner = true
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 18.0
-offset_top = -56.0
-offset_right = 390.0
+offset_top = -58.0
+offset_right = 388.0
 offset_bottom = -18.0
 grow_vertical = 0
 mouse_filter = 2
 
-[node name="ControlsHint" type="Label" parent="CanvasLayer/HintCard"]
+[node name="ControlsHint" type="Label" parent="CanvasLayer/ExploreHUD/HintCard"]
 unique_name_in_owner = true
 layout_mode = 2
-theme_override_colors/font_color = Color(0.96, 0.90, 0.79, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 14
 horizontal_alignment = 1
 text = "WASD / arrows to walk  ·  Right-drag to look"
 
-[node name="TouchStick" type="Control" parent="CanvasLayer"]
+[node name="TouchStick" type="Control" parent="CanvasLayer/ExploreHUD"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 0
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 22.0
-offset_top = -212.0
-offset_right = 158.0
-offset_bottom = -76.0
+offset_left = 18.0
+offset_top = -195.0
+offset_right = 150.0
+offset_bottom = -63.0
 script = ExtResource("3_touch")

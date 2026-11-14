@@ -142,6 +142,15 @@ theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
 theme_override_font_sizes/font_size = 15
 text = "20s"
 
+[node name="BrickCount" type="Label" parent="UI/RootControl/TopPanel/Identity/StatusRow"]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 12
+text = "0 bricks"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="LabelCoords" type="Label" parent="UI/RootControl/TopPanel/Identity"]
 unique_name_in_owner = true
 visible = false

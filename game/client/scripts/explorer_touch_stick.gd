@@ -4,6 +4,7 @@ extends Control
 
 signal direction_changed(direction: Vector2)
 
+const UI := preload("res://client/scripts/build_presentation_ui.gd")
 const TRAVEL: float = 43.0
 
 var _touch_index: int = -1
@@ -15,14 +16,15 @@ func _notification(what: int) -> void:
 
 func _draw() -> void:
 	var center := size * 0.5
-	draw_circle(center, 66.0, Color("#292a21dc"))
-	draw_arc(center, 64.0, 0, TAU, 64, Color("#f1dfb8bd"), 2, true)
+	var radius := minf(size.x, size.y) * 0.5 - 2.0
+	draw_circle(center, radius, Color(UI.DEEP_GREEN, 0.9))
+	draw_arc(center, radius - 2.0, 0, TAU, 64, UI.BRASS, 2, true)
 	for axis in [Vector2.UP, Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT]:
-		draw_line(center + axis * 54, center + axis * 60, Color("#f1dfb8bd"), 2, true)
+		draw_line(center + axis * (radius - 12.0), center + axis * (radius - 6.0), Color(UI.IVORY, 0.75), 2, true)
 	var thumb := center + _direction * TRAVEL
-	draw_circle(thumb + Vector2(0, 4), 25.0, Color("#2a231e60"))
-	draw_circle(thumb, 25.0, Color("#f1dfb8"))
-	draw_arc(thumb, 20.0, 0, TAU, 40, Color("#c8a978"), 1, true)
+	draw_circle(thumb + Vector2(0, 4), 25.0, Color("#142c236e"))
+	draw_circle(thumb, 25.0, UI.IVORY)
+	draw_arc(thumb, 20.0, 0, TAU, 40, UI.BRASS, 1, true)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and event.pressed and _touch_index == -1:

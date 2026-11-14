@@ -21,18 +21,21 @@ func _ready() -> void:
 	if not btn_online: btn_online = find_child("BtnOnline", true, false)
 	if not btn_back: btn_back = find_child("BtnBack", true, false)
 	
-	Studio.apply_theme(self)
-	Studio.button(btn_back)
-	Studio.style_label($MainLayout/HeadingBox/Subheading, 18, false, Studio.MUTED)
+	Studio.apply_theme(self, true)
+	Studio.dark_button(btn_back)
+	Studio.style_label($MainLayout/HeadingBox/Subheading, 18, false, Studio.IVORY)
 	var cards := %CardsContainer as HFlowContainer
-	var accents: Array[Color] = [Color("#93452f"), Color("#285648"), Color("#4e5c82")]
+	var accents: Array[Color] = [Studio.PERSIMMON, Studio.GREEN, Studio.COBALT]
 	var mode_buttons: Array[Button] = [btn_solo, btn_pass_play, btn_online]
 	var badges: Array[Label] = [%BadgeSolo, %BadgePassPlay, %BadgeOnline]
 	for index in range(cards.get_child_count()):
 		var card := cards.get_child(index) as PanelContainer
 		var accent := accents[index]
-		var edge := accent.lerp(Studio.PAPER, 0.68)
-		card.add_theme_stylebox_override("panel", Studio.surface(Studio.PAPER, 14, edge, true))
+		var edge := accent.lerp(Studio.BRASS, 0.47)
+		var card_face := Studio.surface(Studio.PAPER, 14, edge, true)
+		card_face.border_width_bottom = 3
+		card.add_theme_stylebox_override("panel", card_face)
+		Studio.enter(card, index * 0.045)
 		Studio.style_label(card.get_node("CardLayout/VBox/Title"), 30, true)
 		Studio.style_label(card.get_node("CardLayout/VBox/Desc"), 17, false, Studio.MUTED)
 		Studio.style_label(badges[index], 13, false, accent)
@@ -76,7 +79,7 @@ func _layout_cards() -> void:
 	$MainLayout.offset_top = 60.0 if compact else 80.0
 	$MainLayout.offset_bottom = -10.0 if compact else -24.0
 	$MainLayout.add_theme_constant_override("separation", 7 if compact else 20)
-	Studio.style_label($MainLayout/HeadingBox/Heading, 32 if compact else 55, true)
+	Studio.style_label($MainLayout/HeadingBox/Heading, 33 if compact else 58, true, Studio.IVORY)
 	$MainLayout/HeadingBox/Subheading.visible = not compact
 
 	cards.add_theme_constant_override("h_separation", int(gap))
@@ -87,11 +90,14 @@ func _layout_cards() -> void:
 		var content := layout.get_node("VBox") as VBoxContainer
 		var artwork := layout.get_node("Artwork") as Control
 		var description := content.get_node("Desc") as Label
+		var badge := content.get_child(1) as Label
+		var narrow_landscape := compact and columns == 3 and card_width < 232.0
 		layout.vertical = not row_cards
 		layout.add_theme_constant_override("separation", 9 if compact else 10)
 		content.add_theme_constant_override("separation", 4 if compact else 10)
-		artwork.custom_minimum_size = Vector2(88, 76) if row_cards else Vector2(0, 84 if compact else 152)
+		artwork.custom_minimum_size = Vector2(88, 76) if row_cards else Vector2(0, 96 if compact else 166)
 		Studio.style_label(content.get_node("Title"), 22 if compact else 30, true)
+		badge.add_theme_font_size_override("font_size", 11 if narrow_landscape else 13)
 		description.visible = not compact
 		card.custom_minimum_size.x = card_width
 

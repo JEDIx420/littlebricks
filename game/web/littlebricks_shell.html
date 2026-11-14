@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+	<meta name="theme-color" content="#f4ead7">
+	<title>$GODOT_PROJECT_NAME</title>
+	$GODOT_HEAD_INCLUDE
+	<style>
+		:root { color-scheme: light; font: 16px system-ui, sans-serif; color: #1b372d; background: #f4ead7; }
+		* { box-sizing: border-box; }
+		body { margin: 0; overflow: hidden; }
+		#canvas { display: block; touch-action: none; }
+		#canvas:focus { outline: none; }
+		#loading {
+			position: fixed; inset: 0; display: grid; place-items: center; overflow: auto;
+			padding: max(14px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+				max(14px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+			background: radial-gradient(ellipse at 20% 10%, #fff7e5, transparent 58%),
+				radial-gradient(circle at 3px 3px, #7d6b4a20 1px, transparent 1.5px) 0 0 / 16px 16px, #f4ead7;
+		}
+		#loading[hidden], [hidden] { display: none !important; }
+		.sheet { width: min(100%, 608px); text-align: center; }
+		h1 {
+			font: 700 clamp(2.5rem, 8vw, 4.5rem)/.92 Georgia, serif;
+			letter-spacing: -.07em; margin: 0 0 16px; color: #1d3a30;
+		}
+		h1 span { color: #a4402d; }
+		.stage {
+			position: relative; overflow: hidden; border: 1px solid #6c826d;
+			border-radius: 22px; aspect-ratio: 660 / 328; background: #172f29;
+			box-shadow: 0 4px 0 #cabb9e, 0 12px 30px #523d292b;
+		}
+		.stage canvas { display: block; width: 100%; height: 100%; }
+		#build-name {
+			position: absolute; bottom: 10px; left: 13px; color: #fff2d9; font-size: .79rem;
+			font-weight: 650; margin: 0; padding: 5px 8px; border-radius: 7px; background: #132820d6;
+		}
+		.progress-area { margin: 20px auto 0; width: min(100%, 420px); }
+		.progress-copy { display: flex; justify-content: space-between; gap: 12px; text-align: left; font-size: .88rem; font-weight: 650; }
+		#loading-percentage { font-variant-numeric: tabular-nums; }
+		progress { appearance: none; display: block; width: 100%; height: 9px; border: 0; border-radius: 10px; margin-top: 9px; color: #b74931; background: #ded2b5; }
+		progress::-webkit-progress-bar { background: #ded2b5; border-radius: 10px; }
+		progress::-webkit-progress-value { background: #b74931; border-radius: 10px; }
+		progress::-moz-progress-bar { background: #b74931; border-radius: 10px; }
+		progress:indeterminate {
+			background: #ded2b5 repeating-linear-gradient(120deg, transparent 0 10px, #b49865 10px 17px);
+		}
+		progress:indeterminate::-webkit-progress-bar { background: transparent; }
+		progress:indeterminate::-moz-progress-bar { background: transparent; }
+		#loading-error { margin: 12px auto 0; max-width: 44ch; color: #4d352c; font-size: .88rem; line-height: 1.35; }
+		#retry { margin-top: 12px; padding: 10px 20px; min-height: 44px; border: 0; border-radius: 9px; font: inherit; font-weight: 700; color: #fff7e7; background: #244e40; cursor: pointer; }
+		#retry:focus-visible { outline: 3px solid #a4402d; outline-offset: 2px; }
+		@media (max-height: 440px) and (orientation: landscape) {
+			.sheet { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); align-items: center; gap: 12px 20px; }
+			h1 { grid-column: 1; margin: 0; font-size: clamp(1.85rem, 5.2vw, 3.1rem); }
+			.stage { grid-column: 2; grid-row: 1 / span 2; }
+			.progress-area { grid-column: 1; margin: 0; }
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" tabindex="0" aria-label="LittleBricks game"></canvas>
+	<main id="loading" aria-label="LittleBricks startup">
+		<div class="sheet">
+			<h1>Little<span>Bricks</span></h1>
+			<div class="stage" aria-hidden="true">
+				<canvas id="brick-art" width="660" height="328"></canvas>
+				<p id="build-name">Harbour light</p>
+			</div>
+			<div class="progress-area">
+				<div class="progress-copy">
+					<span id="loading-status" role="status">Opening the workshop…</span>
+					<span id="loading-percentage" aria-hidden="true"></span>
+				</div>
+				<progress id="loading-progress" max="100" aria-label="Loading LittleBricks"></progress>
+				<p id="loading-error" hidden></p>
+				<button id="retry" type="button" hidden>Try again</button>
+				<noscript>Enable JavaScript to open LittleBricks.</noscript>
+			</div>
+		</div>
+	</main>
+
+	<script id="brick-loader">
+	"use strict";
+	(() => {
+		const config = $GODOT_CONFIG;
+		const asset = new URL("$GODOT_URL", document.baseURI);
+		const loading = document.getElementById("loading");
+		const progress = document.getElementById("loading-progress");
+		const status = document.getElementById("loading-status");
+		const percent = document.getElementById("loading-percentage");
+		const error = document.getElementById("loading-error");
+		const retry = document.getElementById("retry");
+		const buildName = document.getElementById("build-name");
+		const art = document.getElementById("brick-art");
+		const ctx = art.getContext("2d");
+		const motionPreference = matchMedia("(prefers-reduced-motion: reduce)");
+		let savedReducedMotion = false;
+		try { savedReducedMotion = localStorage.getItem("littlebricks-reduced-motion") === "true"; } catch {}
+		const reduceMotion = () => savedReducedMotion || motionPreference.matches;
+
+		const colors = {
+			moss: ["#859e80", "#607c64", "#4c6b57"],
+			sand: ["#f5dca7", "#d7ae73", "#bc925f"],
+			white: ["#fff3d8", "#e2d8c0", "#c9bfaa"],
+			red: ["#f47e55", "#cc4d32", "#a63728"],
+			blue: ["#79a3d4", "#4a73b3", "#34578d"],
+			water: ["#71b2a3", "#47887d", "#396d68"],
+			gold: ["#ffdb81", "#dfae4b", "#ba8740"],
+			brown: ["#b58e68", "#906645", "#705139"],
+			leaf: ["#a7bd72", "#7d9a52", "#61783d"]
+		};
+		// x, depth, height, width, depth, brick height, finish. Each row adds a piece.
+		const builds = [
+			{ name: "Harbour light", sun: "#e9b76a", pieces: [
+				[2, 2, 0, 6, 5, .32, "sand"], [1, 6, 0, 5, 2, .24, "water"], [6, 6, .32, 2, 1, .33, "brown"],
+				[3, 3, .32, 3, 3, 1, "white"], [3, 3, 1.32, 3, 3, .92, "red"], [3, 3, 2.24, 3, 3, 1, "white"],
+				[3, 3, 3.24, 3, 3, .77, "red"], [2.75, 2.75, 4.01, 3.5, 3.5, .32, "white"],
+				[3.35, 3.35, 4.33, 2.3, 2.3, .94, "gold"], [3, 3, 5.27, 3, 3, .36, "red"],
+				[3.65, 3.65, 5.63, 1.7, 1.7, .30, "red"], [4.15, 4.15, 5.93, .7, .7, .3, "gold"],
+				[1.1, 6.3, .24, 2, 1, .36, "blue"], [1.55, 6.3, .6, 1, 1, .38, "white"]
+			] },
+			{ name: "Woodland cabin", sun: "#dc835d", behind: 12, pieces: [
+				[2, 2, 0, 5, 5, .28, "sand"], [2, 2, .28, 5, 5, .75, "brown"],
+				[2, 2, 1.03, 5, 5, .75, "sand"], [2, 2, 1.78, 5, 5, .75, "brown"],
+				[5.1, 6.89, .28, 1.07, .18, 1.7, "red"], [2.5, 6.9, 1.12, 1.6, .20, .86, "blue"],
+				[1.7, 1.65, 2.53, 5.6, 5.7, .29, "red"], [2.2, 1.65, 2.82, 4.6, 5.7, .45, "red"],
+				[2.8, 1.65, 3.27, 3.4, 5.7, .45, "red"], [3.5, 1.65, 3.72, 2, 5.7, .45, "red"],
+				[4.1, 1.65, 4.17, .8, 5.7, .34, "red"], [5.6, 2, 3.27, 1, 1, 1.45, "brown"],
+				[.5, 3, 0, 1, 1, 1.58, "brown"], [0, 2.5, 1.58, 2, 2, 1, "leaf"],
+				[.25, 2.75, 2.58, 1.5, 1.5, .82, "leaf"], [.5, 3, 3.4, 1, 1, .49, "leaf"]
+			] },
+			{ name: "Moon rocket", sun: "#99b8e9", pieces: [
+				[1.6, 1.6, 0, 6.8, 6.8, .24, "blue"], [3.55, 3.55, .24, 2.9, 2.9, .54, "gold"],
+				[3.25, 3.25, .78, 3.5, 3.5, .88, "red"], [3.25, 3.25, 1.66, 3.5, 3.5, .9, "white"],
+				[3.25, 3.25, 2.56, 3.5, 3.5, .94, "white"], [3.25, 3.25, 3.50, 3.5, 3.5, .80, "white"],
+				[4.15, 6.65, 2.64, 1.68, .22, 1.05, "blue"], [3.25, 3.25, 4.30, 3.5, 3.5, .45, "red"],
+				[3.65, 3.65, 4.75, 2.7, 2.7, .54, "red"], [4.1, 4.1, 5.29, 1.8, 1.8, .52, "red"],
+				[4.55, 4.55, 5.81, .9, .9, .53, "gold"], [2, 4.45, .24, 1.25, 1.1, 1.18, "red"],
+				[6.75, 4.45, .24, 1.25, 1.1, 1.18, "red"], [4.44, 6.75, .24, 1.15, 1.25, 1.18, "red"]
+			] }
+		];
+
+		function project(x, y, z) { return [330 + (x - y) * 20, 200 + (x + y - 10) * 9 - z * 23]; }
+		function face(fill, ...points) {
+			ctx.fillStyle = fill;
+			ctx.beginPath();
+			points.forEach(([x, y], index) => index === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y));
+			ctx.closePath();
+			ctx.fill();
+		}
+		function oval(x, y, rx, ry, fill) {
+			ctx.fillStyle = fill;
+			ctx.beginPath();
+			ctx.ellipse(x, y, rx, ry, 0, 0, Math.PI * 2);
+			ctx.fill();
+		}
+		function brick(piece, lift = 0, studs = true) {
+			const [x, y, z, w, d, h, color] = piece;
+			const top = z + h + lift;
+			const bottom = z + lift;
+			const [light, front, side] = colors[color];
+			const a = project(x, y, top), b = project(x + w, y, top);
+			const c = project(x + w, y + d, top), e = project(x, y + d, top);
+			face(side, b, c, project(x + w, y + d, bottom), project(x + w, y, bottom));
+			face(front, c, e, project(x, y + d, bottom), project(x + w, y + d, bottom));
+			face(light, a, b, c, e);
+			if (!studs) return;
+			for (let i = .5; i <= w - .30; i++) {
+				for (let j = .5; j <= d - .30; j++) {
+					const [sx, sy] = project(x + i, y + j, top);
+					oval(sx, sy, 5.8, 2.8, side);
+					oval(sx, sy - 1.4, 5.8, 2.6, light);
+					oval(sx - .4, sy - 2, 3, .7, "#ffffff53");
+				}
+			}
+		}
+
+		let frame = 0;
+		let epoch = null;
+		let lastFrame = -Infinity;
+		let stopped = false;
+		let displayedBuild = -1;
+		function render(now) {
+			if (!ctx || stopped) return;
+			epoch ??= now;
+			const elapsed = (now - epoch) / 1000;
+			const still = reduceMotion();
+			if (!still && now - lastFrame < 30) {
+				frame = requestAnimationFrame(render);
+				return;
+			}
+			lastFrame = now;
+			const sequence = Math.floor(elapsed / 4.1) % builds.length;
+			const build = builds[sequence];
+			const position = elapsed % 4.1;
+			if (sequence !== displayedBuild) {
+				buildName.textContent = build.name;
+				displayedBuild = sequence;
+			}
+			const background = ctx.createLinearGradient(0, 0, 660, 328);
+			background.addColorStop(0, "#24483b");
+			background.addColorStop(1, "#132820");
+			ctx.fillStyle = background;
+			ctx.fillRect(0, 0, 660, 328);
+			oval(500, 91, 56, 56, build.sun + "2e");
+			oval(500, 91, 45, 45, build.sun + "8d");
+			for (let i = 0; i < 10; i++) {
+				const x = 45 + (i * 137) % 570;
+				const y = 28 + (i * 41) % 113;
+				const size = i % 3 === 0 ? 6 : 2;
+				face("#f7e7bb8c", [x - size, y], [x, y - size], [x + size, y], [x, y + size]);
+			}
+			oval(330, 246, 235, 48, "#10241e99");
+			brick([-0.25, -.25, -.65, 10.5, 10.5, .65, "moss"], 0, false);
+			for (let x = 0; x < 10; x++) {
+				for (let y = 0; y < 10; y++) {
+					const [px, py] = project(x + .5, y + .5, 0);
+					oval(px, py, 5.2, 2.4, "#536f5a");
+					oval(px, py - 1.4, 5.2, 2.4, "#8eaa88");
+				}
+			}
+			const shown = build.pieces.map((piece, i) => {
+				const t = still ? 1 : Math.max(0, Math.min(1, (position + .57 - i * .133) / .28));
+				const depth = i >= (build.behind ?? Infinity) ? i - build.pieces.length : i;
+				return { piece, t, depth };
+			}).filter(entry => entry.t > 0);
+			// Stack each model bottom first, with the cabin's tree behind it.
+			// A brick in midair is drawn last so its path remains visible.
+			shown.sort((a, b) => Number(a.t < 1) - Number(b.t < 1) || a.depth - b.depth);
+			for (const {piece, t} of shown) brick(piece, 2.35 * (1 - t) ** 2);
+			if (!still) frame = requestAnimationFrame(render);
+		}
+		function refreshMotion() {
+			cancelAnimationFrame(frame);
+			lastFrame = -Infinity;
+			if (reduceMotion()) render(0);
+			else frame = requestAnimationFrame(render);
+		}
+		if (ctx) {
+			refreshMotion();
+			motionPreference.addEventListener("change", refreshMotion);
+		}
+		function stopArt() {
+			stopped = true;
+			cancelAnimationFrame(frame);
+			motionPreference.removeEventListener("change", refreshMotion);
+		}
+
+		// Pages splits files over its single-file size limit. Keep the original
+		// response on local servers and stream the two deploy assets in order.
+		const originalFetch = window.fetch.bind(window);
+		const wasmURL = new URL(asset.href.replace(/\.js$/, ".wasm"));
+		if (asset.origin === location.origin) {
+			window.fetch = async function(input, init) {
+				const url = new URL(input instanceof Request ? input.url : input, document.baseURI);
+				if (url.origin !== wasmURL.origin || url.pathname !== wasmURL.pathname) return originalFetch(input, init);
+				const direct = await originalFetch(input, init).catch(() => null);
+				if (direct?.ok && direct.headers.get("Content-Type")?.includes("application/wasm")) return direct;
+				direct?.body?.cancel().catch(() => {});
+				const parts = await Promise.all(["aa", "ab"].map(suffix => {
+					const part = new URL(url);
+					part.pathname += ".part" + suffix;
+					return originalFetch(part, init);
+				}));
+				if (parts.some(part => !part.ok || part.headers.get("Content-Type")?.includes("text/html"))) {
+					for (const part of parts) part.body?.cancel().catch(() => {});
+					throw new Error("The game download was incomplete. Try reloading the page.");
+				}
+				const headers = { "Content-Type": "application/wasm" };
+				const size = config.fileSizes?.[wasmURL.pathname.split("/").pop()];
+				if (size) headers["Content-Length"] = String(size);
+				if (parts.every(part => part.body && typeof part.body.getReader === "function")) {
+					const readers = parts.map(part => part.body.getReader());
+					let index = 0;
+					const stream = new ReadableStream({
+						async pull(controller) {
+							while (index < readers.length) {
+								const {done, value} = await readers[index].read();
+								if (!done) { controller.enqueue(value); return; }
+								index++;
+							}
+							controller.close();
+						},
+						cancel(reason) { return Promise.allSettled(readers.map(reader => reader.cancel(reason))); }
+					});
+					return new Response(stream, { headers });
+				}
+				const buffers = await Promise.all(parts.map(part => part.arrayBuffer()));
+				return new Response(new Blob(buffers), { headers });
+			};
+		}
+
+		retry.addEventListener("click", () => location.reload());
+		function unavailable(message, detail) {
+			console.error(detail);
+			stopArt();
+			progress.hidden = true;
+			percent.textContent = "";
+			status.textContent = "Couldn’t open the workshop";
+			error.textContent = message;
+			error.hidden = false;
+			retry.hidden = false;
+		}
+		let shownPercent = 0;
+		let ready = false;
+		function updateProgress(current, total) {
+			if (ready || total <= 0 || !Number.isFinite(current) || !Number.isFinite(total)) return;
+			const next = Math.max(shownPercent, Math.min(99, Math.floor(100 * current / total)));
+			shownPercent = next;
+			progress.value = next;
+			percent.textContent = next + "%";
+			if (current >= total && status.textContent !== "Starting the game…") {
+				status.textContent = "Starting the game…";
+			}
+		}
+		const engineScript = document.createElement("script");
+		engineScript.src = asset.href;
+		engineScript.addEventListener("error", () => unavailable("The game download didn’t start. Check your connection and try again.", asset.href));
+		engineScript.addEventListener("load", async () => {
+			try {
+				const missing = Engine.getMissingFeatures({ threads: $GODOT_THREADS_ENABLED });
+				if (missing.length !== 0) {
+					unavailable("This browser can’t run LittleBricks here. Try a current browser with graphics acceleration enabled.", missing.join(", "));
+					return;
+				}
+				const engine = new Engine(config);
+				await engine.startGame({ canvas: document.getElementById("canvas"), onProgress: updateProgress });
+				ready = true;
+				progress.value = 100;
+				percent.textContent = "100%";
+				requestAnimationFrame(() => requestAnimationFrame(() => {
+					stopArt();
+					loading.hidden = true;
+				}));
+			} catch (err) {
+				unavailable("The game couldn’t finish loading. Try again in a moment.", err);
+			}
+		});
+		document.head.appendChild(engineScript);
+	})();
+	</script>
+</body>
+</html>

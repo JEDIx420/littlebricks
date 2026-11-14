@@ -11,6 +11,8 @@ config/description="Cooperative tabletop brick building game"
 run/main_scene="res://client/scenes/app_root.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://icon.svg"
+boot_splash/show_image=false
+boot_splash/bg_color=Color(0.957, 0.918, 0.843, 1)
 
 [display]
 

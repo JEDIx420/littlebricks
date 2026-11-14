@@ -27,45 +27,51 @@ alignment = 2
 
 [node name="CardPanel" type="PanelContainer" parent="CenterBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(454, 0)
+custom_minimum_size = Vector2(568, 0)
 layout_mode = 2
-size_flags_horizontal = 0
+size_flags_horizontal = 4
 
 [node name="Margin" type="MarginContainer" parent="CenterBox/CardPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 10
-theme_override_constants/margin_top = 6
-theme_override_constants/margin_right = 10
-theme_override_constants/margin_bottom = 6
+theme_override_constants/margin_left = 2
+theme_override_constants/margin_top = 2
+theme_override_constants/margin_right = 2
+theme_override_constants/margin_bottom = 2
 
 [node name="VBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin"]
 layout_mode = 2
-theme_override_constants/separation = 6
+theme_override_constants/separation = 9
 
-[node name="HeaderBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
+[node name="HeaderBox" type="HBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
 layout_mode = 2
-theme_override_constants/separation = 4
-alignment = 1
+theme_override_constants/separation = 12
 
-[node name="Title" type="Label" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox"]
+[node name="MarkHolder" type="Control" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(46, 46)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="HeadingText" type="VBoxContainer" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="Title" type="Label" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox/HeadingText"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
-theme_override_font_sizes/font_size = 28
+theme_override_font_sizes/font_size = 34
 text = "My creation"
-horizontal_alignment = 1
 text_overrun_behavior = 3
 
-[node name="Subtitle" type="Label" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox"]
+[node name="Subtitle" type="Label" parent="CenterBox/CardPanel/Margin/VBox/HeaderBox/HeadingText"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
 theme_override_font_sizes/font_size = 15
-text = "Sunny Harbour — 10 bricks placed"
-horizontal_alignment = 1
-
-[node name="HSeparator" type="HSeparator" parent="CenterBox/CardPanel/Margin/VBox"]
-layout_mode = 2
+text = "10 bricks placed"
 
 [node name="ActionsBox" type="HBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
 unique_name_in_owner = true
@@ -77,38 +83,42 @@ alignment = 1
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
-text = "Explore Creation"
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.85
+text = "Explore"
 
 [node name="BtnWatchBuild" type="Button" parent="CenterBox/CardPanel/Margin/VBox/ActionsBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Watch the Build"
+size_flags_horizontal = 3
+text = "Watch build"
 
 [node name="BtnKeepBuilding" type="Button" parent="CenterBox/CardPanel/Margin/VBox/ActionsBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Keep Building"
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.2
+text = "Keep building"
 
 [node name="ReplayBox" type="VBoxContainer" parent="CenterBox/CardPanel/Margin/VBox"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 8
 
 [node name="LabelReplay" type="Label" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 16
-text = "Playing Replay..."
-horizontal_alignment = 1
+text = "Brick 0 of 1"
+text_overrun_behavior = 3
 
 [node name="ProgressBar" type="ProgressBar" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 6)
+custom_minimum_size = Vector2(0, 7)
 layout_mode = 2
 max_value = 1.0
 show_percentage = false
@@ -131,8 +141,9 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Export Video"
 
-[node name="BtnCloseReplay" type="Button" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox"]
+[node name="BtnCloseReplay" type="Button" parent="CenterBox/CardPanel/Margin/VBox/ReplayBox/ReplayControls"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
-text = "Back to Showcase"
+size_flags_horizontal = 3
+text = "Back to showcase"

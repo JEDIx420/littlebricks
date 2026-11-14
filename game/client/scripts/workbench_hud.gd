@@ -1,13 +1,16 @@
 class_name WorkbenchHUD
 extends RefCounted
 
-const INK := Color("#f5e8ce")
-const MUTED := Color("#cabda8")
-const PANEL := Color("#222a27")
-const BUTTON := Color("#303b34")
-const EDGE := Color("#526052")
-const ACTIVE := Color("#eac481")
-const DARK := Color("#252a25")
+const INK := Color("#fff3dd")
+const MUTED := Color("#d8c8aa")
+const PANEL := Color("#173b32")
+const BUTTON := Color("#265044")
+const EDGE := Color("#597062")
+const ACTIVE := Color("#edbd66")
+const DARK := Color("#222f27")
+const IVORY := Color("#f5e8d1")
+const COBALT := Color("#2d4da4")
+const PERSIMMON := Color("#fb865e")
 
 static func surface(fill: Color, border: Color, radius: int = 10, padding: int = 7) -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()
@@ -18,6 +21,21 @@ static func surface(fill: Color, border: Color, radius: int = 10, padding: int =
 	box.set_content_margin_all(padding)
 	return box
 
+static func _button_face(fill: Color, rim: Color, base: Color, radius: int = 8) -> StyleBoxFlat:
+	var face := surface(fill, rim, radius, 7)
+	face.border_width_bottom = 3
+	face.shadow_color = base
+	face.shadow_size = 1
+	face.shadow_offset = Vector2(0, 2)
+	return face
+
+static func _action(button: Button, fill: Color, hover: Color, base: Color, ink: Color) -> void:
+	button.add_theme_stylebox_override("normal", _button_face(fill, fill, base))
+	button.add_theme_stylebox_override("hover", _button_face(hover, fill, base))
+	button.add_theme_stylebox_override("pressed", surface(fill.darkened(0.12), fill, 8, 7))
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color"]:
+		button.add_theme_color_override(state, ink)
+
 static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 	var theme := Theme.new()
 	theme.default_font_size = 15
@@ -26,9 +44,9 @@ static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 		theme.set_color("font_color", type, INK)
 	theme.set_color("font_hover_color", "Button", INK)
 	theme.set_color("font_pressed_color", "Button", DARK)
-	theme.set_color("font_disabled_color", "Button", Color("#a19b8d"))
-	theme.set_stylebox("normal", "Button", surface(BUTTON, EDGE))
-	theme.set_stylebox("hover", "Button", surface(Color("#4a5146"), ACTIVE))
+	theme.set_color("font_disabled_color", "Button", Color("#bcb9a7"))
+	theme.set_stylebox("normal", "Button", _button_face(BUTTON, EDGE, Color("#102b24")))
+	theme.set_stylebox("hover", "Button", _button_face(Color("#356353"), ACTIVE, Color("#102b24")))
 	theme.set_stylebox("pressed", "Button", surface(ACTIVE, ACTIVE))
 	theme.set_stylebox("disabled", "Button", surface(PANEL, EDGE))
 	var focus := surface(Color.TRANSPARENT, ACTIVE)
@@ -44,29 +62,55 @@ static func apply(root: Control, body_font: Font, display_font: Font) -> void:
 	theme.set_stylebox("hover", "PopupMenu", surface(ACTIVE, ACTIVE, 7, 0))
 	theme.set_color("font_color", "PopupMenu", INK)
 	theme.set_color("font_hover_color", "PopupMenu", DARK)
-	var card := surface(Color(PANEL, 0.94), EDGE, 12, 5)
-	card.shadow_color = Color(0.06, 0.05, 0.04, 0.44)
+	var card := surface(Color(PANEL, 0.97), EDGE, 13, 5)
+	card.shadow_color = Color(0.08, 0.13, 0.09, 0.35)
 	card.shadow_offset = Vector2(0, 4)
 	card.shadow_size = 4
 	theme.set_stylebox("panel", "PanelContainer", card)
+	theme.set_stylebox("normal", "LineEdit", surface(IVORY, Color("#d1bd96")))
+	theme.set_color("font_color", "LineEdit", DARK)
+	theme.set_color("font_placeholder_color", "LineEdit", Color("#5e6252"))
+	theme.set_color("caret_color", "LineEdit", DARK)
+	theme.set_color("selection_color", "LineEdit", Color("#a7bced"))
+	var scroll_track := surface(Color("#213e32"), Color("#435f50"), 5, 0)
+	var scroll_grab := surface(Color("#a39164"), Color("#cab482"), 5, 0)
+	theme.set_stylebox("scroll", "HScrollBar", scroll_track)
+	theme.set_stylebox("grabber", "HScrollBar", scroll_grab)
 	root.theme = theme
 	var title := root.find_child("Title", true, false) as Label
 	title.add_theme_font_override("font", display_font)
-	title.add_theme_font_size_override("font_size", 19)
+	title.add_theme_font_size_override("font_size", 23)
+	var count := root.find_child("BrickCount", true, false) as Label
+	if count:
+		count.add_theme_stylebox_override("normal", surface(Color("#32594b"), Color("#788166"), 6, 4))
+		count.add_theme_color_override("font_color", ACTIVE)
+	var tray := root.get_node("BottomPanel") as PanelContainer
+	var tray_frame := card.duplicate() as StyleBoxFlat
+	tray_frame.border_color = Color("#ad935e")
+	tray_frame.border_width_bottom = 2
+	tray.add_theme_stylebox_override("panel", tray_frame)
+	var catalogue := root.get_node("CatalogModal") as PanelContainer
+	var catalogue_frame := card.duplicate() as StyleBoxFlat
+	catalogue_frame.border_color = Color("#9b946f")
+	catalogue_frame.set_content_margin_all(10)
+	catalogue.add_theme_stylebox_override("panel", catalogue_frame)
+	var catalogue_title := catalogue.find_child("ModalTitle", true, false) as Label
+	catalogue_title.add_theme_font_override("font", display_font)
+	catalogue_title.add_theme_font_size_override("font_size", 24)
 	for name in ["BtnOrbitLeft", "BtnOrbitUp", "BtnOrbitDown", "BtnOrbitRight"]:
 		var nudge := root.find_child(name, true, false) as Button
 		nudge.add_theme_stylebox_override("normal", surface(BUTTON, EDGE, 21))
-		nudge.add_theme_stylebox_override("hover", surface(Color("#4a5146"), ACTIVE, 21))
+		nudge.add_theme_stylebox_override("hover", surface(Color("#356353"), ACTIVE, 21))
 		nudge.add_theme_font_size_override("font_size", 20)
 	for name in ["CameraTitle", "ToolTitle", "CameraHint", "ZoomLabel"]:
 		var label := root.find_child(name, true, false) as Label
 		if label:
 			label.add_theme_color_override("font_color", MUTED)
 			label.add_theme_font_size_override("font_size", 13)
-	for name in ["BtnFinish", "BtnPlace"]:
-		var action := root.find_child(name, true, false) as Button
-		if action:
-			select(action, true)
+	_action(root.find_child("BtnFinish", true, false), ACTIVE, Color("#f9d38d"), Color("#70502f"), DARK)
+	_action(root.find_child("BtnPlace", true, false), PERSIMMON, Color("#ffa07c"), Color("#893b27"), DARK)
+	_action(root.find_child("BtnAllParts", true, false), COBALT, Color("#375cc2"), Color("#162b63"), INK)
+	_action(root.find_child("BtnPickPart", true, false), ACTIVE, Color("#f9d38d"), Color("#70502f"), DARK)
 
 static func select(button: Button, selected: bool) -> void:
 	if selected:
@@ -79,6 +123,42 @@ static func select(button: Button, selected: bool) -> void:
 			button.remove_theme_stylebox_override(state)
 		for color in ["font_color", "font_hover_color"]:
 			button.remove_theme_color_override(color)
+
+static func style_tray_slot(button: Button, compact: bool, selected: bool) -> void:
+	var fill := Color("#ffe3a8") if selected else IVORY
+	var rim := Color("#d79732") if selected else Color("#c5b38e")
+	var pocket := _button_face(fill, rim, Color("#101d17"), 8)
+	pocket.content_margin_top = 37 if compact else 45
+	pocket.content_margin_bottom = 3
+	if selected:
+		pocket.set_border_width_all(2)
+		pocket.border_width_bottom = 4
+	button.add_theme_stylebox_override("normal", pocket)
+	var hover := pocket.duplicate() as StyleBoxFlat
+	hover.bg_color = fill.lightened(0.18)
+	button.add_theme_stylebox_override("hover", hover)
+	var pressed := pocket.duplicate() as StyleBoxFlat
+	pressed.bg_color = fill.darkened(0.10)
+	button.add_theme_stylebox_override("pressed", pressed)
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		button.add_theme_color_override(state, DARK)
+
+static func pulse(control: Control, reduced_motion: bool, start_scale: float, tint: Color = Color.WHITE) -> void:
+	if control.has_meta("hud_pulse"):
+		var existing := control.get_meta("hud_pulse") as Tween
+		if existing.is_valid():
+			existing.kill()
+	control.scale = Vector2.ONE
+	control.modulate = Color.WHITE
+	if reduced_motion or not control.is_inside_tree() or not control.is_visible_in_tree():
+		return
+	control.pivot_offset = control.size * 0.5
+	control.scale = Vector2.ONE * start_scale
+	control.modulate = tint
+	var tween := control.create_tween().set_parallel(true).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(control, "scale", Vector2.ONE, 0.20)
+	tween.tween_property(control, "modulate", Color.WHITE, 0.24)
+	control.set_meta("hud_pulse", tween)
 
 static func add_part_preview(button: Button, part: Dictionary, color: Color) -> void:
 	# Render the same geometry that will be placed. Only the six tray slots and
@@ -117,6 +197,7 @@ static func add_part_preview(button: Button, part: Dictionary, color: Color) -> 
 	button.add_child(view)
 
 	var preview := TextureRect.new()
+	preview.name = "BrickPreview"
 	preview.texture = view.get_texture()
 	preview.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	preview.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
@@ -125,8 +206,8 @@ static func add_part_preview(button: Button, part: Dictionary, color: Color) -> 
 	preview.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	preview.offset_left = 4
 	preview.offset_right = -4
-	preview.offset_top = 2
-	preview.offset_bottom = -28
+	preview.offset_top = 3
+	preview.offset_bottom = -22
 
 static func bind_responsive_layout(root: Control) -> void:
 	var top := root.get_node("TopPanel") as Control
@@ -210,7 +291,10 @@ static func bind_responsive_layout(root: Control) -> void:
 		for button in fine_tools:
 			var parent := advanced_row as Node if compact else tools as Node
 			if button.get_parent() != parent:
+				var scene_owner: Node = button.owner
+				button.owner = null
 				button.reparent(parent, false)
+				button.owner = scene_owner
 		height_button.visible = compact
 		title.visible = not compact
 		place.visible = not compact
