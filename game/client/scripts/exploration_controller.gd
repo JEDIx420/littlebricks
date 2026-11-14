@@ -10,6 +10,7 @@ const PartMeshBuilder = preload("res://core/part_mesh_builder.gd")
 const TableView = preload("res://client/scripts/table_view.gd")
 const ToyExplorer = preload("res://client/scripts/toy_explorer.gd")
 const MinifigureModel = preload("res://client/scripts/minifigure_model.gd")
+const UI := preload("res://client/scripts/build_presentation_ui.gd")
 const FIGURE_STYLE_PATH := "user://explorer_style.cfg"
 
 signal return_to_table(save_state: bool)
@@ -40,6 +41,13 @@ func _ready() -> void:
 	_setup_figure_picker()
 	_style_hud()
 	_touch_controls(DisplayServer.is_touchscreen_available() or OS.has_feature("mobile"))
+	var canvas := %ExploreHUD as Control
+	if not canvas.resized.is_connected(_layout_hud):
+		canvas.resized.connect(_layout_hud)
+	_layout_hud()
+	if not UI.reduced_motion(self):
+		canvas.modulate.a = 0.50
+		create_tween().tween_property(canvas, "modulate:a", 1.0, 0.22)
 
 func _connect_ui() -> void:
 	if btn_toggle_pov and not btn_toggle_pov.pressed.is_connected(_on_toggle_pov):
@@ -83,18 +91,54 @@ func restore_atmosphere_state(state: Dictionary) -> void:
 		presentation.restore_atmosphere_state(state)
 
 func _style_hud() -> void:
-	for panel in [%InfoCard, %ActionCard, %HintCard]:
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color("#2b2922e9")
-		style.border_color = Color("#826947")
-		style.set_border_width_all(1)
-		style.set_corner_radius_all(16)
-		style.set_content_margin_all(8)
-		panel.add_theme_stylebox_override("panel", style)
-	UIThemeHelper.apply_primary_button(btn_return_table)
-	UIThemeHelper.apply_secondary_button(btn_toggle_pov)
-	UIThemeHelper.apply_secondary_button(btn_reset_fig)
-	UIThemeHelper.apply_secondary_button(figure_picker)
+	var canvas := %ExploreHUD as Control
+	var hud_theme := Theme.new()
+	hud_theme.default_font = UI.BODY_FONT
+	hud_theme.default_font_size = 14
+	canvas.theme = hud_theme
+	for panel in [%InfoCard, %ActionCard]:
+		panel.add_theme_stylebox_override("panel", UI.panel(15, 9))
+	%HintCard.add_theme_stylebox_override("panel", UI.panel(13, 8))
+	%Title.add_theme_font_override("font", UI.DISPLAY_FONT)
+	%Title.add_theme_color_override("font_color", UI.INK)
+	label_pov_mode.add_theme_color_override("font_color", UI.COBALT)
+	controls_hint.add_theme_color_override("font_color", UI.INK)
+	UI.button(btn_return_table, UI.PERSIMMON)
+	UI.button(btn_toggle_pov, UI.COBALT)
+	UI.button(btn_reset_fig)
+	UI.button(figure_picker, UI.DEEP_GREEN)
+	var popup := figure_picker.get_popup()
+	popup.add_theme_stylebox_override("panel", UI.panel(11, 8))
+	popup.add_theme_stylebox_override("hover", UI.progress_track(UI.COBALT, UI.COBALT))
+	popup.add_theme_color_override("font_color", UI.INK)
+	popup.add_theme_color_override("font_hover_color", UI.IVORY)
+	# An explicit row height keeps the figure list usable through touch too.
+	popup.add_theme_constant_override("v_separation", 25)
+
+func _layout_hud() -> void:
+	var canvas := %ExploreHUD as Control
+	var info := %InfoCard as PanelContainer
+	var actions := %ActionCard as PanelContainer
+	var hint := %HintCard as PanelContainer
+	var width := canvas.size.x
+	var narrow := width < 704.0
+	info.anchor_right = 1.0 if narrow else 0.0
+	info.offset_left = 13.0 if narrow else 18.0
+	info.offset_right = -13.0 if narrow else 308.0
+	info.offset_top = 13.0 if narrow else 18.0
+	info.offset_bottom = 77.0 if narrow else 84.0
+	actions.anchor_left = 0.0 if narrow else 1.0
+	actions.offset_left = 13.0 if narrow else -392.0
+	actions.offset_right = -13.0 if narrow else -18.0
+	actions.offset_top = 83.0 if narrow else 18.0
+	actions.offset_bottom = 149.0 if narrow else 84.0
+	hint.anchor_right = 1.0 if narrow else 0.0
+	hint.offset_left = 13.0 if narrow else 18.0
+	hint.offset_right = -13.0 if narrow else 388.0
+	hint.offset_top = -52.0 if narrow else -58.0
+	hint.offset_bottom = -13.0 if narrow else -18.0
+	controls_hint.add_theme_font_size_override("font_size", 12 if narrow else 14)
+	figure_picker.get_popup().max_size.y = maxi(132, floori(canvas.size.y - 100.0))
 
 func _touch_controls(enabled: bool) -> void:
 	touch_stick.visible = enabled

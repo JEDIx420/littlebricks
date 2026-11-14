@@ -31,19 +31,19 @@ func _ready() -> void:
 	if not btn_mute: btn_mute = find_child("BtnMute", true, false)
 	if not label_continue_info: label_continue_info = find_child("LabelContinueInfo", true, false)
 	
-	Studio.apply_theme(self)
-	Studio.style_label($ContentScroll/Center/Body/Copy/Tagline, 20, false, Studio.MUTED)
-	Studio.style_label(label_continue_info, 14, false, Studio.MUTED)
-	Studio.button(btn_play, true, Color("#93452f"))
-	for button in [btn_continue, btn_my_builds, btn_settings, btn_mute]:
-		Studio.button(button)
-	var hero := $ContentScroll/Center/Body/Hero as PanelContainer
-	var frame := Studio.surface(Color("#d2c0a2"), 16, Color("#e1d0b6"), true)
-	frame.set_content_margin_all(6.0)
-	hero.add_theme_stylebox_override("panel", frame)
+	Studio.apply_theme(self, true)
+	Studio.style_label(label_continue_info, 14, false, Color("#dbceae"))
+	Studio.button(btn_play, true, Studio.PERSIMMON)
+	Studio.button(btn_continue, true, Studio.COBALT)
+	for button in [btn_my_builds, btn_settings, btn_mute]:
+		Studio.dark_button(button)
+	var body := $ContentScroll/Center/Body
+	var hero := body.get_node("Hero") as PanelContainer
+	hero.add_theme_stylebox_override("panel", Studio.frame())
+	Studio.enter(body)
+	$Divider.color = Color("#a78552")
 	if not resized.is_connected(_layout_welcome):
 		resized.connect(_layout_welcome)
-	_layout_welcome()
 
 	if btn_continue and not btn_continue.pressed.is_connected(_on_continue_clicked):
 		btn_continue.pressed.connect(_on_continue_clicked)
@@ -58,26 +58,35 @@ func _ready() -> void:
 	
 	_update_mute_display()
 	_check_for_latest_save()
+	_layout_welcome()
 
 func _layout_welcome() -> void:
 	var compact := size.x < 920.0 or size.y < 545.0
 	var stacked := size.x < 620.0 or size.x / maxf(size.y, 1.0) < 0.92
+	var short_landscape := not stacked and size.y <= 445.0
 	var body := $ContentScroll/Center/Body as BoxContainer
 	var copy := body.get_node("Copy") as VBoxContainer
 	var stage := body.get_node("Hero/Stage") as SubViewportContainer
-	var title := copy.get_node("Title") as Label
+	var heading := copy.get_node("Heading") as VBoxContainer
+	var actions := copy.get_node("Actions") as BoxContainer
+	var tag := copy.get_node("Tagline") as Label
+	var has_save := not latest_save_path.is_empty()
 	var gutter := 12.0 if compact else 28.0
 	var available := maxf(230.0, minf(size.x - 2.0 * gutter - 14.0, 1300.0))
 	var compact_header := size.x < 465.0
 
-	Studio.style_label($TopBar/Brand, 19 if compact_header else 28, true)
+	Studio.style_label($TopBar/Brand, 19 if compact_header else 28, true, Studio.IVORY)
 	$TopBar.offset_left = gutter
 	$TopBar.offset_right = -gutter
 	$TopBar.offset_top = 8.0 if compact else 16.0
 	$TopBar.offset_bottom = 56.0 if compact else 68.0
 	$TopBar.add_theme_constant_override("separation", 7 if compact_header else 12)
 	for button in [btn_settings, btn_mute]:
-		button.add_theme_font_size_override("font_size", 14 if compact_header else 17)
+		button.add_theme_font_size_override("font_size", 13 if compact_header else 17)
+		for state in ["normal", "hover", "pressed"]:
+			var style := button.get_theme_stylebox(state) as StyleBoxFlat
+			style.content_margin_left = 11 if compact_header else 15
+			style.content_margin_right = style.content_margin_left
 	$Divider.offset_left = gutter
 	$Divider.offset_right = -gutter
 	$Divider.offset_top = 62.0 if compact else 76.0
@@ -88,16 +97,24 @@ func _layout_welcome() -> void:
 	$ContentScroll.offset_bottom = -12.0 if compact else -26.0
 
 	body.vertical = stacked
+	actions.vertical = not short_landscape
+	actions.add_theme_constant_override("separation", 6 if short_landscape else 8)
+	copy.move_child(actions, -1 if short_landscape else 3)
+	tag.visible = not short_landscape or not has_save
+	copy.get_node("ActionSpace").visible = not short_landscape
+	for button in [btn_play, btn_my_builds, btn_continue]:
+		button.add_theme_font_size_override("font_size", 15 if short_landscape else 17)
+	btn_play.custom_minimum_size.y = 48.0 if short_landscape else 56.0
 	var hero_height := clampf(size.y - 92.0, 180.0, 400.0) if compact else clampf(size.y - 135.0, 400.0, 635.0)
 	body.custom_minimum_size = Vector2(available, 0.0 if stacked else hero_height)
 	body.add_theme_constant_override("separation", 14 if compact else 44)
 	copy.add_theme_constant_override("separation", 7 if compact else 14)
 	stage.custom_minimum_size.y = clampf(available * 0.57, 140.0, 280.0) if stacked else 0.0
-	Studio.style_label(copy.get_node("Tagline"), 15 if compact else 20, false, Studio.MUTED)
-	title.text = "Small bricks. Big builds." if compact and not stacked else "Small bricks.\nBig builds."
-	title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART if compact else TextServer.AUTOWRAP_OFF
-	var font_size := int(clampf(available * (0.11 if stacked else 0.047 if compact else 0.065), 32, 88))
-	Studio.style_label(title, font_size, true)
+	Studio.style_label(tag, 15 if compact else 21, false, Color("#faeace"))
+	heading.add_theme_constant_override("separation", -4 if compact else -14)
+	var font_size := int(clampf(available * (0.138 if stacked else 0.056 if compact else 0.073), 35, 92))
+	Studio.style_label(heading.get_node("TitleFirst"), font_size, true, Studio.IVORY)
+	Studio.style_label(heading.get_node("Title"), font_size, true, Studio.CORAL)
 
 func set_mute_state(muted: bool) -> void:
 	is_muted = muted

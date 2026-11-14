@@ -64,7 +64,7 @@ alignment = 1
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 36
-text = "Who’s building?"
+text = "Pick your table."
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -72,7 +72,7 @@ autowrap_mode = 2
 layout_mode = 2
 theme_override_colors/font_color = Color(0.35, 0.42, 0.46, 1)
 theme_override_font_sizes/font_size = 16
-text = "Choose a table for yourself or share one with friends."
+text = "Build solo, share the screen, or invite friends online."
 horizontal_alignment = 1
 autowrap_mode = 2
 
@@ -127,7 +127,7 @@ text = "1 PLAYER"
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
-text = "A table to yourself. Try a mixed bag or open the full parts collection."
+text = "Try a mixed bag or build freely with every part."
 autowrap_mode = 2
 
 [node name="BtnSolo" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardSolo/CardLayout/VBox"]
@@ -169,7 +169,7 @@ text = "2–4 PLAYERS  /  ONE DEVICE"
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
-text = "Share a table and take turns adding one brick at a time."
+text = "Share a screen and add one brick each turn."
 autowrap_mode = 2
 
 [node name="BtnPassPlay" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardPassPlay/CardLayout/VBox"]
@@ -211,7 +211,7 @@ text = "2–4 PLAYERS  /  ONLINE"
 layout_mode = 2
 custom_minimum_size = Vector2(0, 62)
 size_flags_vertical = 3
-text = "Build together from different devices using a room code."
+text = "Share a room code to build from different devices."
 autowrap_mode = 2
 
 [node name="BtnOnline" type="Button" parent="MainLayout/CardsScroll/CenterWrapper/CardsContainer/CardOnline/CardLayout/VBox"]

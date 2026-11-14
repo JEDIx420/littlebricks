@@ -24,6 +24,7 @@ var audio_director: AudioDirector
 var haptics_adapter: HapticsAdapter
 
 var _previous_focus: Control
+var _open_transition: Tween
 
 func setup(p_settings: SettingsManager, p_audio: AudioDirector, p_haptics: HapticsAdapter) -> void:
 	settings_manager = p_settings
@@ -66,7 +67,7 @@ func _apply_theme() -> void:
 	palette.default_font_size = 16
 	palette.set_color("font_color", "Label", WorkbenchHUD.INK)
 
-	var card := WorkbenchHUD.surface(Color("#202b27"), Color("#84937f"), 16, 0)
+	var card := WorkbenchHUD.surface(Color("#15352b"), Color("#c2a263"), 16, 0)
 	card.shadow_color = Color(0.03, 0.05, 0.04, 0.55)
 	card.shadow_size = 15
 	card.shadow_offset = Vector2(0, 7)
@@ -78,9 +79,9 @@ func _apply_theme() -> void:
 	palette.set_stylebox("focus", "CheckBox", focus)
 	for state in ["font_color", "font_pressed_color", "font_hover_color", "font_hover_pressed_color", "font_focus_color"]:
 		palette.set_color(state, "CheckBox", WorkbenchHUD.INK)
-	palette.set_stylebox("normal", "CheckBox", WorkbenchHUD.surface(Color("#293730"), Color("#293730"), 8, 9))
-	palette.set_stylebox("pressed", "CheckBox", WorkbenchHUD.surface(Color("#293730"), Color("#293730"), 8, 9))
-	var toggle_hover := WorkbenchHUD.surface(Color("#384b41"), Color("#667b6d"), 8, 9)
+	palette.set_stylebox("normal", "CheckBox", WorkbenchHUD.surface(Color("#1f4437"), Color("#1f4437"), 8, 9))
+	palette.set_stylebox("pressed", "CheckBox", WorkbenchHUD.surface(Color("#1f4437"), Color("#1f4437"), 8, 9))
+	var toggle_hover := WorkbenchHUD.surface(Color("#305747"), Color("#9a9866"), 8, 9)
 	palette.set_stylebox("hover", "CheckBox", toggle_hover)
 	palette.set_stylebox("hover_pressed", "CheckBox", toggle_hover)
 	palette.set_constant("h_separation", "CheckBox", 10)
@@ -96,7 +97,7 @@ func _apply_theme() -> void:
 	palette.set_icon("grabber_highlight", "HSlider", _thumb_icon(true))
 
 	var divider := StyleBoxLine.new()
-	divider.color = Color("#596d5e")
+	divider.color = Color("#737950")
 	palette.set_stylebox("separator", "HSeparator", divider)
 	theme = palette
 	%Title.add_theme_font_override("font", _scalable_font(TITLE_FONT))
@@ -135,7 +136,7 @@ func _checkbox_icon(checked: bool) -> ImageTexture:
 		for i in range(8):
 			image.fill_rect(Rect2i(9 + i, 13 - i, 3, 3), WorkbenchHUD.DARK)
 	else:
-		image.fill_rect(Rect2i(3, 3, 16, 16), Color("#293730"))
+		image.fill_rect(Rect2i(3, 3, 16, 16), Color("#1f4437"))
 	return ImageTexture.create_from_image(image)
 
 func _thumb_icon(highlighted: bool) -> ImageTexture:
@@ -166,9 +167,22 @@ func _center_panel() -> void:
 	panel.pivot_offset = panel.size * 0.5
 
 func _on_visibility_changed() -> void:
+	var panel: Control = %Panel
+	if _open_transition:
+		_open_transition.kill()
+	panel.modulate.a = 1.0
 	if visible:
 		_previous_focus = get_viewport().gui_get_focus_owner()
-		slider_master.grab_focus()
+		var scroll := find_child("Scroll") as ScrollContainer
+		if (%Panel as Control).size.y < 500.0:
+			btn_close.grab_focus()
+			scroll.set_deferred("scroll_vertical", 0)
+		else:
+			slider_master.grab_focus()
+		if not get_tree().get_meta("littlebricks_reduced_motion", false):
+			panel.modulate.a = 0.50
+			_open_transition = create_tween()
+			_open_transition.tween_property(panel, "modulate:a", 1.0, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	elif is_instance_valid(_previous_focus) and _previous_focus.is_visible_in_tree():
 		_previous_focus.grab_focus()
 

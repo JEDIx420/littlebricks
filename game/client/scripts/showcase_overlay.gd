@@ -11,9 +11,7 @@ signal watch_build_requested()
 signal video_export_requested()
 signal replay_closed()
 
-const HUD = preload("res://client/scripts/workbench_hud.gd")
-const BODY_FONT = preload("res://assets/ui/fonts/DM-Sans.ttf")
-const TITLE_FONT = preload("res://assets/ui/fonts/DM-Serif-Text.ttf")
+const UI := preload("res://client/scripts/build_presentation_ui.gd")
 
 @onready var card_panel: PanelContainer = %CardPanel
 @onready var title: Label = %Title
@@ -36,11 +34,17 @@ var total_pieces: int = 0
 var timeline: ReplayTimeline
 var exporting: bool = false
 var export_cancelled: bool = false
+var _mark: UI.BrickMark
+var _reveal: Tween
+var _arrived: bool = false
 
 func _ready() -> void:
 	_ensure_nodes()
 	_apply_theme()
 	_connect_signals()
+	if not resized.is_connected(_layout):
+		resized.connect(_layout)
+	_layout()
 
 func _ensure_nodes() -> void:
 	if not card_panel: card_panel = find_child("CardPanel", true, false)
@@ -59,31 +63,60 @@ func _ensure_nodes() -> void:
 
 func _apply_theme() -> void:
 	var showcase_theme := Theme.new()
-	showcase_theme.default_font = BODY_FONT
+	showcase_theme.default_font = UI.BODY_FONT
 	showcase_theme.default_font_size = 16
 	theme = showcase_theme
-	title.add_theme_font_override("font", TITLE_FONT)
-	title.add_theme_color_override("font_color", HUD.INK)
-	subtitle.add_theme_color_override("font_color", HUD.MUTED)
-	label_replay.add_theme_color_override("font_color", HUD.INK)
-	var panel := HUD.surface(HUD.PANEL, HUD.EDGE, 18)
-	panel.shadow_color = Color(0.06, 0.05, 0.04, 0.36)
-	panel.shadow_size = 10
-	panel.shadow_offset = Vector2(0, 5)
-	card_panel.add_theme_stylebox_override("panel", panel)
-	for button in [btn_explore, btn_watch_build, btn_keep_building, btn_replay_restart, btn_export_video, btn_close_replay]:
-		button.add_theme_stylebox_override("normal", HUD.surface(HUD.BUTTON, HUD.EDGE))
-		button.add_theme_stylebox_override("hover", HUD.surface(Color("#4a5146"), HUD.ACTIVE))
-		button.add_theme_stylebox_override("pressed", HUD.surface(HUD.ACTIVE, HUD.ACTIVE))
-		button.add_theme_stylebox_override("disabled", HUD.surface(HUD.PANEL, HUD.EDGE))
-		button.add_theme_color_override("font_color", HUD.INK)
-		button.add_theme_color_override("font_hover_color", HUD.INK)
-		button.add_theme_color_override("font_pressed_color", HUD.DARK)
-		button.add_theme_color_override("font_disabled_color", HUD.MUTED)
-	HUD.select(btn_explore, true)
-	HUD.select(btn_export_video, true)
-	progress_bar.add_theme_stylebox_override("background", HUD.surface(HUD.BUTTON, HUD.EDGE, 4, 0))
-	progress_bar.add_theme_stylebox_override("fill", HUD.surface(HUD.ACTIVE, HUD.ACTIVE, 4, 0))
+	title.add_theme_font_override("font", UI.DISPLAY_FONT)
+	title.add_theme_color_override("font_color", UI.INK)
+	subtitle.add_theme_color_override("font_color", UI.MUTED)
+	label_replay.add_theme_color_override("font_color", UI.COBALT)
+	card_panel.add_theme_stylebox_override("panel", UI.panel(17))
+	for control in [btn_watch_build, btn_keep_building, btn_replay_restart, btn_close_replay]:
+		UI.button(control)
+	UI.button(btn_explore, UI.PERSIMMON)
+	UI.button(btn_export_video, UI.COBALT)
+	for control in [btn_watch_build, btn_keep_building, btn_replay_restart, btn_close_replay, btn_explore, btn_export_video]:
+		control.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	progress_bar.add_theme_stylebox_override("background", UI.progress_track(UI.CREAM, UI.BRASS))
+	progress_bar.add_theme_stylebox_override("fill", UI.progress_track(UI.COBALT, UI.COBALT))
+	if not _mark:
+		var holder := find_child("MarkHolder", true, false) as Control
+		_mark = UI.BrickMark.new()
+		_mark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		holder.add_child(_mark)
+		_mark.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+
+func _layout() -> void:
+	var width := size.x if size.x > 0.0 else 1280.0
+	var landscape := width >= 680.0 and width > size.y * 1.45
+	var max_card_width := clampf(width * 0.32, 330.0, 410.0) if landscape else 568.0
+	var narrow := minf(max_card_width, width - 36.0) < 430.0
+	card_panel.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if landscape else Control.SIZE_SHRINK_CENTER
+	card_panel.custom_minimum_size.x = minf(max_card_width, maxf(1.0, width - 36.0))
+	title.add_theme_font_size_override("font_size", 26 if narrow else 34)
+	btn_close_replay.text = "Back" if card_panel.custom_minimum_size.x < 360.0 else "Back to showcase"
+	for control in [btn_watch_build, btn_keep_building, btn_replay_restart, btn_close_replay, btn_explore, btn_export_video]:
+		control.add_theme_font_size_override("font_size", 13 if narrow else 15)
+
+func _animate_reveal(replay: bool) -> void:
+	if not is_inside_tree() or UI.reduced_motion(self):
+		return
+	if _reveal:
+		_reveal.kill()
+	# Keep the build in view. Only the card and its brick mark move.
+	card_panel.modulate.a = 0.25
+	_mark.rotation = -0.15
+	_mark.scale = Vector2.ONE * (0.75 if replay else 0.52)
+	_mark.pivot_offset = _mark.size * 0.5
+	_reveal = create_tween().set_parallel(true)
+	_reveal.tween_property(card_panel, "modulate:a", 1.0, 0.22)
+	_reveal.tween_property(_mark, "rotation", 0.0, 0.33).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_reveal.tween_property(_mark, "scale", Vector2.ONE, 0.36).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+func _set_mark(color: Color) -> void:
+	if _mark:
+		_mark.tint = color
+		_mark.queue_redraw()
 
 func _connect_signals() -> void:
 	if btn_explore and not btn_explore.pressed.is_connected(_on_explore_clicked):
@@ -115,8 +148,12 @@ func configure_showcase(p_creation_name: String, piece_count: int) -> void:
 	
 	btn_watch_build.disabled = total_pieces == 0
 	_show_main_actions()
+	if not _arrived:
+		_arrived = true
+		_animate_reveal(false)
 
 func _show_main_actions() -> void:
+	_set_mark(UI.PERSIMMON)
 	if actions_box: actions_box.visible = true
 	if replay_box: replay_box.visible = false
 
@@ -126,6 +163,8 @@ func _on_explore_clicked() -> void:
 func _on_watch_build_clicked() -> void:
 	if actions_box: actions_box.visible = false
 	if replay_box: replay_box.visible = true
+	_set_mark(UI.COBALT)
+	_animate_reveal(true)
 	watch_build_requested.emit()
 
 func _on_keep_building_clicked() -> void:
@@ -159,6 +198,7 @@ func begin_export() -> void:
 
 func notify_export_finished(message: String, file_path: String = "") -> void:
 	exporting = false
+	card_panel.modulate.a = 1.0
 	card_panel.show()
 	label_replay.text = message
 	label_replay.tooltip_text = file_path
@@ -167,9 +207,14 @@ func update_replay_progress(current_step: int, total_steps: int) -> void:
 	if progress_bar:
 		progress_bar.max_value = float(total_steps)
 		progress_bar.value = float(current_step)
+	if current_step == 0:
+		_set_mark(UI.COBALT)
 	if label_replay:
 		label_replay.text = "Brick %d of %d" % [current_step, total_steps]
 
 func notify_replay_finished() -> void:
+	_set_mark(UI.DEEP_GREEN)
+	if not exporting:
+		_animate_reveal(true)
 	if label_replay:
 		label_replay.text = "Build complete"

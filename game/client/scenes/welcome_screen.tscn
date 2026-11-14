@@ -85,13 +85,21 @@ size_flags_horizontal = 3
 alignment = 1
 theme_override_constants/separation = 14
 
-[node name="Title" type="Label" parent="ContentScroll/Center/Body/Copy"]
+[node name="Heading" type="VBoxContainer" parent="ContentScroll/Center/Body/Copy"]
 layout_mode = 2
-text = "Small bricks.\nBig builds."
+theme_override_constants/separation = -8
+
+[node name="TitleFirst" type="Label" parent="ContentScroll/Center/Body/Copy/Heading"]
+layout_mode = 2
+text = "Small bricks."
+
+[node name="Title" type="Label" parent="ContentScroll/Center/Body/Copy/Heading"]
+layout_mode = 2
+text = "Big builds."
 
 [node name="Tagline" type="Label" parent="ContentScroll/Center/Body/Copy"]
 layout_mode = 2
-text = "Grab a handful of bricks, build your own world, and explore it as a tiny figure."
+text = "Build a world, one brick at a time. Then step inside it."
 autowrap_mode = 2
 
 [node name="ActionSpace" type="Control" parent="ContentScroll/Center/Body/Copy"]
@@ -99,11 +107,24 @@ custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 mouse_filter = 2
 
-[node name="BtnPlay" type="Button" parent="ContentScroll/Center/Body/Copy"]
+[node name="Actions" type="BoxContainer" parent="ContentScroll/Center/Body/Copy"]
+layout_mode = 2
+vertical = true
+theme_override_constants/separation = 8
+
+[node name="BtnPlay" type="Button" parent="ContentScroll/Center/Body/Copy/Actions"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Let's Build!"
+
+[node name="BtnMyBuilds" type="Button" parent="ContentScroll/Center/Body/Copy/Actions"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "My Builds"
 
 [node name="BtnContinue" type="Button" parent="ContentScroll/Center/Body/Copy"]
 unique_name_in_owner = true
@@ -119,16 +140,10 @@ layout_mode = 2
 text_overrun_behavior = 3
 horizontal_alignment = 1
 
-[node name="BtnMyBuilds" type="Button" parent="ContentScroll/Center/Body/Copy"]
-unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 48)
-layout_mode = 2
-text = "My Builds"
-
 [node name="Hero" type="PanelContainer" parent="ContentScroll/Center/Body"]
 layout_mode = 2
 size_flags_horizontal = 3
-size_flags_stretch_ratio = 1.7
+size_flags_stretch_ratio = 1.52
 
 [node name="Stage" type="SubViewportContainer" parent="ContentScroll/Center/Body/Hero"]
 layout_mode = 2

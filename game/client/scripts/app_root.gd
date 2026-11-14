@@ -50,12 +50,24 @@ func _ready() -> void:
 	
 	haptics = HapticsAdapter.new()
 	settings = SettingsManager.new()
+	settings.settings_changed.connect(_sync_motion_preference)
+	_sync_motion_preference()
 	
 	# Apply initial audio settings
 	audio.set_mute(not settings.sound_enabled)
 	audio.set_volumes(settings.master_volume, settings.music_volume, settings.sfx_volume)
 	
 	navigate_to_welcome()
+
+func _sync_motion_preference() -> void:
+	if not is_inside_tree():
+		return
+	var reduced := settings.reduced_motion
+	if OS.has_feature("web"):
+		var value := "true" if reduced else "false"
+		JavaScriptBridge.eval("try { localStorage.setItem('littlebricks-reduced-motion', '%s'); } catch {}" % value)
+		reduced = reduced or bool(JavaScriptBridge.eval("matchMedia('(prefers-reduced-motion: reduce)').matches"))
+	get_tree().set_meta("littlebricks_reduced_motion", reduced)
 
 func _setup_web_touch_viewport() -> void:
 	if not OS.has_feature("web"):

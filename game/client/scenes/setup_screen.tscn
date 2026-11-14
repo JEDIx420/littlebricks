@@ -170,13 +170,23 @@ visible = false
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="LabelPlayers" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="PassFields" type="BoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+layout_mode = 2
+vertical = true
+theme_override_constants/separation = 8
+
+[node name="Players" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelPlayers" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Players"
 
-[node name="OptPlayerCount" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPlayerCount" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -189,13 +199,13 @@ popup/item_1/id = 1
 popup/item_2/text = "4 Players"
 popup/item_2/id = 2
 
-[node name="PlayerNames" type="GridContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="PlayerNames" type="GridContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players"]
 layout_mode = 2
 columns = 1
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 8
 
-[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
+[node name="LinePlayer1" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players/PlayerNames"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -203,7 +213,7 @@ size_flags_horizontal = 3
 placeholder_text = "Player 1"
 text = "Player 1"
 
-[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
+[node name="LinePlayer2" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players/PlayerNames"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -211,7 +221,7 @@ size_flags_horizontal = 3
 placeholder_text = "Player 2"
 text = "Player 2"
 
-[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
+[node name="LinePlayer3" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players/PlayerNames"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
@@ -220,7 +230,7 @@ size_flags_horizontal = 3
 placeholder_text = "Player 3"
 text = "Player 3"
 
-[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PlayerNames"]
+[node name="LinePlayer4" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Players/PlayerNames"]
 unique_name_in_owner = true
 visible = false
 custom_minimum_size = Vector2(0, 44)
@@ -229,24 +239,29 @@ size_flags_horizontal = 3
 placeholder_text = "Player 4"
 text = "Player 4"
 
-[node name="LabelPassTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="Rules" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelPassTheme" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Rules"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Brick pack"
 
-[node name="OptPassTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPassTheme" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Rules"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 
-[node name="LabelPassTimer" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="LabelPassTimer" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Rules"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Turn timer"
 
-[node name="OptPassTimer" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay"]
+[node name="OptPassTimer" type="OptionButton" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerPassPlay/PassFields/Rules"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -272,26 +287,36 @@ unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="RoomFields" type="BoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+layout_mode = 2
+vertical = true
+theme_override_constants/separation = 8
+
+[node name="Host" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
+
+[node name="LabelOnlineName" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Host"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Your name"
 
-[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="LineOnlineName" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Host"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "Explorer"
 max_length = 24
 
-[node name="LabelOnlineEndpoint" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="LabelOnlineEndpoint" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Host"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 15
 text = "Server address"
 
-[node name="LineOnlineEndpoint" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="LineOnlineEndpoint" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Host"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
@@ -299,29 +324,31 @@ placeholder_text = "wss://server.example"
 clear_button_enabled = true
 max_length = 256
 
-[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="BtnCreateRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Host"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2
-text = "Create Private Room"
+text = "Create Room"
 
-[node name="HSeparator2" type="HSeparator" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="Join" type="VBoxContainer" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields"]
 layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 5
 
-[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="LabelJoin" type="Label" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Join"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.141, 0.204, 0.231, 1)
 theme_override_font_sizes/font_size = 15
 text = "Join with a code"
 
-[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="LineOnlineCode" type="LineEdit" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Join"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 44)
 layout_mode = 2
 placeholder_text = "6-character room code"
 max_length = 24
 
-[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect"]
+[node name="BtnJoinRoom" type="Button" parent="ContentScroll/CenterWrapper/Body/MainPanel/Margin/VBox/ContainerOnline/OnlineConnect/RoomFields/Join"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 48)
 layout_mode = 2

@@ -113,6 +113,7 @@ var _touch_interrupted: bool = false
 var _touch_slot: int = -1
 var _touch_scroll_origin: int = 0
 var _room_picker: OptionButton
+var _tray_compact := false
 
 signal online_placement_requested(slot: int, x: int, z: int, layer: int, rotation: int)
 signal online_ready_requested(is_ready: bool)
@@ -196,6 +197,7 @@ func _ready() -> void:
 	_setup_catalog_packs()
 	_connect_workshop_dock()
 	_setup_inventory_tray()
+	$UI/RootControl.resized.connect(_refresh_tray_layout)
 	_update_height_mode_ui()
 	_rebuild_ghost()
 	_validate_and_update_ghost()
@@ -290,6 +292,7 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null,
 			placed_pieces_data.append(p)
 		
 	_setup_inventory_tray()
+	_update_brick_count()
 	_update_pointer_target()
 	_validate_and_update_ghost()
 
@@ -347,10 +350,7 @@ func _setup_inventory_tray() -> void:
 		return
 	var scroll := tray_container.get_parent() as ScrollContainer
 	var scroll_offset: int = scroll.scroll_horizontal
-	var compact: bool = $UI/RootControl.get_meta("compact_hud", false)
-	for child in tray_container.get_children():
-		tray_container.remove_child(child)
-		child.queue_free()
+	_tray_compact = $UI/RootControl.get_meta("compact_hud", false)
 		
 	var pieces_to_show = []
 	if session and session.players.size() > 0:
@@ -372,36 +372,29 @@ func _setup_inventory_tray() -> void:
 			{"part_id": "arch_1x4",  "name": "1x4 Arch",  "color": Color(0.3, 0.3, 0.35)}
 		]
 	
+	while tray_container.get_child_count() > pieces_to_show.size():
+		var extra := tray_container.get_child(tray_container.get_child_count() - 1)
+		tray_container.remove_child(extra)
+		extra.queue_free()
 	for i in range(pieces_to_show.size()):
 		var piece = pieces_to_show[i]
-		var pid = piece.get("part_id", piece.get("id", "brick_2x4"))
-		var pname: String = catalog.get_part(pid).get("name", pid)
-		var pcolor = piece.get("color", Color(0.85, 0.15, 0.15))
-		var is_selected: bool = (selected_hand_slot == i)
-		
-		var btn: Button = Button.new()
+		var pid: String = piece.get("part_id", piece.get("id", "brick_2x4"))
+		var pcolor: Color = piece.get("color", Color(0.85, 0.15, 0.15))
+		var btn := tray_container.get_child(i) as Button if i < tray_container.get_child_count() else null
+		if btn and btn.get_meta("tray_part_id") == pid and btn.get_meta("tray_part_color") == pcolor:
+			continue
+		if btn:
+			tray_container.remove_child(btn)
+			btn.queue_free()
+		btn = Button.new()
+		var part: Dictionary = catalog.get_part(pid)
+		var pname: String = part.get("name", pid)
 		btn.text = pname
 		btn.tooltip_text = "%s  ·  %d" % [pname, i + 1]
 		btn.focus_mode = Control.FOCUS_CLICK
-		btn.custom_minimum_size = Vector2(88, 64 if compact else 68)
-		if compact:
-			btn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 		btn.vertical_icon_alignment = VERTICAL_ALIGNMENT_TOP
 		btn.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 		btn.add_theme_font_size_override("font_size", 12)
-		var pocket := WorkbenchHUD.surface(WorkbenchHUD.BUTTON, WorkbenchHUD.EDGE)
-		pocket.content_margin_top = 32 if compact else 45
-		pocket.content_margin_bottom = 3 if compact else 4
-		btn.add_theme_stylebox_override("normal", pocket)
-		var pocket_hover := pocket.duplicate() as StyleBoxFlat
-		pocket_hover.border_color = WorkbenchHUD.ACTIVE
-		pocket_hover.bg_color = Color("#484d41")
-		btn.add_theme_stylebox_override("hover", pocket_hover)
-		if is_selected:
-			pocket.bg_color = Color("#524736")
-			pocket.border_color = WorkbenchHUD.ACTIVE
-			pocket.set_border_width_all(2)
-		var part: Dictionary = catalog.get_part(pid)
 		if not part.is_empty():
 			WorkbenchHUD.add_part_preview(btn, part, pcolor)
 
@@ -409,15 +402,51 @@ func _setup_inventory_tray() -> void:
 		btn.set_meta("tray_part_color", pcolor)
 		btn.pressed.connect(_pick_tray_button.bind(btn))
 		tray_container.add_child(btn)
-	# Containers update their scroll range after laying out the rebuilt slots.
+		tray_container.move_child(btn, i)
+	_refresh_tray_selection()
+	# Containers update their scroll range after laying out the tray.
 	if scroll_offset > 0:
 		scroll.set_deferred("scroll_horizontal", scroll_offset)
+
+func _refresh_tray_layout() -> void:
+	var compact: bool = $UI/RootControl.get_meta("compact_hud", false)
+	if compact != _tray_compact:
+		_tray_compact = compact
+		_refresh_tray_selection()
+
+func _refresh_tray_selection(animate: bool = false) -> void:
+	for slot in tray_container.get_children():
+		var selected := slot.get_index() == selected_hand_slot
+		var style_state := Vector2i(int(_tray_compact), int(selected))
+		if slot.get_meta("tray_style", Vector2i(-1, -1)) != style_state:
+			slot.custom_minimum_size = Vector2(88, 64 if _tray_compact else 68)
+			slot.size_flags_vertical = Control.SIZE_SHRINK_CENTER if _tray_compact else Control.SIZE_FILL
+			WorkbenchHUD.style_tray_slot(slot, _tray_compact, selected)
+			slot.set_meta("tray_style", style_state)
+		if animate and selected:
+			var preview := slot.get_node_or_null("BrickPreview") as TextureRect
+			if preview:
+				WorkbenchHUD.pulse(preview, _hud_reduced_motion(), 0.83)
+
+func _hud_reduced_motion() -> bool:
+	if settings_manager:
+		return settings_manager.reduced_motion
+	return is_inside_tree() and get_tree().get_meta("littlebricks_reduced_motion", false)
+
+func _update_brick_count(animate: bool = false) -> void:
+	var count := placed_pieces_data.size()
+	var badge := get_node_or_null("%BrickCount") as Label
+	if not badge:
+		return
+	badge.text = "1 brick" if count == 1 else "%d bricks" % count
+	if animate:
+		WorkbenchHUD.pulse(badge, _hud_reduced_motion(), 1.14, Color("#ffde8d"))
 
 func _pick_tray_button(button: Button) -> void:
 	if current_input_state == InputState.PENDING_ACCEPTANCE:
 		return
 	_select_piece_from_slot(button.get_index(), button.get_meta("tray_part_id"), button.get_meta("tray_part_color"))
-	_setup_inventory_tray()
+	_refresh_tray_selection(true)
 
 func _select_slot_by_index(slot_idx: int) -> void:
 	var hand: Array = []
@@ -426,7 +455,7 @@ func _select_slot_by_index(slot_idx: int) -> void:
 	if slot_idx >= 0 and slot_idx < hand.size():
 		var piece = hand[slot_idx]
 		_select_piece_from_slot(slot_idx, piece.get("part_id", "brick_2x4"), piece.get("color", Color(0.85, 0.15, 0.15)))
-		_setup_inventory_tray()
+		_refresh_tray_selection(true)
 
 func _select_piece_from_slot(slot_idx: int, part_id: String, color: Color) -> void:
 	selected_hand_slot = slot_idx
@@ -1161,6 +1190,7 @@ func _on_placement_accepted(placement_record: Dictionary) -> void:
 	placed_node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
 	placed_bricks_container.add_child(placed_node)
 	placed_pieces_data.append(placement_record)
+	_update_brick_count(true)
 	
 	var scope_id := session.get_instance_id() if session else get_instance_id()
 	var sequence = placement_record.get("sequence", placement_record.get("placement_id", ""))
@@ -1301,6 +1331,7 @@ func _on_undo_pressed() -> void:
 			var last_node = placed_bricks_container.get_child(placed_bricks_container.get_child_count() - 1)
 			last_node.queue_free()
 		placed_pieces_data.pop_back()
+		_update_brick_count()
 		if label_status:
 			label_status.text = "Placement undone (%d placed)" % placed_pieces_data.size()
 		if feedback:
@@ -1357,6 +1388,7 @@ func _reconstruct_redone_piece(to_redo: Dictionary) -> void:
 	node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
 	placed_bricks_container.add_child(node)
 	placed_pieces_data.append(to_redo)
+	_update_brick_count(true)
 
 # Solo Parts Catalog Browser
 func _toggle_catalog_modal() -> void:
@@ -1500,10 +1532,10 @@ func _show_catalog_preview(part_id: String) -> void:
 	specimen.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	specimen.custom_minimum_size = Vector2(180, 141)
 	specimen.text = String(part.get("name", part_id))
-	var box := WorkbenchHUD.surface(WorkbenchHUD.BUTTON, WorkbenchHUD.EDGE)
+	var box := WorkbenchHUD.surface(WorkbenchHUD.IVORY, Color("#b89d65"))
 	box.content_margin_top = 108
 	specimen.add_theme_stylebox_override("disabled", box)
-	specimen.add_theme_color_override("font_disabled_color", WorkbenchHUD.INK)
+	specimen.add_theme_color_override("font_disabled_color", WorkbenchHUD.DARK)
 	preview.add_child(specimen)
 	WorkbenchHUD.add_part_preview(specimen, part, selected_color)
 	var pick := catalog_modal.find_child("BtnPickPart") as Button
@@ -1517,5 +1549,5 @@ func _pick_catalog_part() -> void:
 		return
 	selected_hand_slot = -1
 	_select_piece(_catalog_part_id, selected_color)
-	_setup_inventory_tray()
+	_refresh_tray_selection()
 	_close_catalog_modal()

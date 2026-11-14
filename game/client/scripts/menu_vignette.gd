@@ -8,11 +8,11 @@ extends SubViewportContainer
 const Figure = preload("res://client/scripts/minifigure_model.gd")
 
 const CREAM := Color("#f1dcae")
-const CORAL := Color("#bd634e")
-const GOLD := Color("#e3a84a")
-const BLUE := Color("#568898")
-const TEAL := Color("#548779")
-const DARK_TEAL := Color("#39635f")
+const CORAL := Color("#df472a")
+const GOLD := Color("#ffc15a")
+const BLUE := Color("#3060ce")
+const TEAL := Color("#368f70")
+const DARK_TEAL := Color("#235b48")
 
 var _preview: SubViewport
 var _world: Node3D
@@ -21,6 +21,8 @@ var _catalog := PartCatalog.new()
 var _table: TableView
 var _display: Node3D
 var _wave_arm: Node3D
+var _star_brick: Node3D
+var _star_origin := Vector3.ZERO
 var _pack_id := ""
 var _motion: Tween
 var _camera_nudge := 0.0
@@ -51,12 +53,11 @@ func _ready() -> void:
 		_build_mode_still_life()
 	resized.connect(_frame)
 	visibility_changed.connect(_frame)
-	_motion_enabled = not SettingsManager.new().reduced_motion
+	_motion_enabled = not get_tree().get_meta("littlebricks_reduced_motion", false)
 	_frame()
 	if opening and _motion_enabled:
-		_camera_nudge = 1.0
-		_frame()
-		_move_camera(0.0, 1.5)
+		_set_nudge(1.0)
+		_move_camera(0.0, 1.45)
 
 func set_highlighted(active: bool) -> void:
 	if not _camera or not _motion_enabled:
@@ -72,7 +73,10 @@ func _move_camera(to: float, seconds: float) -> void:
 func _set_nudge(amount: float) -> void:
 	_camera_nudge = amount
 	if _wave_arm:
-		_wave_arm.rotation.x = 0.7 + sin(amount * TAU * 1.3) * 0.30
+		_wave_arm.rotation.x = 0.52 + sin(amount * TAU * 1.25) * amount * 0.77
+	if _star_brick:
+		_star_brick.position = _star_origin + Vector3(-amount * 2.4, amount * 6.9, amount * 1.5)
+		_star_brick.rotation = Vector3(amount * -0.50, PI * 0.5 + amount * 2.5, amount * 0.47)
 	_frame()
 
 func _frame() -> void:
@@ -81,12 +85,16 @@ func _frame() -> void:
 	if composition == 0:
 		var wide := size.x / maxf(size.y, 1.0) > 1.35
 		_camera.fov = 39.0
-		var position := Vector3(23, 18, 29) if wide else Vector3(28, 20, 35)
-		_camera.position = position + Vector3(3.9, 1.5, 2.7) * _camera_nudge
-		_camera.look_at(Vector3(0, 2.0, -1.0))
+		var camera_home := Vector3(23, 18, 29) if wide else Vector3(28, 20, 35)
+		var focus := Vector3(0, 2.0, -1.0)
+		if opening:
+			camera_home = Vector3(20, 14.5, 26) if wide else Vector3(22.5, 16, 30)
+			focus = Vector3(0.7, 3.6, 1.8)
+		_camera.position = camera_home + Vector3(-7.0, 3.5, 5.5) * _camera_nudge
+		_camera.look_at(focus)
 	else:
-		_camera.fov = 38.0
-		_camera.position = Vector3(5.6, 5.8, 7.7) + Vector3(0.6, -0.42, -0.30) * _camera_nudge
+		_camera.fov = 44.0 if size.x < size.y else 38.0
+		_camera.position = Vector3(5.6, 5.8, 7.7) + Vector3(1.80, -0.60, -0.65) * _camera_nudge
 		_camera.look_at(Vector3(0, 0.96, 0.45))
 	_preview.render_target_update_mode = SubViewport.UPDATE_ONCE
 
@@ -117,7 +125,11 @@ func show_pack_palette(pack_id: String) -> void:
 			plate_color = Color("#577e86")
 			_build_harbour()
 	_table.set_palette(Color("#9e6842"), plate_color)
-	_frame()
+	if _motion_enabled:
+		_set_nudge(0.27)
+		_move_camera(0.0, 0.34)
+	else:
+		_frame()
 
 func _build_lighting() -> void:
 	var environment := Environment.new()
@@ -168,7 +180,10 @@ func _build_workshop() -> void:
 		figure.rotation.y = PI + 0.63
 		_display.add_child(figure)
 		_wave_arm = figure.get_node("RightArm") as Node3D
-		_wave_arm.rotation.x = 0.7
+		_wave_arm.rotation.x = 0.52
+		_star_origin = Vector3(-6.0, 1.3, 8.0)
+		_part("brick_2x4", BLUE, Vector3(-6.0, 0.1, 8.0), 1)
+		_star_brick = _part("brick_2x4", GOLD, _star_origin, 1)
 	else:
 		show_pack_palette("harbour")
 
@@ -288,7 +303,7 @@ func _build_mode_still_life() -> void:
 	base.mesh = mesh
 	base.position.y = -0.2
 	var material := StandardMaterial3D.new()
-	var backdrops: Array[Color] = [Color("#c78865"), Color("#719b8e"), Color("#c7a359")]
+	var backdrops: Array[Color] = [Color("#df754f"), Color("#4f9179"), Color("#5675b9")]
 	material.albedo_color = backdrops[composition - 1]
 	material.roughness = 0.84
 	base.material_override = material
@@ -312,11 +327,12 @@ func _build_mode_still_life() -> void:
 			_part("brick_2x4", CREAM, Vector3(0.0, 2.4, 0.0), 1)
 			_part("brick_1x2", BLUE, Vector3(1.5, 0.0, 2.5), 1)
 
-func _part(part_id: String, color: Color, location: Vector3, turn: int = 0) -> void:
+func _part(part_id: String, color: Color, location: Vector3, turn: int = 0) -> Node3D:
 	var definition := _catalog.get_part(part_id)
 	if definition.is_empty():
-		return
+		return null
 	var part := PartMeshBuilder.build_part_node(definition, color)
 	part.position = location
 	part.rotation.y = turn * PI / 2.0
 	(_display if _display else _world).add_child(part)
+	return part

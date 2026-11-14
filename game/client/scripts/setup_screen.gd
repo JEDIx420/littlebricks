@@ -69,18 +69,20 @@ func _ensure_nodes() -> void:
 func _ready() -> void:
 	_ensure_nodes()
 	
-	Studio.apply_theme(self)
-	Studio.button(btn_back)
+	Studio.apply_theme(self, true)
+	Studio.dark_button(btn_back)
 	Studio.style_label(label_mode_title, 43, true)
 	Studio.style_label(%LabelModeDescription, 16, false, Studio.MUTED)
-	var card := Studio.surface(Studio.PAPER, 16, Studio.BORDER, true)
+	var card := Studio.surface(Studio.PAPER, 16, Studio.BRASS, true)
 	card.set_content_margin_all(0.0)
+	card.border_width_top = 3
 	%MainPanel.add_theme_stylebox_override("panel", card)
-	var frame := Studio.surface(Color("#d2c0a2"), 16, Color("#e1d0b6"), true)
-	frame.set_content_margin_all(6.0)
-	%Preview.add_theme_stylebox_override("panel", frame)
-	for button in [btn_start, btn_create_room, btn_join_room, %BtnOnlineReady]:
-		Studio.button(button, true)
+	%Preview.add_theme_stylebox_override("panel", Studio.frame())
+	Studio.enter(%MainPanel)
+	Studio.enter(%Preview, 0.06)
+	Studio.button(btn_start, true, Studio.PERSIMMON)
+	for button in [btn_create_room, btn_join_room, %BtnOnlineReady]:
+		Studio.button(button, true, Studio.COBALT)
 	Studio.button(%BtnCopyCode)
 	Studio.style_label(%OnlineStatus, 15, false, Studio.MUTED)
 	Studio.style_label(%OnlineReadyCount, 16, false, Studio.MUTED)
@@ -124,6 +126,7 @@ func _ready() -> void:
 
 func _layout_setup() -> void:
 	var compact := size.x < 920.0 or size.y < 545.0
+	var short_form := size.y < 650.0
 	var landscape_form := compact and size.x >= 620.0 and size.x > size.y
 	var gutter := 12.0 if compact else 20.0
 	var available := maxf(230.0, minf(size.x - 2.0 * gutter - 14.0, 1060.0))
@@ -147,9 +150,16 @@ func _layout_setup() -> void:
 	form.add_theme_constant_override("separation", 8 if compact else 16)
 	fields.columns = 3 if landscape_form else 1
 	fields.add_theme_constant_override("v_separation", 8 if compact else 12)
-	var player_names := container_pass_play.get_node("PlayerNames") as GridContainer
-	player_names.columns = 2 if compact and size.x >= 340.0 else 1
-	Studio.style_label(label_mode_title, 32 if compact else 43, true)
+	var pass_fields := container_pass_play.get_node("PassFields") as BoxContainer
+	var room_fields := %OnlineConnect.get_node("RoomFields") as BoxContainer
+	var player_names := pass_fields.get_node("Players/PlayerNames") as GridContainer
+	pass_fields.vertical = not landscape_form
+	room_fields.vertical = not landscape_form
+	pass_fields.add_theme_constant_override("separation", 18 if landscape_form else 10)
+	room_fields.add_theme_constant_override("separation", 18 if landscape_form else 10)
+	player_names.columns = 2 if compact and size.x >= 320.0 else 1
+	Studio.style_label(label_mode_title, 32 if compact else 47, true)
+	%LabelModeDescription.visible = not short_form or (landscape_form and current_mode == "solo")
 	%Preview.visible = split or size.y >= 660.0
 	%Stage.custom_minimum_size.y = 465.0 if split else 145.0
 	body.vertical = not split
@@ -192,18 +202,18 @@ func configure_for_mode(mode: String) -> void:
 	
 	match mode:
 		"solo":
-			if label_mode_title: label_mode_title.text = "Your table"
+			if label_mode_title: label_mode_title.text = "Your table."
 			if btn_start:
 				btn_start.visible = true
 				btn_start.text = "Start Building"
 		"pass_and_play":
-			if label_mode_title: label_mode_title.text = "Set up Pass & Play"
+			if label_mode_title: label_mode_title.text = "Pass & Play."
 			if btn_start:
 				btn_start.visible = true
 				btn_start.text = "Start Building"
 			_on_player_count_changed(opt_player_count.selected if opt_player_count else 0)
 		"online":
-			if label_mode_title: label_mode_title.text = "Private room"
+			if label_mode_title: label_mode_title.text = "Private room."
 			if btn_start: btn_start.visible = false # Uses Create/Join buttons
 			_online_room_code = ""
 			_online_ready = false
@@ -213,6 +223,7 @@ func configure_for_mode(mode: String) -> void:
 			_show_online_status("")
 
 	_refresh_preview()
+	_layout_setup()
 
 func _on_player_count_changed(index: int) -> void:
 	var count = index + 2 # 0 -> 2, 1 -> 3, 2 -> 4
