@@ -182,8 +182,24 @@ func _setup_room() -> void:
 	if workshop_dog_enabled:
 		_dog = WorkshopDog.new()
 		_dog.name = "WorkshopDog"
-		_dog.position.y = FLOOR_Y
+		_setup_dog_stool(WorkshopDog.CLIMB_LEFT)
+		_setup_dog_stool(WorkshopDog.CLIMB_RIGHT)
+		_dog.configure_surfaces(FLOOR_Y, TABLE_TOP_Y)
 		room_node.add_child(_dog)
+
+func _setup_dog_stool(location: Vector2) -> void:
+	var frame := _wood(Color("#775440"), Vector3.UP, 0.68)
+	var cushion := _material(Color("#72837c"), 0.93)
+	var seat := MeshInstance3D.new()
+	seat.name = "WorkshopStool"
+	seat.mesh = _beveled_slab(10.3, 9.8, 1.3, 1.2, 0.24)
+	seat.material_override = cushion
+	seat.position = Vector3(location.x, FLOOR_Y + WorkshopDog.STOOL_HEIGHT - 0.65, location.y)
+	room_node.add_child(seat)
+	for x in [-3.7, 3.7]:
+		for z in [-3.5, 3.5]:
+			var leg := _box(room_node, "WorkshopStoolLeg", Vector3(1.36, WorkshopDog.STOOL_HEIGHT - 0.9, 1.36), Vector3(location.x + x, FLOOR_Y + (WorkshopDog.STOOL_HEIGHT - 0.9) * 0.5, location.y + z), frame)
+			leg.rotation_degrees.z = signf(x) * 5.0
 
 func _setup_floor() -> void:
 	var depth := ROOM_FRONT - BACK_WALL + 4.0

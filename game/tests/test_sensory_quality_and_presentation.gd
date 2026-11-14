@@ -13,6 +13,7 @@ func _init() -> void:
 	print("\n--- Running LittleBricks Sensory Quality & Presentation Suite (LB-040..LB-043) ---\n")
 	
 	test_audio_buses_and_ducking()
+	test_soundtrack_selection()
 	test_tactile_feedback_and_deduplication()
 	test_presentation_lighting_and_framing()
 	test_accessibility_touch_and_settings()
@@ -58,6 +59,35 @@ func test_audio_buses_and_ducking() -> void:
 	root.remove_child(audio)
 	audio.queue_free()
 	print("PASS: Audio buses, volume curves, ducking, and focus handling verified.")
+
+func test_soundtrack_selection() -> void:
+	var audio := AudioDirector.new()
+	root.add_child(audio)
+	var tracks := ["music_menu", "music_rain", "music_night"]
+	tracks.append_array(AudioDirector.WORKSHOP_PLAYLIST)
+	var unique_streams := {}
+	for track in tracks:
+		var stream := AudioDirector.SOUNDS[track] as AudioStreamOggVorbis
+		assert(stream != null and stream.get_length() >= 30.0, "Each cue contains a full piece of music")
+		unique_streams[stream.resource_path] = true
+	assert(unique_streams.size() == tracks.size(), "Each cue uses a distinct recording")
+
+	audio.play_menu_music()
+	assert(audio._current_music_track == "music_menu")
+	audio.play_building_music()
+	audio._on_music_finished(audio._music_player_a if audio._active_music_is_a else audio._music_player_b)
+	assert(audio._current_music_track == AudioDirector.WORKSHOP_PLAYLIST[1])
+	audio.set_workshop_atmosphere(false, true)
+	assert(audio._current_music_track == "music_night")
+	audio.set_workshop_atmosphere(true, true)
+	assert(audio._current_music_track == "music_rain")
+	audio.set_workshop_atmosphere(false, false)
+	assert(audio._current_music_track == AudioDirector.WORKSHOP_PLAYLIST[1], "Daytime restores the current playlist cue")
+	audio.play_menu_music()
+	audio.set_workshop_atmosphere(true, false)
+	assert(audio._current_music_track == "music_menu", "Weather only changes the workshop soundtrack")
+	audio.queue_free()
+	print("PASS: Distinct soundtrack cues, rotation, and weather selection verified.")
 
 func test_tactile_feedback_and_deduplication() -> void:
 	print("[Group 2: Tactile Feedback & Event Deduplication (LB-041)]")

@@ -26,22 +26,20 @@ Copyright (c) 2026 LittleBricks Contributors.
 - **DM Sans** and **DM Serif Text** ship under the SIL Open Font License 1.1. The upstream license files and copyright notices are bundled in `game/assets/ui/fonts/`.
 - [DM Sans source](https://github.com/google/fonts/tree/main/ofl/dmsans) and [DM Serif Text source](https://github.com/google/fonts/tree/main/ofl/dmseriftext)
 
-## 3. Original Audio, Music & Foley
+## 3. Soundtrack & Foley
 
-All audio assets located in `game/assets/audio/` were synthesized and mastered specifically for LittleBricks:
-- **Licence**: Creative Commons Zero v1.0 Universal (CC0-1.0) Public Domain Dedication.
-- **Music Compositions**:
-  - `music_menu.ogg` — *Open the Brick Box*, an original 138 BPM handheld-style theme.
-  - `music_building.ogg`, `music_brick_box.ogg`, and `music_tinker.ogg` — *Across the Table*, *Bright Bricks*, and *Tinker Time*, an original daytime playlist with three rhythms and melodies.
-  - `music_rain.ogg` and `music_night.ogg` — *Rain on the Glass* and *After the Lights*, two quiet bell-and-pad cues.
-  - The complete original score, synthesized instruments, and stereo mix are reproducible with `tools/generate_audio_assets.py`. The CC0 dedication includes game-generated films.
-- **Sound Effects (SFX)**:
-  - `click_place.wav`: Crisp tactile ABS mechanical connection click.
-  - `pickup.wav`: Subtle acoustic part lift transient.
-  - `rotate.wav`: Soft directional rotation snap.
-  - `reject.wav`: Gentle low-frequency non-punitive invalid notification.
-  - `chime.wav`: Harmonious accomplishment chime for finish agreement and exploration reveals.
-- **Redistribution Rights**: Fully authorized for inclusion in game releases, web builds, and exported user video films (`.mp4`) across all platforms without royalty obligations.
+The soundtrack uses recordings released under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). LittleBricks adjusts cue gain and endpoints and encodes them as stereo Ogg Vorbis. Track sources, SHA-256 checksums and conversion settings are in the [soundtrack ledger](game/assets/audio/soundtrack/sources.json).
+
+| Where it plays | Track | Composer |
+| --- | --- | --- |
+| Main menu | [Quiet Village 1](https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-1/) | HoliznaCC0 |
+| Daytime | [Town Theme RPG](https://opengameart.org/content/town-theme-rpg) | The Cynic Project ([cynicmusic](https://cynicmusic.com/)) |
+| Daytime | [Quiet Village 4](https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-4/) | HoliznaCC0 |
+| Daytime | [A New Town](https://opengameart.org/content/a-new-town-rpg-theme) | The Cynic Project ([cynicmusic](https://cynicmusic.com/), from Pixelsphere) |
+| Rain | [Quiet Village 3](https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-3/) | HoliznaCC0 |
+| Night | [Drifting Piano](https://freemusicarchive.org/music/holiznacc0/background-music/drifting-piano/) | HoliznaCC0 |
+
+The original placement, pickup, rotation, reject, and completion sounds are CC0 1.0 and can be regenerated with `python tools/generate_audio_assets.py`.
 
 ---
 

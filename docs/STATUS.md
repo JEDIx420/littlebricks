@@ -1,6 +1,12 @@
 # LittleBricks status and continuation ledger
 
-Last updated: **2026-11-13**
+Last updated: **2026-11-14**
+
+## Licensed soundtrack and workshop dog
+
+- Six CC0 cues by HoliznaCC0 and The Cynic Project replace the synthesized score. Daytime rotates through three tracks for about five minutes. Menu, rain and night each have their own music. The [source ledger](../game/assets/audio/soundtrack/sources.json) records licenses, hashes and encoding changes.
+- The larger matte workshop dog varies its floor pace and pauses, occasionally hops from a stool to the front edge of the table, looks around, and descends by the other stool. The route stays outside the build surface. Reduced Motion parks it on the floor.
+- Godot 4.6.3 tests exercise the soundtrack playlist, volume and weather selection, and the dog's floor, climb, tabletop and return sequence. Native renders cover each part of the visit. The web bundle was exported and staged for handoff.
 
 ## Phone web controls and workshop proportions
 

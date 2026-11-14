@@ -1,0 +1,143 @@
+{
+  "description": "Third-party LittleBricks soundtrack provenance. Authored excerpts are preserved except for quiet tail trimming, constant gain, edge fades, and encoding.",
+  "tracks": [
+    {
+      "id": "music_menu",
+      "file": "quiet-village-1.ogg",
+      "title": "Quiet Village 1",
+      "artist": "HoliznaCC0",
+      "credit": "HoliznaCC0",
+      "source": "https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-1/",
+      "download": "https://files.freemusicarchive.org/storage-freemusicarchive-org/tracks/BLUSwyBghTr1aWfRjYzhdgWTPvSr8PTnjUfvce3A.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "f0d70f0960fba21e6eaec7a3a15d7f57582d296d4635bbbee9557a99ca6aa654",
+      "runtime_sha256": "d225b5d907061913983fd4b8b027d004855368d02d23355a7acd6cd60fd4c0cb",
+      "duration_seconds": 212.0,
+      "source_adjustment": {
+        "gain_db": -8.2,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 1.2,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 48
+      }
+    },
+    {
+      "id": "music_building",
+      "file": "town-theme-rpg.ogg",
+      "title": "Town Theme RPG",
+      "artist": "The Cynic Project",
+      "credit": "The Cynic Project / cynicmusic.com / pixelsphere.org",
+      "source": "https://lpc.opengameart.org/content/town-theme-rpg",
+      "download": "https://lpc.opengameart.org/sites/default/files/TownTheme.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "2657861d5107d4a3c01ef81cb6a4d61ddd5e7a054b6da57e658373d79d0c3466",
+      "runtime_sha256": "5542f7050034a8cf1c7e27afe5b37ff99f95c49d632efa760156d8c2ee394021",
+      "duration_seconds": 97.44,
+      "source_adjustment": {
+        "gain_db": -9.0,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 1.0,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 48
+      }
+    },
+    {
+      "id": "music_brick_box",
+      "file": "quiet-village-4.ogg",
+      "title": "Quiet Village 4",
+      "artist": "HoliznaCC0",
+      "credit": "HoliznaCC0",
+      "source": "https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-4/",
+      "download": "https://files.freemusicarchive.org/storage-freemusicarchive-org/tracks/MEG3ebINj0oAVGtunC95lhtCbJCsiPJDXEJ1ZuaD.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "2e20d0d3405aa093ee108d74a03ab773d568b440c589dd38c7460fdad9e9373f",
+      "runtime_sha256": "2576ea20b6c66a030d4675f48600192747e75005c04f3d760680e10639c1db0b",
+      "duration_seconds": 134.6,
+      "source_adjustment": {
+        "gain_db": -7.6,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 1.1,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 48
+      }
+    },
+    {
+      "id": "music_tinker",
+      "file": "a-new-town-rpg-theme.ogg",
+      "title": "A New Town",
+      "artist": "The Cynic Project",
+      "credit": "The Cynic Project / cynicmusic.com / pixelsphere.org",
+      "source": "https://opengameart.org/content/a-new-town-rpg-theme",
+      "download": "https://opengameart.org/sites/default/files/025_A_New_Town.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "8a83b97f06cad1052eea0a3fa8f65966db742e68275a1d82816773c820578ad2",
+      "runtime_sha256": "2b1bf6236a6f0616c37f4253da91ce3a9195d8d000abb25dc394731db60e3389",
+      "duration_seconds": 62.18,
+      "source_adjustment": {
+        "gain_db": -6.3,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 0.9,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 48
+      }
+    },
+    {
+      "id": "music_rain",
+      "file": "quiet-village-3.ogg",
+      "title": "Quiet Village 3",
+      "artist": "HoliznaCC0",
+      "credit": "HoliznaCC0",
+      "source": "https://freemusicarchive.org/music/holiznacc0/gamer-soundtrack-quiet-towns/quiet-village-3/",
+      "download": "https://files.freemusicarchive.org/storage-freemusicarchive-org/tracks/tAgsnz2pjuzr6FJEg6TCTbWbSXVk73xcwt4riIt0.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "8e9df92a36f30fbf601f9f6c51ed3ec3afd37cfee91bd46dc5c2e73aa3b2d7e1",
+      "runtime_sha256": "26c94c0aec1f8c56f18cca42b76fc4cc6b540475e46c488b45b43599b9e50d2c",
+      "duration_seconds": 253.0,
+      "source_adjustment": {
+        "gain_db": -12.7,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 1.5,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 40
+      }
+    },
+    {
+      "id": "music_night",
+      "file": "drifting-piano.ogg",
+      "title": "Drifting Piano",
+      "artist": "HoliznaCC0",
+      "credit": "HoliznaCC0",
+      "source": "https://freemusicarchive.org/music/holiznacc0/background-music/drifting-piano/",
+      "download": "https://files.freemusicarchive.org/storage-freemusicarchive-org/tracks/uGFgbWaUKc0LLRnbLShVKZ7yhiK5nsxczsKgpcvW.mp3",
+      "license": "CC0-1.0",
+      "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "original_sha256": "5d1d80af901c244bcedb618b5350b83874167258ba4fa17da83a2a005a26f95e",
+      "runtime_sha256": "11820bc6569d29ee7c37d9cc234d40ffc4a3208fe311b86ea525c6eaaad209bf",
+      "duration_seconds": 108.0,
+      "source_adjustment": {
+        "gain_db": 0.2,
+        "fade_in_seconds": 0.12,
+        "fade_out_seconds": 1.5,
+        "sample_rate_hz": 32000,
+        "channels": 2,
+        "codec": "Vorbis",
+        "target_bitrate_kbps": 40
+      }
+    }
+  ]
+}

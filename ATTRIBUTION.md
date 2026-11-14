@@ -50,7 +50,7 @@ The pack meshes use [LDraw.org](https://library.ldraw.org/) files under [CC BY 4
 
 Kenney's [Brick Kit](https://kenney.nl/assets/brick-kit) and [Furniture Kit](https://kenney.nl/assets/furniture-kit) retain CC0-1.0 terms.
 
-The workshop dog uses Quaternius's [Shiba Inu](https://poly.pizza/m/y4wdQpg767) under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). LittleBricks retains the original model, rig, and four animation clips and adjusts the coat colors and material. See the [dog asset ledger](game/assets/sourced/quaternius_dog/source.json) for the source download and checksums.
+The workshop dog uses Quaternius's [Shiba Inu](https://poly.pizza/m/y4wdQpg767) under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). LittleBricks retains the original model, rig, and six animation clips and adjusts the coat colors, material and scale. See the [dog asset ledger](game/assets/sourced/quaternius_dog/source.json) for the source download and checksums.
 
 ### LDraw figure accessories
 
@@ -64,3 +64,7 @@ The workshop dog uses Quaternius's [Shiba Inu](https://poly.pizza/m/y4wdQpg767) 
 These accessories use [LDraw Parts Library](https://library.ldraw.org/) data distributed under [CC BY 4.0](game/assets/sourced/ldraw_figures/CC-BY-4.0.txt), with original file contributors, additional credits, licenses, pinned source, and checksums listed in [the accessory source ledger](game/assets/sourced/ldraw_figures/sources.json). LittleBricks converted the CAD surfaces to glTF, retained source patterns and colors, and adapted normals, black plastic shading, coordinates, and scale for the game.
 
 The LDraw data licenses cover the contributed CAD files. Franchise names and character designs remain associated with their respective rights holders. LittleBricks is an independent project and is not endorsed by the LEGO Group, Lucasfilm, or Marvel.
+
+## 3. Soundtrack
+
+HoliznaCC0 and The Cynic Project made the six instrumental tracks used in LittleBricks available under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). See the [soundtrack credits](CREDITS.md#3-soundtrack--foley) and [source ledger](game/assets/audio/soundtrack/sources.json) for individual tracks, license pages, and edits.
