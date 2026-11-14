@@ -455,7 +455,7 @@ func _play_showcase_replay(showcase: ShowcaseOverlay) -> ReplayTimeline:
 	var timeline := ReplayTimeline.new()
 	showcase.add_child(timeline)
 	showcase.timeline = timeline
-	timeline.load_build_history(active_session.placements)
+	timeline.load_build_history(active_session.get_replay_placements())
 	timeline.seconds_per_placement = minf(timeline.seconds_per_placement, 24.0 / active_session.placements.size())
 	timeline.configure_camera(
 		table.camera_rig.camera, table.camera_rig.target, settings.reduced_motion, table.camera_rig.room_bounds)

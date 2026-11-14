@@ -41,11 +41,19 @@ func _run() -> void:
 	_expect(session.placements.is_empty(), "Room lighting never changes the build")
 
 	_check_manual_transition(table)
+	_check_corner_chair(table.table_view)
 	table.queue_free()
 	await process_frame
 	if failures.is_empty():
 		print("PASS: Workshop day, night, rain, reduced motion and restoration")
 	quit(0 if failures.is_empty() else 1)
+
+func _check_corner_chair(table_view: TableView) -> void:
+	var chair_count := 0
+	for prop in table_view.room_node.get_children():
+		if prop.scene_file_path.ends_with("/chair.glb") or prop.scene_file_path.ends_with("/chairCushion.glb"):
+			chair_count += 1
+	_expect(chair_count == 1, "The cushioned chair provides its own frame without a second overlapping chair.")
 
 func _check_manual_transition(table: Node) -> void:
 	var atmosphere: PresentationController = table.presentation

@@ -12,6 +12,7 @@ signal settings_requested()
 const WorkshopBlueprint = preload("res://client/scripts/workshop_blueprint.gd")
 const BrickPacks = preload("res://core/brick_packs.gd")
 const ROOM_MODES: Array[String] = ["cycle", "day", "dusk", "night", "rain"]
+const BrickColorPalette = preload("res://client/scripts/brick_color_palette.gd")
 const WorkbenchHUD = preload("res://client/scripts/workbench_hud.gd")
 const HUD_FONT := preload("res://assets/ui/fonts/DM-Sans.ttf")
 const HUD_DISPLAY_FONT := preload("res://assets/ui/fonts/DM-Serif-Text.ttf")
@@ -102,6 +103,12 @@ var _pointer_missed_board: bool = false
 var _camera_buttons: Array[Button] = []
 var _catalog_part_id: String = ""
 var _external_modal_open: bool = false
+var _color_popup_open := false
+var _custom_brick_color := false
+var _catalog_color := Color.WHITE
+var _erasing := false
+var _erase_target := ""
+var _erase_material := StandardMaterial3D.new()
 var _local_placement_sequence: int = 0
 var _blueprint: WorkshopBlueprint
 var _touch_action: TouchAction = TouchAction.NONE
@@ -193,6 +200,7 @@ func _ready() -> void:
 	WorkbenchHUD.apply($UI/RootControl, HUD_FONT, HUD_DISPLAY_FONT)
 	WorkbenchHUD.bind_responsive_layout($UI/RootControl)
 	_connect_ui()
+	_connect_edit_tools()
 	_connect_camera_hud()
 	_setup_catalog_packs()
 	_connect_workshop_dock()
@@ -271,28 +279,10 @@ func attach_session(p_session: SessionManager, p_audio = null, p_haptics = null,
 	if label_status and not cur_player.is_empty():
 		label_status.text = "Turn: [P%d] %s" % [p_num, cur_player.get("name", "Player")]
 		
-	# Reconstruct existing placements from session
-	placed_pieces_data.clear()
-	if not placed_bricks_container:
-		placed_bricks_container = get_node_or_null("PlacedBricks")
-	if placed_bricks_container:
-		for child in placed_bricks_container.get_children():
-			child.queue_free()
-			
-		for p in session.placements:
-			var pid = p.get("part_id", "brick_2x4")
-			var col = p.get("color", Color.WHITE)
-			var p_def = catalog.get_part(pid)
-			var dims = p_def.get("dimensions_studs", [1, 3, 1])
-			var rot = p.get("rotation_step", 0)
-			var node = PartMeshBuilder.build_part_node(p_def, col)
-			node.position = TableView.grid_to_world(p.get("grid_x", 0), p.get("grid_z", 0), p.get("layer_plate", 0), dims, rot)
-			node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
-			placed_bricks_container.add_child(node)
-			placed_pieces_data.append(p)
-		
+	_sync_placed_bricks()
+	_refresh_edit_tools()
+
 	_setup_inventory_tray()
-	_update_brick_count()
 	_update_pointer_target()
 	_validate_and_update_ghost()
 
@@ -344,6 +334,113 @@ func _connect_ui() -> void:
 		btn_leave.pressed.connect(func(): leave_requested.emit())
 	if btn_settings and not btn_settings.pressed.is_connected(func(): settings_requested.emit()):
 		btn_settings.pressed.connect(func(): settings_requested.emit())
+
+func _connect_edit_tools() -> void:
+	var color_button: Button = %BtnBrickColor
+	var catalog_button: Button = %BtnCatalogColor
+	%BtnErase.pressed.connect(_toggle_eraser)
+	_erase_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_erase_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_erase_material.albedo_color = Color("#ff845589")
+	var held_popup := BrickColorPalette.attach(color_button, func(): return selected_color, _set_brick_color)
+	var pack_popup := BrickColorPalette.attach(catalog_button, func(): return _catalog_color, _set_catalog_color)
+	for popup in [held_popup, pack_popup]:
+		popup.about_to_popup.connect(func(): _set_color_popup_open(true))
+		popup.popup_hide.connect(func(): _set_color_popup_open(false))
+	_refresh_edit_tools()
+
+func _can_edit_bricks() -> bool:
+	return session != null and session.mode in [SessionManager.GameMode.SOLO_CREATIVE, SessionManager.GameMode.SOLO_CHALLENGE]
+
+func _refresh_edit_tools() -> void:
+	%BtnErase.visible = _can_edit_bricks()
+	%BtnBrickColor.visible = _can_edit_bricks()
+	%BtnBrickColor.disabled = _erasing or current_input_state != InputState.HOLDING
+	%BtnCatalogColor.visible = session != null and session.mode == SessionManager.GameMode.SOLO_CREATIVE
+	BrickColorPalette.update_launcher(%BtnBrickColor, selected_color)
+
+func _set_color_popup_open(open: bool) -> void:
+	_color_popup_open = open
+	_update_modal_input()
+
+func _set_brick_color(color: Color) -> void:
+	if not _can_edit_bricks() or _erasing or current_input_state != InputState.HOLDING:
+		return
+	selected_color = color
+	_custom_brick_color = true
+	BrickColorPalette.update_launcher(%BtnBrickColor, selected_color)
+	_refresh_tray_selection()
+	_apply_validity_appearance(is_current_placement_valid)
+
+func _set_catalog_color(color: Color) -> void:
+	_catalog_color = color
+	BrickColorPalette.update_launcher(%BtnCatalogColor, _catalog_color)
+	var part_id := _catalog_part_id
+	_catalog_part_id = ""
+	_show_catalog_preview(part_id)
+
+func _toggle_eraser() -> void:
+	if not _can_edit_bricks() or _touch_modal_open():
+		return
+	if not _erasing:
+		_set_camera_mode(CameraController.InteractionMode.BUILD)
+	_set_eraser(not _erasing)
+
+func _set_eraser(enabled: bool) -> void:
+	_erasing = enabled
+	WorkbenchHUD.select(%BtnErase, enabled)
+	_clear_erase_target()
+	_refresh_edit_tools()
+	if enabled:
+		_invalidate_candidate()
+		label_status.text = "Click or tap a brick to erase"
+	else:
+		_update_pointer_target()
+		_validate_and_update_ghost()
+
+func _clear_erase_target() -> void:
+	if _erase_target.is_empty():
+		return
+	_tint_erased_brick(_erase_target, null)
+	_erase_target = ""
+
+func _tint_erased_brick(id: String, material: Material) -> void:
+	for node in placed_bricks_container.get_children():
+		if node.get_meta("placement_id", "") != id:
+			continue
+		for mesh in node.find_children("*", "MeshInstance3D", true, false):
+			mesh.material_overlay = material
+		break
+
+func _aim_eraser(screen_pos: Vector2) -> void:
+	var camera := camera_rig.camera
+	var from := camera.project_ray_origin(screen_pos)
+	var direction := camera.project_ray_normal(screen_pos)
+	var hit := BrickSurfaceTarget.pick_brick(from, direction, rules, placed_pieces_data)
+	var id := String(hit.get("placement_id", ""))
+	if id != _erase_target:
+		_clear_erase_target()
+		_erase_target = id
+		if not id.is_empty():
+			_tint_erased_brick(id, _erase_material)
+	label_status.text = "Erase this brick" if not id.is_empty() else "Click or tap a brick to erase"
+
+func _erase_at(screen_pos: Vector2) -> void:
+	if not _can_edit_bricks() or _touch_modal_open() or camera_rig.is_gesture_active:
+		return
+	_aim_eraser(screen_pos)
+	if _erase_target.is_empty():
+		return
+	var result := session.erase_placement(_erase_target)
+	if result.get("success", false):
+		_sync_placed_bricks()
+		label_status.text = "Brick erased · Undo to restore"
+		if feedback:
+			feedback.notify_undo()
+	else:
+		label_status.text = result.get("reason", "This brick cannot be erased")
+		if feedback:
+			feedback.notify_placement_rejected(result.get("code", "ERASE_FAILED"))
 
 func _setup_inventory_tray() -> void:
 	if not tray_container:
@@ -417,6 +514,13 @@ func _refresh_tray_layout() -> void:
 func _refresh_tray_selection(animate: bool = false) -> void:
 	for slot in tray_container.get_children():
 		var selected := slot.get_index() == selected_hand_slot
+		var dealt_color: Color = slot.get_meta("tray_part_color")
+		var preview_color := selected_color if selected and _custom_brick_color else dealt_color
+		if slot.get_meta("preview_color", dealt_color) != preview_color:
+			var part := catalog.get_part(slot.get_meta("tray_part_id"))
+			if not part.is_empty():
+				WorkbenchHUD.update_part_preview(slot, part, preview_color)
+				slot.set_meta("preview_color", preview_color)
 		var style_state := Vector2i(int(_tray_compact), int(selected))
 		if slot.get_meta("tray_style", Vector2i(-1, -1)) != style_state:
 			slot.custom_minimum_size = Vector2(88, 64 if _tray_compact else 68)
@@ -463,9 +567,13 @@ func _select_piece_from_slot(slot_idx: int, part_id: String, color: Color) -> vo
 
 func _select_piece(part_id: String, color: Color) -> void:
 	_set_camera_mode(CameraController.InteractionMode.BUILD)
+	if _erasing:
+		_set_eraser(false)
 	current_input_state = InputState.HOLDING
 	selected_part_id = part_id
 	selected_color = color
+	_custom_brick_color = false
+	_refresh_edit_tools()
 	if feedback:
 		feedback.notify_piece_selected(part_id, color)
 	else:
@@ -518,7 +626,7 @@ func _input(event: InputEvent) -> void:
 		_route_touch_drag(event)
 
 func _touch_modal_open() -> bool:
-	return _external_modal_open or catalog_modal.visible
+	return _external_modal_open or _color_popup_open or catalog_modal.visible
 
 func _route_touch(event: InputEventScreenTouch) -> void:
 	if event.pressed:
@@ -624,6 +732,10 @@ func _end_touch(event: InputEventScreenTouch) -> void:
 		TouchAction.WORLD, TouchAction.TRAY_BRICK:
 			if _touch_over_hud(event.position):
 				return
+			if _erasing:
+				if is_tap and _touch_action == TouchAction.WORLD:
+					_erase_at(event.position)
+				return
 			_aim_touch(event.position)
 			if has_valid_target_surface and (is_tap or _touch_action == TouchAction.TRAY_BRICK):
 				_on_place_pressed()
@@ -654,7 +766,7 @@ func _clear_touch_sequence() -> void:
 	_touch_indices.clear()
 
 func _unhandled_input(event: InputEvent) -> void:
-	if _external_modal_open:
+	if _external_modal_open or _color_popup_open:
 		return
 	# If catalog modal is open, prevent all world interaction
 	if catalog_modal and catalog_modal.visible:
@@ -665,7 +777,10 @@ func _unhandled_input(event: InputEvent) -> void:
 
 	# Handle cancel / escape key (LB-058)
 	if event is InputEventKey and event.pressed and (event.keycode == KEY_ESCAPE or event.is_action_pressed("ui_cancel")):
-		_on_cancel_held_piece()
+		if _erasing:
+			_set_eraser(false)
+		else:
+			_on_cancel_held_piece()
 		_consume_input()
 		return
 
@@ -688,7 +803,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Keyboard shortcuts
 	if event is InputEventKey and event.pressed:
 		var k = event.keycode
-		if k == KEY_EQUAL or k == KEY_KP_ADD:
+		if k == KEY_X:
+			_toggle_eraser()
+			_consume_input()
+			return
+		elif k == KEY_EQUAL or k == KEY_KP_ADD:
 			_bump_layer(1)
 			_consume_input()
 			return
@@ -757,7 +876,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if event.pressed:
 			_mouse_press_position = event.position
-			_mouse_placement_armed = current_input_state == InputState.HOLDING or _blueprint.is_under_pointer(camera_rig.camera, event.position)
+			_mouse_placement_armed = _erasing or current_input_state == InputState.HOLDING or _blueprint.is_under_pointer(camera_rig.camera, event.position)
 		elif _mouse_placement_armed and event.position.distance_to(_mouse_press_position) <= 7.0:
 			_mouse_placement_armed = false
 			if _blueprint.is_under_pointer(camera_rig.camera, _mouse_press_position) and _blueprint.is_under_pointer(camera_rig.camera, event.position):
@@ -765,6 +884,10 @@ func _unhandled_input(event: InputEvent) -> void:
 				_consume_input()
 				return
 			_last_pointer_screen_pos = event.position
+			if _erasing:
+				_erase_at(event.position)
+				_consume_input()
+				return
 			_handle_pointer_position(event.position)
 			if is_current_placement_valid:
 				_on_place_pressed()
@@ -778,6 +901,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			_mouse_placement_armed = false
 		_last_pointer_screen_pos = event.position
 		if _blueprint.is_under_pointer(camera_rig.camera, event.position):
+			_clear_erase_target()
 			_invalidate_candidate()
 			label_status.text = "Click to read the build plan"
 		else:
@@ -904,6 +1028,7 @@ func _on_camera_mode_changed(mode: int, mode_name: String) -> void:
 		CameraController.InteractionMode.PAN:
 			hint.text = "Drag to slide the view"
 	if mode != CameraController.InteractionMode.BUILD:
+		_clear_erase_target()
 		_touch_interrupted = true
 		_mouse_placement_armed = false
 		_pointer_missed_board = true
@@ -959,9 +1084,12 @@ func find_target_surface_from_ray(from: Vector3, dir: Vector3) -> Dictionary:
 	)
 
 func _handle_pointer_position(screen_pos: Vector2) -> void:
-	if current_input_state == InputState.IDLE:
-		return
 	if camera_rig and (camera_rig.is_camera_mode or camera_rig.is_gesture_active):
+		return
+	if _erasing:
+		_aim_eraser(screen_pos)
+		return
+	if current_input_state == InputState.IDLE:
 		return
 		
 	var target = _find_target_surface(screen_pos)
@@ -994,7 +1122,10 @@ func _invalidate_candidate() -> void:
 		label_status.text = "Pointer outside building area"
 
 func _on_cancel_held_piece() -> void:
+	if _erasing:
+		_set_eraser(false)
 	current_input_state = InputState.IDLE
+	_refresh_edit_tools()
 	_invalidate_candidate()
 	if label_status:
 		label_status.text = "Choose a brick from the tray"
@@ -1018,6 +1149,8 @@ func _on_rotate_right() -> void:
 	_validate_and_update_ghost()
 
 func _validate_and_update_ghost() -> void:
+	if _erasing:
+		return
 	if not online_player_id.is_empty() and (not online_connected or session.get_current_player_id() != online_player_id):
 		is_current_placement_valid = false
 		btn_place.disabled = true
@@ -1120,7 +1253,7 @@ func _set_ghost_material(node: Node) -> void:
 		_set_ghost_material(child)
 
 func _on_place_pressed() -> void:
-	if _external_modal_open or catalog_modal.visible or camera_rig.is_camera_mode or camera_rig.is_gesture_active:
+	if _erasing or _touch_modal_open() or camera_rig.is_camera_mode or camera_rig.is_gesture_active:
 		return
 	if current_input_state != InputState.HOLDING:
 		return
@@ -1176,19 +1309,7 @@ func _handle_local_placement_fallback() -> void:
 func _on_placement_accepted(placement_record: Dictionary) -> void:
 	current_input_state = InputState.HOLDING
 	
-	var pid = placement_record.get("part_id", selected_part_id)
-	var col = placement_record.get("color", selected_color)
-	var p_def: Dictionary = catalog.get_part(pid)
-	var placed_node: Node3D = PartMeshBuilder.build_part_node(p_def, col)
-	var dims: Array = p_def.get("dimensions_studs", [1, 3, 1])
-	var rot: int = placement_record.get("rotation_step", current_rotation_step)
-	var gx: int = placement_record.get("grid_x", current_grid_pos.x)
-	var gz: int = placement_record.get("grid_z", current_grid_pos.y)
-	var layer: int = placement_record.get("layer_plate", current_layer_plate)
-	
-	placed_node.position = TableView.grid_to_world(gx, gz, layer, dims, rot)
-	placed_node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
-	placed_bricks_container.add_child(placed_node)
+	var placed_node := _render_placed_brick(placement_record)
 	placed_pieces_data.append(placement_record)
 	_update_brick_count(true)
 	
@@ -1215,8 +1336,11 @@ func _on_placement_accepted(placement_record: Dictionary) -> void:
 			var slot_idx := clampi(selected_hand_slot, 0, hand.size() - 1)
 			var slot_piece: Dictionary = hand[slot_idx]
 			selected_part_id = slot_piece.get("part_id", selected_part_id)
-			selected_color = slot_piece.get("color", selected_color)
+			if not _custom_brick_color:
+				selected_color = slot_piece.get("color", selected_color)
 			_rebuild_ghost()
+			_refresh_edit_tools()
+			_refresh_tray_selection()
 
 	# NOTE: We DO NOT unconditionally add piece height to current_layer_plate!
 	# The surface targeting automatically detects the top surface under the pointer (PC-01).
@@ -1327,21 +1451,16 @@ func _on_undo_pressed() -> void:
 		return
 	var res = session.undo_last_placement()
 	if res.get("success", false):
-		if placed_bricks_container and placed_bricks_container.get_child_count() > 0:
-			var last_node = placed_bricks_container.get_child(placed_bricks_container.get_child_count() - 1)
-			last_node.queue_free()
-		placed_pieces_data.pop_back()
-		_update_brick_count()
-		if label_status:
-			label_status.text = "Placement undone (%d placed)" % placed_pieces_data.size()
+		_sync_placed_bricks()
+		_update_pointer_target()
+		_validate_and_update_ghost()
+		label_status.text = "Brick restored" if res.has("restored_placement") else "Placement undone"
 		if feedback:
 			feedback.notify_undo()
 		elif audio_director:
 			audio_director.play_click()
 		if haptics_adapter:
 			haptics_adapter.vibrate_light()
-		_update_pointer_target()
-		_validate_and_update_ghost()
 	else:
 		var code = res.get("code", "FAIL")
 		if code == "DEPENDENT_MOVE_EXISTS":
@@ -1362,33 +1481,46 @@ func _on_redo_pressed() -> void:
 		return
 	var res = session.redo_placement()
 	if res.get("success", false):
-		var to_redo = res.get("redone_placement", res.get("undone_placement", {}))
-		if to_redo.is_empty() and session.placements.size() > 0:
-			to_redo = session.placements.back()
-		_reconstruct_redone_piece(to_redo)
-		if label_status:
-			label_status.text = "Placement redone (%d placed)" % placed_pieces_data.size()
+		_sync_placed_bricks()
+		_update_pointer_target()
+		_validate_and_update_ghost()
+		label_status.text = "Brick erased again" if res.has("removed_placement") else "Placement redone"
 		if feedback:
 			feedback.notify_redo()
 		elif audio_director:
 			audio_director.play_click()
 		if haptics_adapter:
 			haptics_adapter.vibrate_light()
-		_update_pointer_target()
-		_validate_and_update_ghost()
 
-func _reconstruct_redone_piece(to_redo: Dictionary) -> void:
-	var pid = to_redo.get("part_id", "brick_2x4")
-	var col = to_redo.get("color", Color.WHITE)
-	var p_def = catalog.get_part(pid)
-	var dims = p_def.get("dimensions_studs", [1, 3, 1])
-	var rot = to_redo.get("rotation_step", 0)
-	var node = PartMeshBuilder.build_part_node(p_def, col)
-	node.position = TableView.grid_to_world(to_redo.get("grid_x", 0), to_redo.get("grid_z", 0), to_redo.get("layer_plate", 0), dims, rot)
-	node.rotation_degrees = PlacementRules.get_rotation_degrees(rot)
+func _render_placed_brick(record: Dictionary) -> Node3D:
+	var part := catalog.get_part(record.get("part_id", "brick_2x4"))
+	var rotation: int = record.get("rotation_step", 0)
+	var dimensions: Array = part.get("dimensions_studs", [1, 3, 1])
+	var node := PartMeshBuilder.build_part_node(part, record.get("color", Color.WHITE))
+	node.position = TableView.grid_to_world(record.get("grid_x", 0), record.get("grid_z", 0), record.get("layer_plate", 0), dimensions, rotation)
+	node.rotation_degrees = PlacementRules.get_rotation_degrees(rotation)
+	node.set_meta("placement_id", record.get("placement_id", ""))
 	placed_bricks_container.add_child(node)
-	placed_pieces_data.append(to_redo)
-	_update_brick_count(true)
+	return node
+
+func _sync_placed_bricks() -> void:
+	_clear_erase_target()
+	var existing := {}
+	for node in placed_bricks_container.get_children():
+		existing[node.get_meta("placement_id", "")] = node
+	placed_pieces_data.assign(session.placements)
+	for index in session.placements.size():
+		var record: Dictionary = session.placements[index]
+		var node: Node3D = existing.get(record.get("placement_id", ""))
+		if node == null:
+			node = _render_placed_brick(record)
+		else:
+			existing.erase(record.get("placement_id", ""))
+		placed_bricks_container.move_child(node, index)
+	for node in existing.values():
+		placed_bricks_container.remove_child(node)
+		node.queue_free()
+	_update_brick_count()
 
 # Solo Parts Catalog Browser
 func _toggle_catalog_modal() -> void:
@@ -1397,6 +1529,8 @@ func _toggle_catalog_modal() -> void:
 	catalog_modal.visible = not catalog_modal.visible
 	_update_modal_input()
 	if catalog_modal.visible:
+		_catalog_color = selected_color
+		BrickColorPalette.update_launcher(%BtnCatalogColor, _catalog_color)
 		_setup_catalog_categories()
 		_populate_catalog_grid()
 
@@ -1411,7 +1545,8 @@ func set_external_modal_open(open: bool) -> void:
 
 func _update_modal_input() -> void:
 	$UI/RootControl/CatalogScrim.visible = catalog_modal.visible
-	camera_rig.is_input_enabled = not (_external_modal_open or catalog_modal.visible)
+	camera_rig.is_input_enabled = not _touch_modal_open()
+	_clear_erase_target()
 	camera_rig.reset_gesture_state()
 	_mouse_placement_armed = false
 	_clear_touch_sequence()
@@ -1537,7 +1672,7 @@ func _show_catalog_preview(part_id: String) -> void:
 	specimen.add_theme_stylebox_override("disabled", box)
 	specimen.add_theme_color_override("font_disabled_color", WorkbenchHUD.DARK)
 	preview.add_child(specimen)
-	WorkbenchHUD.add_part_preview(specimen, part, selected_color)
+	WorkbenchHUD.add_part_preview(specimen, part, _catalog_color)
 	var pick := catalog_modal.find_child("BtnPickPart") as Button
 	pick.disabled = session != null and session.mode != SessionManager.GameMode.SOLO_CREATIVE
 	pick.text = "Use the brick tray" if pick.disabled else "Pick this brick"
@@ -1548,6 +1683,6 @@ func _pick_catalog_part() -> void:
 	if session and session.mode != SessionManager.GameMode.SOLO_CREATIVE:
 		return
 	selected_hand_slot = -1
-	_select_piece(_catalog_part_id, selected_color)
+	_select_piece(_catalog_part_id, _catalog_color)
 	_refresh_tray_selection()
 	_close_catalog_modal()

@@ -16,7 +16,10 @@ const SHEET_SIZE := Vector2(8.0, 10.0)
 const PRINT_SIZE := Vector2i(480, 600)
 const PAPER_BACKGROUND := Color("#23394b")
 const PAPER_INK := Color("#eef3e9")
-const PAPER_POSITION := Vector3(-22.0, -0.077, 10.5)
+const PAPER_POSITION := Vector3(-22.0, TableView.TABLE_TOP_Y, 10.5)
+const PAPER_SURFACE_Y := 0.046
+const PAPER_EDGE := 0.04
+const PAPER_BOTTOM_Y := -0.012
 
 var theme_id: String = "harbour"
 var _catalog: Catalog
@@ -81,17 +84,18 @@ func set_theme(next_theme: String) -> void:
 	_print.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 func is_under_pointer(camera: Camera3D, screen_position: Vector2) -> bool:
-	if not visible or not camera:
+	if not is_visible_in_tree() or not camera or not _print:
 		return false
-	var origin := camera.project_ray_origin(screen_position)
-	var direction := camera.project_ray_normal(screen_position)
-	if absf(direction.y) < 0.001:
+	var origin := to_local(camera.project_ray_origin(screen_position))
+	var direction := global_transform.basis.inverse() * camera.project_ray_normal(screen_position)
+	if direction.y >= -0.001:
 		return false
-	var distance := (global_position.y - origin.y) / direction.y
+	var distance := (PAPER_SURFACE_Y - origin.y) / direction.y
 	if distance <= 0:
 		return false
-	var local := to_local(origin + direction * distance)
-	return absf(local.x) <= SHEET_SIZE.x * 0.5 and absf(local.z) <= SHEET_SIZE.y * 0.5
+	var local := origin + direction * distance
+	var half_stock := SHEET_SIZE * 0.5 + Vector2.ONE * PAPER_EDGE
+	return absf(local.x) <= half_stock.x and absf(local.z) <= half_stock.y
 
 func show_reader(parent: Control) -> void:
 	if is_instance_valid(_reader) or not _print:
@@ -239,9 +243,8 @@ func _print_label(parent: Control, content: String, at: Vector2, font_size: int,
 
 func _make_physical_sheet() -> void:
 	var stock := MeshInstance3D.new()
-	var backing := BoxMesh.new()
-	backing.size = Vector3(SHEET_SIZE.x + 0.08, 0.042, SHEET_SIZE.y + 0.08)
-	stock.mesh = backing
+	stock.name = "PaperStock"
+	stock.mesh = _make_paper_stock()
 	var backing_material := StandardMaterial3D.new()
 	backing_material.albedo_color = Color("#b7c0b6")
 	backing_material.roughness = 0.84
@@ -249,10 +252,11 @@ func _make_physical_sheet() -> void:
 	add_child(stock)
 
 	var face := MeshInstance3D.new()
+	face.name = "PrintedFace"
 	var sheet := PlaneMesh.new()
 	sheet.size = SHEET_SIZE
 	face.mesh = sheet
-	face.position.y = 0.023
+	face.position.y = PAPER_SURFACE_Y
 	var ink := StandardMaterial3D.new()
 	ink.albedo_texture = _print.get_texture()
 	ink.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -260,6 +264,35 @@ func _make_physical_sheet() -> void:
 	face.material_override = ink
 	face.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(face)
+
+func _make_paper_stock() -> ArrayMesh:
+	# The print fills the center opening, so the paper top has just one
+	# surface at every point even when the camera skims the table.
+	var half_print := SHEET_SIZE * 0.5
+	var half_stock := half_print + Vector2.ONE * PAPER_EDGE
+	var corners := [Vector2(-1, -1), Vector2(1, -1), Vector2(1, 1), Vector2(-1, 1)]
+	var top_rim: Array[Vector3] = []
+	var print_edge: Array[Vector3] = []
+	var bottom: Array[Vector3] = []
+	for corner: Vector2 in corners:
+		top_rim.append(Vector3(corner.x * half_stock.x, PAPER_SURFACE_Y, corner.y * half_stock.y))
+		print_edge.append(Vector3(corner.x * half_print.x, PAPER_SURFACE_Y, corner.y * half_print.y))
+		bottom.append(Vector3(corner.x * half_stock.x, PAPER_BOTTOM_Y, corner.y * half_stock.y))
+	var geometry := SurfaceTool.new()
+	geometry.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in corners.size():
+		var next := (i + 1) % corners.size()
+		_add_stock_quad(geometry, top_rim[i], top_rim[next], print_edge[next], print_edge[i])
+		_add_stock_quad(geometry, top_rim[next], top_rim[i], bottom[i], bottom[next])
+	_add_stock_quad(geometry, bottom[3], bottom[2], bottom[1], bottom[0])
+	geometry.generate_normals()
+	return geometry.commit()
+
+func _add_stock_quad(mesh: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector3) -> void:
+	# The thin paper edge turns sharply at each corner.
+	mesh.set_smooth_group(-1)
+	for vertex in [a, b, c, a, c, d]:
+		mesh.add_vertex(vertex)
 
 class Reader extends Control:
 	signal dismiss_requested

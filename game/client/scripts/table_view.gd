@@ -443,7 +443,7 @@ func _setup_furniture() -> void:
 	_furniture("books", Vector3(39, FLOOR_Y + 34.0, -42), 34.0)
 	_furniture("plantSmall1", Vector3(25.2, FLOOR_Y + 11.4, -39), 29.0, 20.0)
 	_furniture("lampRoundFloor", Vector3(54.0, FLOOR_Y, -29), 43.0)
-	_furniture("chair", Vector3(-51, FLOOR_Y, -29), 35.0, 65.0)
+	# The cushioned chair includes the frame and legs from the plain model.
 	_furniture("chairCushion", Vector3(-51, FLOOR_Y, -29), 35.0, 65.0)
 	_furniture("pottedPlant", Vector3(-48, FLOOR_Y, -41), 29.0, 15.0)
 	_furniture("plantSmall1", Vector3(-22, TABLE_TOP_Y, -17.5), 18.0, 20.0)

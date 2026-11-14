@@ -110,10 +110,21 @@ offset_bottom = 73
 layout_mode = 2
 theme_override_constants/separation = 3
 
-[node name="Title" type="Label" parent="UI/RootControl/TopPanel/Identity"]
+[node name="IdentityHeader" type="HBoxContainer" parent="UI/RootControl/TopPanel/Identity"]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UI/RootControl/TopPanel/Identity/IdentityHeader"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "LittleBricks"
+size_flags_horizontal = 3
+
+[node name="WorkbenchMark" type="TextureRect" parent="UI/RootControl/TopPanel/Identity/IdentityHeader"]
+layout_mode = 2
+custom_minimum_size = Vector2(24, 24)
+expand_mode = 1
+stretch_mode = 5
+mouse_filter = 2
 
 [node name="StatusRow" type="HBoxContainer" parent="UI/RootControl/TopPanel/Identity"]
 layout_mode = 2
@@ -213,14 +224,12 @@ text = "Settings"
 
 [node name="CameraPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchor_left = 0
-offset_left = 14
-anchor_top = 1
-offset_top = -318
-anchor_right = 0
-offset_right = 245
-anchor_bottom = 1
-offset_bottom = -65
+anchor_left = 1
+anchor_right = 1
+offset_left = -245
+offset_top = 125
+offset_right = -14
+offset_bottom = 394
 visible = false
 
 [node name="ViewControls" type="VBoxContainer" parent="UI/RootControl/CameraPanel"]
@@ -333,17 +342,17 @@ text = "Right-drag to orbit"
 [node name="RightControls" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 0.5
-offset_left = -280
+offset_left = -357
 anchor_top = 1
-offset_top = -144
+offset_top = -138
 anchor_right = 0.5
-offset_right = 280
+offset_right = 357
 anchor_bottom = 1
-offset_bottom = -95
+offset_bottom = -90
 
 [node name="BuildTools" type="HBoxContainer" parent="UI/RootControl/RightControls"]
 layout_mode = 2
-theme_override_constants/separation = 7
+theme_override_constants/separation = 5
 
 [node name="BtnPlace" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
@@ -352,6 +361,22 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Place"
 tooltip_text = "Place the previewed brick (Enter)"
+
+[node name="BtnBrickColor" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(65, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Color"
+tooltip_text = "Choose the color of the next brick"
+
+[node name="BtnErase" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 42)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Erase"
+tooltip_text = "Remove a brick from the build (X)"
 
 [node name="BtnCancel" type="Button" parent="UI/RootControl/RightControls/BuildTools"]
 unique_name_in_owner = true
@@ -412,13 +437,13 @@ tooltip_text = "Return to the baseplate (B)"
 [node name="BottomPanel" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
 anchor_left = 0.5
-offset_left = -338
+offset_left = -357
 anchor_top = 1
-offset_top = -91
+offset_top = -89
 anchor_right = 0.5
-offset_right = 338
+offset_right = 357
 anchor_bottom = 1
-offset_bottom = -12
+offset_bottom = -10
 
 [node name="BottomHBox" type="HBoxContainer" parent="UI/RootControl/BottomPanel"]
 layout_mode = 2
@@ -445,12 +470,12 @@ theme_override_constants/separation = 6
 
 [node name="LeftDock" type="PanelContainer" parent="UI/RootControl"]
 layout_mode = 1
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 14.0
-offset_top = -61.0
-offset_right = 272.0
-offset_bottom = -12.0
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -281.0
+offset_top = 70.0
+offset_right = -14.0
+offset_bottom = 120.0
 
 [node name="DockActions" type="HBoxContainer" parent="UI/RootControl/LeftDock"]
 layout_mode = 2
@@ -567,13 +592,25 @@ columns = 4
 
 [node name="CatalogDetail" type="VBoxContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody"]
 layout_mode = 2
-custom_minimum_size = Vector2(180, 0)
+custom_minimum_size = Vector2(208, 0)
 theme_override_constants/separation = 8
 
 [node name="CatalogPreview" type="VBoxContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail"]
 layout_mode = 2
 
-[node name="BtnPickPart" type="Button" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail"]
+[node name="CatalogActions" type="HBoxContainer" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="BtnCatalogColor" type="Button" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail/CatalogActions"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(55, 44)
+text = "Color"
+tooltip_text = "Preview and select a brick color"
+
+[node name="BtnPickPart" type="Button" parent="UI/RootControl/CatalogModal/VBox/CatalogBody/CatalogDetail/CatalogActions"]
 layout_mode = 2
 custom_minimum_size = Vector2(0, 44)
+size_flags_horizontal = 3
 text = "Pick this brick"

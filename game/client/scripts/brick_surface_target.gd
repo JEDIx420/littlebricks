@@ -26,21 +26,12 @@ static func resolve(
 	var nearest: float = distance if hit_board else INF
 
 	if manual_layer < 0:
-		for brick in board:
-			var brick_id: String = brick.get("part_id", "")
-			var brick_layer: int = brick.get("layer_plate", 0)
-			var boxes = rules.get_part_aabbs(brick_id, brick.get("grid_x", 0), brick.get("grid_z", 0), brick_layer, brick.get("rotation_step", 0))
-			for box in boxes:
-				var world_box := AABB(box.min_pos + BOARD_ORIGIN, box.max_pos - box.min_pos)
-				var hit = world_box.intersects_ray(from, direction)
-				if hit == null:
-					continue
-				var hit_distance: float = (hit - from).dot(direction) / direction.length_squared()
-				if hit_distance <= 0.0 or hit_distance >= nearest:
-					continue
-				nearest = hit_distance
-				layer = roundi(box.max_pos.y / Rules.PLATE_HEIGHT)
-				point = Vector3(hit.x, BOARD_PLANE + layer * Rules.PLATE_HEIGHT, hit.z)
+		var brick_hit := pick_brick(from, direction, rules, board, nearest)
+		if not brick_hit.is_empty():
+			nearest = brick_hit["distance"]
+			layer = brick_hit["layer"]
+			var surface: Vector3 = brick_hit["position"]
+			point = Vector3(surface.x, BOARD_PLANE + layer * Rules.PLATE_HEIGHT, surface.z)
 
 	if not is_finite(nearest):
 		return {"valid": false}
@@ -49,6 +40,32 @@ static func resolve(
 	if manual_layer < 0:
 		anchor = _stabilize_snap(point, anchor, layer, part_id, dims, rotation_step, rules, board, previous_anchor, previous_layer)
 	return {"valid": true, "grid_pos": anchor, "layer_plate": layer, "hit_pos": point}
+
+## Pick against the same rotated solid volumes used for surface targeting.
+static func pick_brick(from: Vector3, direction: Vector3, rules: Rules, board: Array, max_distance: float = INF) -> Dictionary:
+	var nearest := max_distance
+	var result := {}
+	for brick in board:
+		var boxes := rules.get_part_aabbs(
+			brick.get("part_id", ""), brick.get("grid_x", 0), brick.get("grid_z", 0),
+			brick.get("layer_plate", 0), brick.get("rotation_step", 0)
+		)
+		for box in boxes:
+			var world_box := AABB(box.min_pos + BOARD_ORIGIN, box.max_pos - box.min_pos)
+			var hit = world_box.intersects_ray(from, direction)
+			if hit == null:
+				continue
+			var distance: float = (hit - from).dot(direction) / direction.length_squared()
+			if distance <= 0.0 or distance >= nearest:
+				continue
+			nearest = distance
+			result = {
+				"placement_id": brick.get("placement_id", ""),
+				"distance": distance,
+				"position": hit,
+				"layer": roundi(box.max_pos.y / Rules.PLATE_HEIGHT)
+			}
+	return result
 
 static func _stabilize_snap(
 		point: Vector3, anchor: Vector2i, layer: int, part_id: String, dims: Array,
