@@ -2,6 +2,14 @@
 
 Last updated: **2026-11-14**
 
+## Workshop building tools and room polish
+
+- Solo Free Build and Mixed Bags have a Color tool beside the tray with named swatches and custom hex entry. Free Build also previews the chosen color in Packs before picking a part.
+- Erase targets an individual placed brick. A removal that would leave another brick unsupported is refused. Undo and redo include erasures and survive a save and reload. Construction replay uses the remaining supported build.
+- The HUD groups view, plans and weather and keeps placement tools above the tray. Compact layouts put rotation beside Color and Erase and move manual height adjustments into a popover.
+- Dog movement follows the authored stride with planted paws, eased turns and stool hops, and idle looks. The tabletop sheet and the cushioned corner chair use single visible surfaces to stop depth flicker.
+- Godot 4.6.3 verification includes 40 automated suites, native desktop mouse and phone-sized touch playthroughs, and Day and Rain camera sweeps.
+
 ## Licensed soundtrack and workshop dog
 
 - Six CC0 cues by HoliznaCC0 and The Cynic Project replace the synthesized score. Daytime rotates through three tracks for about five minutes. Menu, rain and night each have their own music. The [source ledger](../game/assets/audio/soundtrack/sources.json) records licenses, hashes and encoding changes.

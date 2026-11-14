@@ -37,6 +37,7 @@ var time_remaining_sec: float = 20.0
 var placements: Array[Dictionary] = []
 var event_journal: Array[Dictionary] = []
 var redo_stack: Array[Dictionary] = []
+var _undo_stack: Array[Dictionary] = []
 var build_revision: int = 1
 var _next_event_seq: int = 1
 
@@ -69,6 +70,8 @@ func setup_session(p_mode: GameMode, player_names: Array[String], p_theme: Strin
 	players.clear()
 	placements.clear()
 	event_journal.clear()
+	_undo_stack.clear()
+	redo_stack.clear()
 	build_revision = 1
 	_next_event_seq = 1
 	
@@ -165,7 +168,7 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 			return false
 			
 		var placement_record = {
-			"placement_id": "pl_%d" % (placements.size() + 1),
+			"placement_id": "pl_%d" % _next_event_seq,
 			"sequence": _next_event_seq,
 			"player_id": player_id,
 			"part_id": part_id,
@@ -175,7 +178,7 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 			"rotation_step": rot_step,
 			"color": col
 		}
-		placements.append(placement_record)
+		_accept_placement(placement_record)
 		_record_event("PLACEMENT_ACCEPTED", placement_record)
 		_clear_all_readiness()
 		placement_accepted.emit(placement_record)
@@ -218,7 +221,7 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 		
 	# Placement accepted!
 	var placement_record = {
-		"placement_id": "pl_%d" % (placements.size() + 1),
+		"placement_id": "pl_%d" % _next_event_seq,
 		"sequence": _next_event_seq,
 		"player_id": player_id,
 		"part_id": part_id,
@@ -228,7 +231,7 @@ func request_placement(player_id: String, hand_slot_idx: int, gx: int, gz: int, 
 		"rotation_step": rot_step,
 		"color": col
 	}
-	placements.append(placement_record)
+	_accept_placement(placement_record)
 	_record_event("PLACEMENT_ACCEPTED", placement_record)
 	
 	# Refill hand slot
@@ -300,85 +303,178 @@ func _advance_turn() -> void:
 	var active_id = get_current_player_id()
 	turn_advanced.emit(active_id, current_player_idx)
 
-## Undo the last placement with dependent-move protection
-func undo_last_placement() -> Dictionary:
-	if placements.is_empty():
-		return {"success": false, "reason": "No placements to undo", "code": "EMPTY"}
-		
-	var last_placement = placements.back()
-	
-	# In cooperative mode, verify no piece has been placed on top of it (dependent move check)
-	var top_z = int(last_placement.get("layer_plate", 0)) + 1
-	for p in placements:
-		if p == last_placement:
-			continue
-		if int(p.get("layer_plate", 0)) >= top_z:
-			# Check if p depends on last_placement
-			var sockets = rules.get_absolute_bottom_sockets(
-				p.get("part_id", ""),
-				p.get("grid_x", 0),
-				p.get("grid_z", 0),
-				p.get("layer_plate", 0),
-				p.get("rotation_step", 0)
-			)
-			var last_studs = rules.get_absolute_top_studs(
-				last_placement.get("part_id", ""),
-				last_placement.get("grid_x", 0),
-				last_placement.get("grid_z", 0),
-				last_placement.get("layer_plate", 0),
-				last_placement.get("rotation_step", 0)
-			)
-			for s in sockets:
-				for ts in last_studs:
-					if s.x == ts.x and s.z == ts.z and s.y == ts.y:
-						return {
-							"success": false,
-							"reason": "Cannot undo: later placement depends on this piece",
-							"code": "DEPENDENT_MOVE_EXISTS"
-						}
-						
-	# Safe to undo
-	placements.pop_back()
-	redo_stack.append(last_placement)
-	
-	_record_event("PLACEMENT_UNDONE", {
-		"placement_id": last_placement.get("placement_id", ""),
-		"part_id": last_placement.get("part_id", ""),
-		"sequence": last_placement.get("sequence", 0)
-	})
-	
-	_clear_all_readiness()
-	return {"success": true, "undone_placement": last_placement}
+func _accept_placement(placement: Dictionary) -> void:
+	if mode != GameMode.ONLINE_ROOM:
+		_undo_stack.append({"kind": "place", "placement": placement, "index": placements.size()})
+		redo_stack.clear()
+	placements.append(placement)
 
-## Redo an undone placement
+## Erase a specific brick during solo building, preserving the rest of the board.
+func erase_placement(placement_id: String) -> Dictionary:
+	if mode != GameMode.SOLO_CREATIVE and mode != GameMode.SOLO_CHALLENGE:
+		return _edit_error("You can erase individual bricks in solo builds.", "SOLO_ONLY")
+	if phase != SessionPhase.BUILDING:
+		return _edit_error("Return to building to erase a brick.", "INVALID_PHASE")
+	var index := _find_placement(placement_id)
+	if index < 0:
+		return _edit_error("That brick is no longer on the plate.", "NOT_FOUND")
+	var action := {"kind": "erase", "placement": placements[index], "index": index}
+	var result := _remove_placement(index, "PLACEMENT_ERASED", "removed_placement")
+	if result["success"]:
+		_undo_stack.append(action)
+		redo_stack.clear()
+	return result
+
+## Undo the most recent edit. A placement is removed and an erase is restored.
+func undo_last_placement() -> Dictionary:
+	if _undo_stack.is_empty():
+		return _edit_error("No actions to undo", "EMPTY")
+	var action: Dictionary = _undo_stack.back()
+	var result: Dictionary
+	if action["kind"] == "erase":
+		result = _restore_placement(action, "PLACEMENT_ERASE_UNDONE", "restored_placement")
+	else:
+		var index := _find_placement(action["placement"].get("placement_id", ""))
+		result = _remove_placement(index, "PLACEMENT_UNDONE", "undone_placement")
+	if result["success"]:
+		_undo_stack.pop_back()
+		redo_stack.append(action)
+	return result
+
+## Redo the next edit in the same order it happened originally.
 func redo_placement() -> Dictionary:
 	if redo_stack.is_empty():
-		return {"success": false, "reason": "No actions to redo", "code": "EMPTY"}
-		
-	var to_redo = redo_stack.pop_back()
-	
-	# Validate move against current board
-	var val_res = rules.validate_placement(
-		to_redo.get("part_id", ""),
-		to_redo.get("grid_x", 0),
-		to_redo.get("grid_z", 0),
-		to_redo.get("layer_plate", 0),
-		to_redo.get("rotation_step", 0),
-		placements
-	)
-	
-	if not val_res.get("valid", false):
-		return {"success": false, "reason": "Cannot redo: position is now invalid", "code": "INVALID_STATE"}
-		
-	placements.append(to_redo)
-	_record_event("PLACEMENT_REDONE", {
-		"placement_id": to_redo.get("placement_id", ""),
-		"part_id": to_redo.get("part_id", ""),
-		"sequence": _next_event_seq
-	})
-	
+		return _edit_error("No actions to redo", "EMPTY")
+	var action: Dictionary = redo_stack.back()
+	var result: Dictionary
+	if action["kind"] == "erase":
+		var index := _find_placement(action["placement"].get("placement_id", ""))
+		result = _remove_placement(index, "PLACEMENT_ERASE_REDONE", "removed_placement")
+	else:
+		result = _restore_placement(action, "PLACEMENT_REDONE", "redone_placement")
+	if result["success"]:
+		redo_stack.pop_back()
+		_undo_stack.append(action)
+	return result
+
+func _find_placement(id: String) -> int:
+	if not id.is_empty():
+		for i in range(placements.size()):
+			if placements[i].get("placement_id", "") == id:
+				return i
+	return -1
+
+func _remove_placement(index: int, event_type: String, result_key: String) -> Dictionary:
+	if index < 0:
+		return _edit_error("That brick is no longer on the plate.", "NOT_FOUND")
+	var placement: Dictionary = placements[index]
+	if _has_dependent_placement(index):
+		return _edit_error("Remove the bricks resting on this one first.", "DEPENDENT_MOVE_EXISTS")
+	placements.remove_at(index)
+	_record_edit_event(event_type, placement)
 	_clear_all_readiness()
-	return {"success": true, "redone_placement": to_redo}
+	return {"success": true, result_key: placement}
+
+func _restore_placement(action: Dictionary, event_type: String, result_key: String) -> Dictionary:
+	var placement: Dictionary = action["placement"]
+	if _find_placement(placement.get("placement_id", "")) >= 0 or not _validate_record(placement, placements):
+		return _edit_error("That brick no longer fits in this spot.", "INVALID_STATE")
+	placements.insert(clampi(int(action["index"]), 0, placements.size()), placement)
+	_record_edit_event(event_type, placement)
+	_clear_all_readiness()
+	return {"success": true, result_key: placement}
+
+func _record_edit_event(event_type: String, placement: Dictionary) -> void:
+	var record := placement.duplicate()
+	record["color_hex"] = (record.get("color", Color.WHITE) as Color).to_html()
+	record.erase("color")
+	_record_event(event_type, record)
+
+func _validate_record(placement: Dictionary, board: Array) -> bool:
+	return rules.validate_placement(
+		placement.get("part_id", ""), placement.get("grid_x", 0), placement.get("grid_z", 0),
+		placement.get("layer_plate", 0), placement.get("rotation_step", 0), board
+	).get("valid", false)
+
+func _top_studs(placement: Dictionary) -> Array[Vector3i]:
+	return rules.get_absolute_top_studs(
+		placement.get("part_id", ""), placement.get("grid_x", 0), placement.get("grid_z", 0),
+		placement.get("layer_plate", 0), placement.get("rotation_step", 0)
+	)
+
+func _bottom_sockets(placement: Dictionary) -> Array[Vector3i]:
+	return rules.get_absolute_bottom_sockets(
+		placement.get("part_id", ""), placement.get("grid_x", 0), placement.get("grid_z", 0),
+		placement.get("layer_plate", 0), placement.get("rotation_step", 0)
+	)
+
+func _has_dependent_placement(removed_index: int) -> bool:
+	var lost_studs := _top_studs(placements[removed_index])
+	if lost_studs.is_empty():
+		return false
+	var remaining_studs: Dictionary = {}
+	for i in range(placements.size()):
+		if i != removed_index:
+			for stud in _top_studs(placements[i]):
+				remaining_studs[stud] = int(remaining_studs.get(stud, 0)) + 1
+	for i in range(placements.size()):
+		if i == removed_index or int(placements[i].get("layer_plate", 0)) == 0:
+			continue
+		var lost_support := false
+		var stays_supported := false
+		var brick_studs := _top_studs(placements[i])
+		for socket in _bottom_sockets(placements[i]):
+			lost_support = lost_support or socket in lost_studs
+			var self_support: int = 1 if socket in brick_studs else 0
+			stays_supported = stays_supported or int(remaining_studs.get(socket, 0)) > self_support
+		if lost_support and not stays_supported:
+			return true
+	return false
+
+func _edit_error(reason: String, code: String) -> Dictionary:
+	return {"success": false, "reason": reason, "code": code}
+
+## Return the final model's bricks in a buildable order for the construction film.
+## A span may now use an alternate support that was added after the span.
+func get_replay_placements() -> Array[Dictionary]:
+	var pending := placements.duplicate()
+	var ordered: Array[Dictionary] = []
+	var supports: Dictionary = {}
+	while not pending.is_empty():
+		var deferred: Array[Dictionary] = []
+		for placement in pending:
+			var anchored: bool = int(placement.get("layer_plate", 0)) == 0
+			if not anchored:
+				for socket in _bottom_sockets(placement):
+					if socket in supports:
+						anchored = true
+						break
+			if anchored:
+				ordered.append(placement)
+				for stud in _top_studs(placement):
+					supports[stud] = true
+			else:
+				deferred.append(placement)
+		if deferred.size() == pending.size():
+			# Older saves may contain placements accepted under earlier rules.
+			ordered.append_array(deferred)
+			break
+		pending = deferred
+	return ordered
+
+func get_edit_history() -> Dictionary:
+	return {"undo": _undo_stack.duplicate(true), "redo": redo_stack.duplicate(true)}
+
+func restore_edit_history(undo: Array[Dictionary], redo: Array[Dictionary]) -> void:
+	_undo_stack.assign(undo)
+	redo_stack.assign(redo)
+
+## Pre-erase saves have no edit history; their surviving bricks can still be undone.
+func seed_placement_history() -> void:
+	_undo_stack.clear()
+	redo_stack.clear()
+	for index in range(placements.size()):
+		_undo_stack.append({"kind": "place", "index": index, "placement": placements[index]})
 
 func _record_event(type: String, data: Dictionary) -> void:
 	var event: Dictionary = {

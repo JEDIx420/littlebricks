@@ -22,6 +22,9 @@ func _check() -> void:
 	var first_table_second := -1.0
 	var did_return := false
 	var stopped_in_air := false
+	var source_drift := 0.0
+	var planted_drift := 0.0
+	var samples := 0
 	for frame in range(180 * 60):
 		dog._process(DELTA)
 		var position := dog.position
@@ -36,6 +39,19 @@ func _check() -> void:
 			if first_table_second < 0.0:
 				first_table_second = frame * DELTA
 		if dog.stage == DOG.Stage.FLOOR:
+			dog._rig.force_update_all_bone_transforms()
+			for paw in dog._leg_indices.size():
+				if not dog._planted[paw] or dog._plant_weight[paw] < 0.9:
+					continue
+				var chain: Vector3i = dog._leg_indices[paw]
+				var source_leg := dog._rig.get_bone_global_pose_no_override(chain.y)
+				var corrected_leg := dog._rig.get_bone_global_pose(chain.y)
+				var source_paw := dog._rig.get_bone_global_pose_no_override(chain.z).origin
+				var corrected_paw := corrected_leg * (source_leg.affine_inverse() * source_paw)
+				var anchor: Vector3 = dog._anchors[paw]
+				source_drift += (dog._rig.global_transform * source_paw).distance_to(anchor)
+				planted_drift += (dog._rig.global_transform * corrected_paw).distance_to(anchor)
+				samples += 1
 			if position.y < -23.001 or position.y > -22.86 or (absf(position.x) < 27.0 and absf(position.z) < 22.0):
 				_fail("Floor route entered the table footprint or departed the floor and rug.")
 				return
@@ -44,7 +60,7 @@ func _check() -> void:
 		if did_return and dog.stage == DOG.Stage.JUMP_UP and position.y > -21.5:
 			dog.set_reduced_motion(true)
 			stopped_in_air = dog.stage == DOG.Stage.FLOOR and is_equal_approx(dog.position.y, -23.0)
-			if not stopped_in_air or dog.is_processing() or animator.is_playing():
+			if not stopped_in_air or dog.is_processing() or animator.is_playing() or not is_zero_approx(dog._model.rotation.x):
 				_fail("Reduced motion must park safely on the floor even when toggled in midair.")
 				return
 			dog.set_reduced_motion(false)
@@ -62,6 +78,10 @@ func _check() -> void:
 	if first_table_second < 23.0 or first_table_second > 57.0:
 		_fail("Expected the first visit during a normal first minute in the workshop.")
 		return
+	if samples < 150 or planted_drift / source_drift > 0.30:
+		_fail("Planted paws must move less than 30% of source gait drift across the floor route.")
+		return
+	print("PASS: Mean planted paw drift %.3f vs %.3f source across %d stance samples." % [planted_drift / samples, source_drift / samples, samples])
 	print("PASS: Workshop dog roams, gallops, climbs at %.1fs, traverses the clear table strip, returns, and can park mid-jump." % first_table_second)
 	world.queue_free()
 	quit(0)
