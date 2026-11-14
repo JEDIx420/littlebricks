@@ -1,3 +1,4 @@
+import argparse
 import os
 import math
 import wave
@@ -6,11 +7,8 @@ import random
 import subprocess
 import tempfile
 
-import numpy as np
-
 SAMPLE_RATE = 44100
 OUT_DIR = "game/assets/audio"
-os.makedirs(OUT_DIR, exist_ok=True)
 
 def write_wav(filename, samples, sample_rate=SAMPLE_RATE, channels=1):
     path = os.path.join(OUT_DIR, filename)
@@ -209,6 +207,8 @@ NIGHT = (
 
 
 def write_chip_score(filename, chart, tempo, groove, ambient=False, playlist=False):
+    import numpy as np
+
     """Render band-limited pulse, triangle bass and clocked percussion to stereo."""
     rate = 32000
     beat_seconds = 60.0 / tempo
@@ -331,16 +331,39 @@ def write_chip_score(filename, chart, tempo, groove, ambient=False, playlist=Fal
     print(f"Generated {filename}: {frame_count / rate:.2f}s stereo")
 
 
-if __name__ == "__main__":
+def main():
+    parser = argparse.ArgumentParser(description="Regenerate the original LittleBricks brick sounds.")
+    parser.add_argument(
+        "--legacy-score",
+        metavar="DIRECTORY",
+        help="Render the retired original score to a separate directory instead of generating sound effects.",
+    )
+    args = parser.parse_args()
+    global OUT_DIR
+    if args.legacy_score:
+        output = os.path.realpath(args.legacy_score)
+        asset_dir = os.path.realpath(OUT_DIR)
+        if os.path.commonpath([asset_dir, output]) == asset_dir:
+            parser.error("the legacy score must be rendered outside game/assets/audio")
+        OUT_DIR = output
+
+    os.makedirs(OUT_DIR, exist_ok=True)
     random.seed(42)
+    if args.legacy_score:
+        write_chip_score("music_menu.ogg", OPENING, tempo=138, groove=0)
+        write_chip_score("music_building.ogg", TABLE, tempo=132, groove=0, playlist=True)
+        write_chip_score("music_brick_box.ogg", BRICK_BOX, tempo=146, groove=1, playlist=True)
+        write_chip_score("music_tinker.ogg", TINKER, tempo=124, groove=2, playlist=True)
+        write_chip_score("music_rain.ogg", RAIN, tempo=79, groove=0, ambient=True)
+        write_chip_score("music_night.ogg", NIGHT, tempo=70, groove=0, ambient=True)
+        return
+
     make_click_place()
     make_pickup()
     make_rotate()
     make_reject()
     make_chime()
-    write_chip_score("music_menu.ogg", OPENING, tempo=138, groove=0)
-    write_chip_score("music_building.ogg", TABLE, tempo=132, groove=0, playlist=True)
-    write_chip_score("music_brick_box.ogg", BRICK_BOX, tempo=146, groove=1, playlist=True)
-    write_chip_score("music_tinker.ogg", TINKER, tempo=124, groove=2, playlist=True)
-    write_chip_score("music_rain.ogg", RAIN, tempo=79, groove=0, ambient=True)
-    write_chip_score("music_night.ogg", NIGHT, tempo=70, groove=0, ambient=True)
+
+
+if __name__ == "__main__":
+    main()

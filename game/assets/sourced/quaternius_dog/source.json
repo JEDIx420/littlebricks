@@ -7,9 +7,9 @@
   "source_pack": "https://quaternius.com/packs/ultimateanimatedanimals.html",
   "source_glb": "https://static.poly.pizza/ba6d0ee3-bcc0-4ef0-9d3c-a3e245b41c77.glb",
   "source_sha256": "9cbd4f1e12f85024126eab6a2c5706c099196df1a10db74e6c8b67bac3fff54a",
-  "runtime_sha256": "1cc05fc0773eb3e934d40dcedbcc0e606bdbac065ae855e6ac51a9ffe8483cdc",
+  "runtime_sha256": "a72cb4b47f664675d504c1b914ef04c311ea519004c8af81a70064a8b7f5eb3b",
   "changes": [
-    "Keep Idle, Idle_2_HeadLow, Walk, and Gallop; remove unused animation buffers.",
+    "Keep Idle, Idle_2_HeadLow, Walk, Gallop, Gallop_Jump, and Jump_ToIdle; remove unused animation buffers.",
     "Tune the matte coat palette. Original mesh, skeleton and retained animation curves remain intact."
   ]
 }

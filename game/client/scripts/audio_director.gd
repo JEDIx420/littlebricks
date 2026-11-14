@@ -1,7 +1,7 @@
 extends Node
 class_name AudioDirector
 
-## AudioDirector manages the original score and interactive brick sounds.
+## AudioDirector manages the licensed soundtrack and interactive brick sounds.
 ## Provides bus routing, deduplication, voice pooling, single-gain mix path,
 ## seamless looping, smooth crossfades, ducking, focus change handling, and web audio unlock (LB-062).
 
@@ -11,12 +11,12 @@ const SOUNDS = {
 	"rotate": preload("res://assets/audio/rotate.wav"),
 	"reject": preload("res://assets/audio/reject.wav"),
 	"chime": preload("res://assets/audio/chime.wav"),
-	"music_menu": preload("res://assets/audio/music_menu.ogg"),
-	"music_building": preload("res://assets/audio/music_building.ogg"),
-	"music_brick_box": preload("res://assets/audio/music_brick_box.ogg"),
-	"music_tinker": preload("res://assets/audio/music_tinker.ogg"),
-	"music_rain": preload("res://assets/audio/music_rain.ogg"),
-	"music_night": preload("res://assets/audio/music_night.ogg"),
+	"music_menu": preload("res://assets/audio/soundtrack/quiet-village-1.ogg"),
+	"music_building": preload("res://assets/audio/soundtrack/town-theme-rpg.ogg"),
+	"music_brick_box": preload("res://assets/audio/soundtrack/quiet-village-4.ogg"),
+	"music_tinker": preload("res://assets/audio/soundtrack/a-new-town-rpg-theme.ogg"),
+	"music_rain": preload("res://assets/audio/soundtrack/quiet-village-3.ogg"),
+	"music_night": preload("res://assets/audio/soundtrack/drifting-piano.ogg"),
 }
 const WORKSHOP_PLAYLIST: Array[String] = ["music_building", "music_brick_box", "music_tinker"]
 const WEATHER_CROSSFADE_SECONDS := 3.5
